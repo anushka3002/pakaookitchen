@@ -11,6 +11,7 @@ import LoginOTP from './src/screens/Onboarding/LoginOTP';
 import CreateAccount from './src/screens/Onboarding/CreateAccount';
 import AddKitchen from './src/screens/Onboarding/AddKitchen';
 import Dashboard from './src/screens/Home/Dashboard';
+import { Text, View, Image } from 'react-native';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,6 +35,40 @@ export default function App() {
   return (
     <NavigationContainer>
       <RootStack />
+      <View
+      style={{
+        borderRadius: '15px',
+        backgroundColor: '#FFF',
+        boxShadow: '0 -1px 15px rgba(0, 0, 0, 0.25)',
+      }}
+       className='flex-row justify-between bg-white py-5 px-4'>
+        <View className='items-start flex-row items-center'>
+          <Image
+          source={require('./src/assets/home-active.png')}
+          style={{width:26,height:26}}
+          />
+          <Text className='txt-blue text-[16px] ml-3'>Home</Text>
+        </View>
+        <View className='items-start'>
+          <Image
+          source={require('./src/assets/order-black.png')}
+          style={{width:35,height:25}}
+          className='my-auto'
+          />
+        </View>
+        <View className='items-center'>
+          <Image
+          source={require('./src/assets/invoice-black.png')}
+          style={{width:23,height:23}}
+          />
+        </View>
+        <View className='items-center'>
+          <Image
+          source={require('./src/assets/profile-black.png')}
+          style={{width:28,height:28}}
+          />
+        </View>
+      </View>
     </NavigationContainer>
   );
 }

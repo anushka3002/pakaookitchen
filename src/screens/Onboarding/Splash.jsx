@@ -14,6 +14,7 @@ const Splash = ({ navigation }) => {
       source={require('../../assets/SplashBg.png')} 
       style={styles.background}
       resizeMode="cover"
+      className='bg-white'
     >
       <View style={styles.logoContainer}>
         <Image
