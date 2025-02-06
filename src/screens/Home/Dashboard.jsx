@@ -3,6 +3,8 @@ import React, { useRef } from 'react'
 import ViewPlanIcon from '../../assets/view-plan.png';
 import AddMenuIcon from '../../assets/add-menu.png';
 import AddWeeklyComboIcon from '../../assets/weekly-combo.png';
+import messaging from '@react-native-firebase/messaging';
+
 
 const { width } = Dimensions.get("window"); 
 const SLIDER_WIDTH = width * 0.9;
@@ -44,6 +46,20 @@ const Dashboard = () => {
     { icon: AddMenuIcon, title: 'Add Menu', subtitle: 'Various versions have evolved over', plan: false },
     { icon: AddWeeklyComboIcon, title: 'Add Weekly Combo', subtitle: 'Various versions have evolved over', plan: false },
   ]
+
+
+  async function getFCMToken() {
+    try {
+        const token = await messaging().getToken();
+        console.log(token)
+    } catch (error) {
+        console.error('Error getting FCM token:', error);
+    }
+}
+
+useEffect(() => {
+  getFCMToken()
+}, [])
 
   return (
     <ScrollView className='bg-white'>
