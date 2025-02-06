@@ -564,7 +564,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#D6D6D6",
     borderStyle: "dashed",
-    borderRadius: Platform.OS === 'ios' ? 8 : 0, // Fix for Android
+    borderRadius: Platform.OS === 'ios' ? 8 : 0, 
   }
 })
 

@@ -84,7 +84,7 @@ const LoginOTP = ({navigation}) => {
             onKeyPress={(e) => handleKeyPress(e, index)}
             keyboardType="numeric"
             maxLength={1}
-            className='w-[46px] h-[46px] rounded-lg border-2 mx-2 border-[#D6D6D6] rounded-lg text-center text-lg font-semibold text-black focus:border-blue-500'
+            className='w-[46px] h-[46px] rounded-xl border-2 mx-2 border-[#D6D6D6] rounded-lg text-center text-lg font-semibold text-black focus:border-blue-500'
           />
         ))}
       </View>

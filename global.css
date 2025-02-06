@@ -10,6 +10,14 @@
     color: #2650D8
 }
 
+.txt-grey {
+    color: #7B7B7B
+}
+
+.txt-grey-200 {
+    color: #B3B3B3
+}
+
 .nav-bg {
     background-color: rgba(38, 80, 216, 0.06);
     filter: blur(2px);

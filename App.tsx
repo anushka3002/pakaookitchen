@@ -35,7 +35,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <RootStack />
-      <View
+      {/* <View
       style={{
         borderRadius: '15px',
         backgroundColor: '#FFF',
@@ -68,7 +68,7 @@ export default function App() {
           style={{width:28,height:28}}
           />
         </View>
-      </View>
+      </View> */}
     </NavigationContainer>
   );
 }

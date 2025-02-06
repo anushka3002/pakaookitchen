@@ -2,7 +2,7 @@ import { View, Text, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { useNavigation } from '@react-navigation/native';
 
-const Navbar = () => {
+const Navbar = ({screen}) => {
 
   const navigation = useNavigation();
 
@@ -14,7 +14,7 @@ const Navbar = () => {
         />
     </TouchableOpacity>
     <Text className="flex-1 text-center right-4 text-[21px] font-bold text-black">
-      Add Kitchen
+      {screen}
     </Text>
   </View>
 

@@ -1,11 +1,23 @@
 import { View, StyleSheet, Image, ImageBackground } from 'react-native';
 import React, { useEffect } from 'react';
+import appCheck from '@react-native-firebase/app-check';
 
 const Splash = ({ navigation }) => {
 
+   async function getAppCheckToken() {
+      try {
+        const token = await appCheck().getToken();
+        console.log('App Check Token:', token);
+        return token;
+      } catch (error) {
+        console.error('Error getting App Check token:', error);
+      }
+    }
+
   useEffect(() => {
+    getAppCheckToken()
     setTimeout(() => {
-      navigation.navigate('Dashboard');
+      navigation.navigate('Login');
     }, 3000);
   }, []);
 
