@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "537506784071",
+    "project_id": "pakaoo-v2-dev",
+    "storage_bucket": "pakaoo-v2-dev.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:537506784071:android:632360c9e6dc4a967de262",
+        "android_client_info": {
+          "package_name": "com.pakaookitchen"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArkl4pzcG-ygpq9nBiuTnPhgqACsgrRR4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:537506784071:android:d80d1146fa9b6b297de262",
+        "android_client_info": {
+          "package_name": "com.riderapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArkl4pzcG-ygpq9nBiuTnPhgqACsgrRR4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:537506784071:android:b0072d74598c65e17de262",
+        "android_client_info": {
+          "package_name": "pakaoov2.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArkl4pzcG-ygpq9nBiuTnPhgqACsgrRR4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

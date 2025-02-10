@@ -1,8 +1,16 @@
 import { View, ScrollView, Dimensions, Animated, PanResponder, Image, Text, StyleSheet, ImageBackground } from 'react-native'
-import React, { useRef } from 'react'
-import ViewPlanIcon from '../../assets/view-plan.png';
-import AddMenuIcon from '../../assets/add-menu.png';
-import AddWeeklyComboIcon from '../../assets/weekly-combo.png';
+import React, { useRef, useEffect } from 'react'
+import Notification from '../../assets/Bell.svg';
+import Location from '../../assets/location.svg';
+import OrderBlue from '../../assets/order-blue.svg';
+import Withdraw from '../../assets/withdraw.svg';
+import Success from '../../assets/success.svg';
+import Cancelled from '../../assets/cancelled.svg';
+import ViewPlan from '../../assets/view-plan.svg';
+import AddMenu from '../../assets/add-menu.svg';
+import WeeklyCombo from '../../assets/weekly-combo.svg';
+import NextArrow from '../../assets/next-arrow.svg';
+import Dummy from '../../assets/dummy.svg';
 
 const { width } = Dimensions.get("window"); 
 const SLIDER_WIDTH = width * 0.9;
@@ -40,9 +48,9 @@ const Dashboard = () => {
   ).current;
 
   const business = [
-    { icon: ViewPlanIcon, title: 'View Plan', subtitle: 'You can add upto 2 plans only', plan: true },
-    { icon: AddMenuIcon, title: 'Add Menu', subtitle: 'Various versions have evolved over', plan: false },
-    { icon: AddWeeklyComboIcon, title: 'Add Weekly Combo', subtitle: 'Various versions have evolved over', plan: false },
+    { icon: <ViewPlan/>, title: 'View Plan', subtitle: 'You can add upto 2 plans only', plan: true },
+    { icon: <AddMenu/>, title: 'Add Menu', subtitle: 'Various versions have evolved over', plan: false },
+    { icon: <WeeklyCombo/>, title: 'Add Weekly Combo', subtitle: 'Various versions have evolved over', plan: false },
   ]
 
   return (
@@ -56,17 +64,10 @@ const Dashboard = () => {
           <View className='flex-row justify-between items-center mx-4 mt-6'>
             <View>
               <View className='flex-row justify-center items-center'>
-                <Image
-                  source={require('../../assets/dummy.png')}
-                  width={'20px'}
-                  height={'20px'}
-                />
-
+                <Dummy/>
                 <View style={{ marginLeft: 13 }}>
                   <View className='flex-row justify-center items-center'>
-                    <Image
-                      source={require('../../assets/location.png')}
-                    />
+                    <Location/>
                     <Text className='text-white ml-2 text-[13px] font-semibold'>No 4, prema mandir, Kodihalli..</Text>
                   </View>
                   <View className='flex-row items-center'>
@@ -84,9 +85,10 @@ const Dashboard = () => {
               </View>
             </View>
             <View className='relative'>
-              <Image
+              {/* <Image
                 source={require('../../assets/notification.png')}
-              />
+              /> */}
+              <Notification/>
               <Image
                 className='absolute left-4'
                 style={{ left: 12 }}
@@ -105,10 +107,11 @@ const Dashboard = () => {
           </View>
 
           <View style={styles.whiteBtn} className='flex-row bg-white items-center mx-auto px-9 py-4 rounded-xl mt-5'>
-            <Image
+            {/* <Image
               source={require('../../assets/order-blue.png')}
               style={{ width: 42, height: 42 }}
-            />
+            /> */}
+            <OrderBlue/>
             <View className='ml-3'>
               <Text className='text-[18px] font-semibold'>Orders</Text>
               <Text style={{ color: '#7B7B7B' }} className='text-[16px] font-medium'>150 Total Order</Text>
@@ -124,7 +127,8 @@ const Dashboard = () => {
                 {...panResponder.panHandlers}
                 style={[styles.circle, { transform: [{ translateX }] }]}
               >
-                <Image source={require("../../assets/withdraw.png")} style={styles.icon} />
+                {/* <Image source={require("../../assets/withdraw.png")} style={styles.icon} /> */}
+                <Withdraw/>
               </Animated.View>
               <Text style={styles.text}>Withdrawal</Text>
             </View>
@@ -132,37 +136,25 @@ const Dashboard = () => {
         </View>
         <Text className='text-[21px] font-bold mt-2'>Order Statistics</Text>
         <View style={{ gap: 20 }} className='flex-row mt-3'>
-          {['Success Orders', 'Cancelled'].map((e) => {
-            return <View className='items-center flex-1 py-4' style={styles.whiteBtn}>
-              {e == 'Success Orders' ? <Image
-                source={require('../../assets/success.png')}
-                style={{ width: 41, height: 41 }}
-              /> : <Image
-                source={require('../../assets/cancelled.png')}
-                style={{ width: 41, height: 40 }}
-              />}
+          {['Success Orders', 'Cancelled'].map((e,ind) => {
+            return <View key={ind} className='items-center flex-1 py-4' style={styles.whiteBtn}>
+              {e == 'Success Orders' ? <Success/> : <Cancelled/>}
               <Text style={{ color: '#000000' }} className='text-[30px] font-bold mt-2'>{e == 'Success Orders' ? 110 : '05'}</Text>
               <Text style={{ color: '#7B7B7B' }} className='text-[16px] font-medium'>{e == 'Success Orders' ? 'Success Orders' : 'Cancelled'}</Text>
             </View>
           })}
         </View>
         <Text className='text-[21px] font-bold mt-3 mb-3'>Grow Your Business</Text>
-        {business.map((elm) => {
-          return <View key={elm} style={styles.whiteBtn} className='relative flex-row mb-5 px-3 py-3 justify-between items-center'>
+        {business.map((elm,ind) => {
+          return <View key={ind} style={styles.whiteBtn} className='relative flex-row mb-5 px-3 py-3 justify-between items-center'>
             <View className='flex-row items-center'>
-              <Image
-                source={elm.icon}
-                style={{ width: 30, height: 30 }}
-              />
+              {elm.icon}
               <View className='ml-2'>
                 <Text className='text-[17px] font-bold'>{elm.title}</Text>
                 <Text style={{ color: '#7B7B7B' }} className='text-[14px]'>{elm.subtitle}</Text>
               </View>
             </View>
-            <Image
-              source={require('../../assets/next-arrow.png')}
-              style={{ width: 24, height: 24 }}
-            />
+            <NextArrow/>
             {elm.plan && <View className='absolute' style={{ backgroundColor: '#008000', top:0, right: 40, borderBottomRightRadius: 20, borderBottomLeftRadius: 20 }}>
               <Text className='text-white text-[12px] font-medium px-3 py-2'>2 Plan Active</Text></View>}
           </View>
