@@ -2,13 +2,21 @@ import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
 import {tw} from 'nativewind'
+import { useDispatch, useSelector } from 'react-redux';
+import { login } from '../../reducers/authSlice';
+import Otp from '../../assets/otp.svg';
+import LeftImg from '../../assets/left-img.svg';
+import RightImg from '../../assets/right-img.svg';
+import { getCategory } from '../../reducers/kitchenSlice';
 
-const LoginOTP = ({navigation}) => {
+const LoginOTP = ({navigation,route}) => {
 
+  const {user} = useSelector(state => state.user)
   const [otp, setOtp] = useState(new Array(6).fill(""));
   const [timer, setTimer] = useState(60);
   const inputRefs = useRef([]);
-  let phoneNumber = "+919845673489"
+  const {phone} = route.params;
+  let phoneNumber = `+91${phone}`
   let maskedPhoneNumber = phoneNumber.replace(/(\d{8})(\d{3})$/, '$1***');
 
   useEffect(() => {
@@ -46,26 +54,29 @@ const LoginOTP = ({navigation}) => {
     setTimer(60);
     setOtp(new Array(6).fill("")); 
     inputRefs.current[0].focus();
-    console.log("Resend OTP");
   };
+  const dispatch = useDispatch()
+
+  const handleLogin = () => {
+    const userData = {
+      "phone" : phone,
+      "otp" : Number(otp.join(''))
+    }
+    dispatch(login(userData))
+    dispatch(getCategory())
+    navigation.navigate("AddKitchen")
+  }
+
+
 
   return (
     <View className='justify-center'>
         <View className='flex flex-row justify-between'>
-        <Image
-         source={require('../../assets/left-img.png')}
-          className='h-[106px] w-[114px]'
-        />
-        <Image
-         source={require('../../assets/right-img.png')}
-          className='h-[106px] w-[114px]'
-        />
+        <LeftImg/>
+        <RightImg/>
         </View>
       <View className='items-center mt-3'>
-        <Image
-         source={require('../../assets/pakaooLogo.png')}
-          className='h-[106px] w-[114px]'
-        />
+        <Otp/>
       </View>
 
       <View className='items-center mt-4 mb-8'>
@@ -106,9 +117,7 @@ const LoginOTP = ({navigation}) => {
         {timer > 0 ? `0:${timer < 10 ? `0${timer}` : timer} Sec left` : ""}
       </Text>}
       <TouchableOpacity
-        onPress={() => {
-          navigation.navigate("CreateAccount")
-        }}
+        onPress={handleLogin}
         className='mx-4 btn-color py-4 rounded-lg'
       >
         <Text className='text-white text-center text-[18px] font-medium'>Submit</Text>

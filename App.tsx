@@ -12,6 +12,8 @@ import CreateAccount from './src/screens/Onboarding/CreateAccount';
 import AddKitchen from './src/screens/Onboarding/AddKitchen';
 import Dashboard from './src/screens/Home/Dashboard';
 import { Text, View, Image } from 'react-native';
+import { Provider } from 'react-redux';
+import { store } from './store';
 
 const Stack = createNativeStackNavigator();
 
@@ -33,9 +35,10 @@ function RootStack() {
 
 export default function App() {
   return (
+    <Provider store={store}>
     <NavigationContainer>
       <RootStack />
-      <View
+      {/* <View
       style={{
         borderRadius: '15px',
         backgroundColor: '#FFF',
@@ -68,7 +71,8 @@ export default function App() {
           style={{width:28,height:28}}
           />
         </View>
-      </View>
+      </View> */}
     </NavigationContainer>
+    </Provider>
   );
 }

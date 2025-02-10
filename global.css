@@ -6,6 +6,10 @@
     background-color: #2650D8;
 }
 
+.btn-disabled {
+    background-color: #babdca;
+}
+
 .txt-blue {
     color: #2650D8
 }

@@ -1,17 +1,34 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, 
-ScrollView, Image, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+    View, Text, TextInput, TouchableOpacity,
+    ScrollView, Image, StyleSheet
+} from 'react-native';
 import Navbar from '../Components/Navbar';
+import Veg from '../../assets/veg.svg';
+import NonVeg from '../../assets/non-veg.svg';
+import Both from '../../assets/both.svg';
+import Search from '../../assets/search.svg';
+import Cross from '../../assets/cross.svg';
+import Clock from '../../assets/clock.svg';
+import { useDispatch, useSelector } from 'react-redux';
+import { addKitchenData, getCategory, getFoodStyle } from '../../reducers/kitchenSlice';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const AddKitchen = ({ navigation }) => {
-    const [selectedMealCategory, setSelectedMealCategory] = useState('South Indian');
-    const [selectedCuisine, setSelectedCuisine] = useState('Veg');
-    const [selectedMealTimes, setSelectedMealTimes] = useState(['Breakfast']);
-    const [foodStyle, setFoodStyle] = useState('')
+
+    const [selectedMealCategory, setSelectedMealCategory] = useState(1);
+    const [selectedCuisine, setSelectedCuisine] = useState('veg');
+    const [selectedMealTimes, setSelectedMealTimes] = useState(['breakfast']);
+    const [foodStyleText, setFoodStyleText] = useState('')
+    const { categoryData, foodStyle } = useSelector((state) => state?.kitchenData)
     const [foodSet, setFoodSet] = useState([])
     const [day, setDay] = useState(0)
-
-    const food = ['Punjabi', 'Pulao']
+    const [time, setTime] = useState(new Date());
+    const [show, setShow] = useState('');
+    const [breakfastDeliveryTime, setBreakfastDeliveryTime] = useState('')
+    const [lunchDeliveryTime, setLunchDeliveryTime] = useState('')
+    const [dinnerDeliveryTime, setDinnerDeliveryTime] = useState('')
+    const dispatch = useDispatch();
 
     const toggleMealTime = (mealTime) => {
         setSelectedMealTimes((prev) =>
@@ -21,6 +38,55 @@ const AddKitchen = ({ navigation }) => {
         );
     };
 
+    function formatTimestampToTime(timestamp, meal) {
+        const date = new Date(timestamp);
+        const formattedTime = date.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true
+        })
+        if (meal == 'breakfast') {
+            setBreakfastDeliveryTime(formattedTime)
+        } else if (meal == 'lunch') {
+            setLunchDeliveryTime(formattedTime)
+        } else {
+            setDinnerDeliveryTime(formattedTime)
+        }
+    }
+
+    const onChange = (event, selectedTime, meal) => {
+        setShow(Platform.OS === "ios");
+        if (event.nativeEvent.timestamp) {
+            setTime(selectedTime)
+            formatTimestampToTime(event.nativeEvent.timestamp, meal)
+        }
+    };
+
+    const handleFoodStyle = (text) => {
+        setFoodStyleText(text)
+        if (text.length > 2) {
+            dispatch(getFoodStyle(text))
+        }
+    }
+
+    useEffect(() => {
+        dispatch(getCategory())
+    }, [dispatch])
+
+    const handleSubmit = () => {
+        const data = {
+            "categoryId": selectedMealCategory,
+            "cuisineCategory": selectedCuisine,
+            "foodStyle": 1,
+            "servingDays": day,
+            "mealTime": selectedMealTimes,
+            "breakfastDeliveryTime": breakfastDeliveryTime,
+            "lunchDeliveryTime": lunchDeliveryTime,
+            "dinnerDeliveryTime": dinnerDeliveryTime
+        }
+        dispatch(addKitchenData(data))
+    }
+
     return (
         <>
             <Navbar screen={'Add Kitchen'} />
@@ -28,52 +94,47 @@ const AddKitchen = ({ navigation }) => {
                 {/* Meal Category */}
                 <Text className="text-[18px] font-semibold mb-2">Meal Category <Text className='text-red-500'>*</Text></Text>
                 <View className="flex-row justify-between mb-4 w-full">
-                    <TouchableOpacity
-                        style={[selectedMealCategory == 'North Indian' ? styles.whiteBtn : '', { width: '47%' }]}
-                        className={`mr-2 py-3 text-[16px] font-medium rounded-xl ${selectedMealCategory === 'South Indian' ? 'btn-color' : 'white-btn'
-                            }`}
-                        onPress={() => setSelectedMealCategory('South Indian')}
-                    >
-                        <Text
-                            className={`text-center font-medium ${selectedMealCategory === 'South Indian' ? 'text-white' : 'text-black'
-                                }`}
-                        >
-                            South Indian
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[selectedMealCategory == 'North Indian' ? '' : styles.whiteBtn, { width: '47%' }]}
-                        className={` ml-2 text-[16px] font-medium py-3 rounded-lg ${selectedMealCategory === 'North Indian' ? 'btn-color' : ''
-                            }`}
-                        onPress={() => setSelectedMealCategory('North Indian')}
-                    >
-                        <Text
-                            className={`text-center font-medium ${selectedMealCategory === 'North Indian' ? 'text-white' : 'text-black'
-                                }`}
-                        >
-                            North Indian
-                        </Text>
-                    </TouchableOpacity>
+                    {categoryData?.data?.data?.map((e, ind) => {
+                        return (
+                            <TouchableOpacity key={ind}
+                                style={[selectedMealCategory == e.id ? '' : styles.whiteBtn, { width: '47%' }]}
+                                className={`mr-2 py-3 text-[16px] font-medium rounded-xl ${selectedMealCategory === e.id ? 'btn-color' : 'white-btn'
+                                    }`}
+                                onPress={() => setSelectedMealCategory(e.id)}
+                            >
+                                <Text
+                                    className={`text-center font-medium ${selectedMealCategory === e.id ? 'text-white' : 'text-black'
+                                        }`}
+                                >
+                                    {e.name}
+                                </Text>
+                            </TouchableOpacity>
+                        )
+                    })}
                 </View>
 
                 {/* Cuisine Category */}
-                <Text className="text-[18px] font-semibold mb-2">Cuisine Category <Text className='text-red-500'>*</Text></Text>                <View className="flex-row space-x-4 mb-4">
-                    {['Veg', 'Non Veg', 'Both'].map((item, index) => (
+                <Text className="text-[18px] font-semibold mb-2">Cuisine Category <Text className='text-red-500'>*</Text></Text>
+                <View className="flex-row space-x-4 mb-4">
+                    {['veg', 'nveg', 'both'].map((item, index) => (
                         <View key={index} className="flex-1 items-center">
                             <View style={{ height: 84, width: 89, justifyContent: 'center', alignItems: 'center' }}>
                                 <TouchableOpacity
-                                    style={[selectedCuisine === item ? styles.blueBorder : styles.whiteBtn, { height: 84, width: 100, justifyContent: 'center', alignItems: 'center' }]}
+                                    style={[selectedCuisine === item ? styles.blueBorder : styles.whiteBtn, {
+                                        height: 84, width: 100, justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }]}
                                     className={`items-center rounded-xl ${selectedCuisine === item ? 'bg-white' : ''}`}
                                     onPress={() => setSelectedCuisine(item)}
                                 >
-                                    {item === 'Veg' && <Image source={require('../../assets/veg.png')} style={{ width: 50, height: 50 }} />}
-                                    {item === 'Non Veg' && <Image source={require('../../assets/non-veg.png')} style={{ width: 50, height: 50 }} />}
-                                    {item === 'Both' && <Image source={require('../../assets/both.png')} style={{ width: 80, height: 50 }} />}
+                                    {item === 'veg' && <Veg />}
+                                    {item === 'nveg' && <NonVeg />}
+                                    {item === 'both' && <Both />}
                                 </TouchableOpacity>
                             </View>
 
                             <Text style={{ color: '#7B7B7B', fontSize: 12, marginTop: 5 }} className="text-[16px] font-medium text-center">
-                                {item}
+                                {item === 'veg' ? 'Veg' : item === 'nveg' ? 'Non Veg' : 'Both'}
                             </Text>
                         </View>
                     ))}
@@ -87,43 +148,37 @@ const AddKitchen = ({ navigation }) => {
                         borderColor: '#D6D6D6',
                         borderRadius: 8,
                         gap: 6
-                    }} className="flex-row items-center rounded-xl px-4 py-3 bg-white">
-                        {foodSet?.length > 0 && foodSet?.map((item) => (
-                            <TouchableOpacity onPress={() => setFoodSet(foodSet.filter((el) => el != item))}>
+                    }} className="flex-row items-center rounded-xl px-4 py-2 bg-white">
+                        {foodSet?.length > 0 && foodSet?.map((item, ind) => (
+                            <TouchableOpacity key={ind} onPress={() => setFoodSet(foodSet.filter((el) => el != item))}>
                                 <View style={[styles.whiteBtn]} className='flex-row bg-white px-4 py-3 rounded-xl'>
                                     <Text>{item}</Text>
-                                    <Image
-                                        style={{ marginLeft: 8, marginTop: 6 }}
-                                        source={require('../../assets/cross.png')}
-                                    />
+                                    <Cross style={{ marginLeft: 8, marginTop: 6 }} />
                                 </View>
                             </TouchableOpacity>
                         ))}
                         <TextInput
-                            onChangeText={(text) => setFoodStyle(text)}
+                            onChangeText={handleFoodStyle}
                             placeholder="Punjabi"
                             className="flex-1 text-black"
-                            value={foodStyle}
+                            value={foodStyleText}
                         />
-                        <Image
-                            source={require('../../assets/search.png')}
-                            className="w-5 h-5"
-                        />
+                        <Search />
                     </View>
 
-                    {foodStyle?.length > 1 && <View
+                    {foodStyleText?.length > 1 && <View
                         className="absolute left-0 right-0 mt-2 w-full border bg-white rounded-lg shadow-lg"
                         style={{
-                            top: '0%', backgroundColor: 'white', zIndex: 10, borderWidth: 1,
+                            top: '100%', backgroundColor: 'white', zIndex: 10, borderWidth: 1,
                             borderColor: '#D6D6D6',
                         }}
                     >
-                        {food?.map((e) => (
-                            <TouchableOpacity style={{
+                        {foodStyle?.data?.data?.map((e, ind) => (
+                            <TouchableOpacity key={ind} style={{
                                 borderBottomWidth: 1,
                                 borderBottomColor: '#D6D6D6',
-                            }} onPress={() => !foodSet.includes(e) && setFoodSet([...foodSet, e])}>
-                                <Text className="px-4 py-3 text-black">{e}</Text>
+                            }} onPress={() => !foodSet.includes(e) && setFoodSet([...foodSet, e.cuisine_name])}>
+                                <Text className="px-4 py-3 text-black">{e.cuisine_name}</Text>
                             </TouchableOpacity>
                         ))}
                     </View>}
@@ -169,7 +224,7 @@ const AddKitchen = ({ navigation }) => {
                 {/* Meal Times */}
                 <Text className="text-[18px] font-semibold mb-2">Meal Times <Text className='text-red-500'>*</Text></Text>
                 <View style={{ gap: 20 }} className="flex-row mb-4">
-                    {['Breakfast', 'Dinner', 'Lunch'].map((item, index) => (
+                    {['breakfast', 'lunch', 'dinner'].map((item, index) => (
                         <TouchableOpacity
                             key={index}
                             style={[selectedMealTimes.includes(item) ? '' : styles.whiteBtn]}
@@ -181,16 +236,16 @@ const AddKitchen = ({ navigation }) => {
                                 className={`text-center text-[16px] font-medium ${selectedMealTimes.includes(item) ? 'text-white' : 'text-black'
                                     }`}
                             >
-                                {item}
+                                {item == 'breakfast' ? 'Breakfast' : item == 'dinner' ? 'Dinner' : 'Lunch'}
                             </Text>
                         </TouchableOpacity>
                     ))}
                 </View>
 
                 {/* Time Inputs */}
-                {['Breakfast', 'Dinner', 'Lunch'].map((meal, index) => (
+                {selectedMealTimes.map((meal, index) => (
                     <View key={index} className="mb-4">
-                        <Text className="text-[18px] font-semibold mb-2">{meal} Time</Text>
+                        <Text className="text-[18px] font-semibold mb-2">{meal == 'breakfast' ? 'Breakfast' : meal == 'lunch' ? 'Lunch' : 'Dinner'} Time</Text>
                         <View
                             style={{
                                 borderWidth: 1,
@@ -199,18 +254,25 @@ const AddKitchen = ({ navigation }) => {
                             }}
                             className="flex-row rounded-xl items-center px-3 py-2 w-full border justify-between">
                             <TextInput
+                                value={meal === 'breakfast' ? breakfastDeliveryTime : meal === 'lunch' ? lunchDeliveryTime : dinnerDeliveryTime}
                                 placeholder="Enter Delivery Time"
                                 className="rounded-lg text-[15px] bg-white"
                             />
-                            <Image
-                                source={require('../../assets/clock.png')}
-                            />
+                            <TouchableOpacity onPress={() => setShow(meal)}><Clock /></TouchableOpacity>
                         </View>
+                        {show === meal && (
+                            <DateTimePicker
+                                value={time}
+                                mode="time"
+                                display="default"
+                                onChange={(event, selectedTime) => onChange(event, selectedTime, meal)}
+                            />
+                        )}
                     </View>
                 ))}
 
                 {/* Submit Button */}
-                <TouchableOpacity className="btn-color p-4 rounded-lg mt-2">
+                <TouchableOpacity onPress={handleSubmit} className="btn-color p-4 rounded-lg mt-2 mb-10">
                     <Text className="text-center text-[18px] font-medium text-white">Submit</Text>
                 </TouchableOpacity>
             </ScrollView>
@@ -227,11 +289,6 @@ const styles = StyleSheet.create({
     whiteBtn: {
         borderWidth: 1,
         borderColor: 'rgba(214, 214, 214, 0.60)',
-        shadowColor: 'rgba(0, 0, 0, 0.14)', 
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.5, 
-        shadowRadius: 5,
-        elevation: 4,
         color: '#7B7B7B',
     },
     blueBorder: {
