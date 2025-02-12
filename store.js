@@ -2,10 +2,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authSlice from './src/reducers/authSlice';
 import kitchenSlice from './src/reducers/kitchenSlice';
+import mapSlice from './src/reducers/mapSlice';
 
 export const store = configureStore({
   reducer: {
-    user : authSlice,
-    kitchenData: kitchenSlice
+    auth : authSlice,
+    kitchenData: kitchenSlice,
+    map: mapSlice
   },
 });

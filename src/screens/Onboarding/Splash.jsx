@@ -20,9 +20,6 @@ const Splash = ({ navigation }) => {
 
   useEffect(() => {
     getFCMToken()
-    setTimeout(() => {
-      navigation.navigate('Login');
-    }, 3000);
   }, []);
 
   return (

@@ -7,13 +7,15 @@ import { login } from '../../reducers/authSlice';
 import Otp from '../../assets/otp.svg';
 import LeftImg from '../../assets/left-img.svg';
 import RightImg from '../../assets/right-img.svg';
-import { getCategory } from '../../reducers/kitchenSlice';
+import { getCategory, getKitchenStatus } from '../../reducers/kitchenSlice';
 
 const LoginOTP = ({navigation,route}) => {
 
-  const {user} = useSelector(state => state.user)
-  const [otp, setOtp] = useState(new Array(6).fill(""));
+  const {user,otp} = useSelector(state => state.auth)
+  const {kitchenStatus} = useSelector(state => state.kitchenData)
+  const [otpValue, setOtpValue] = useState(new Array(6).fill(""));
   const [timer, setTimer] = useState(60);
+  const [otpError, setOtpError] = useState('')
   const inputRefs = useRef([]);
   const {phone} = route.params;
   let phoneNumber = `+91${phone}`
@@ -27,9 +29,9 @@ const LoginOTP = ({navigation,route}) => {
   }, []);
 
   const handleChange = (value, index) => {
-    const updatedOtp = [...otp];
+    const updatedOtp = [...otpValue];
     updatedOtp[index] = value;
-    setOtp(updatedOtp);
+    setOtpValue(updatedOtp);
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -38,21 +40,20 @@ const LoginOTP = ({navigation,route}) => {
   const handleKeyPress = (e, index) => {
     const { key } = e.nativeEvent;
     if (key === "Backspace") {
-      const updatedOtp = [...otp];
+      const updatedOtp = [...otpValue];
       if (updatedOtp[index]) {
         updatedOtp[index] = "";
       } else if (index > 0) {
         inputRefs.current[index - 1]?.focus();
         updatedOtp[index - 1] = ""; 
       }
-
-      setOtp(updatedOtp);
+      setOtpValue(updatedOtp);
     }
   };
 
   const handleResend = () => {
     setTimer(60);
-    setOtp(new Array(6).fill("")); 
+    setOtpValue(new Array(6).fill("")); 
     inputRefs.current[0].focus();
   };
   const dispatch = useDispatch()
@@ -60,14 +61,34 @@ const LoginOTP = ({navigation,route}) => {
   const handleLogin = () => {
     const userData = {
       "phone" : phone,
-      "otp" : Number(otp.join(''))
+      "otpValue" : Number(otpValue.join(''))
     }
     dispatch(login(userData))
     dispatch(getCategory())
-    navigation.navigate("AddKitchen")
   }
 
+  useEffect(()=>{
+      if(otp?.data?.success == true){
+        setOtpError('')
+        navigation.navigate('AddKitchen')
+        // if(otp?.data?.data?.data?.new_user == true){
+        //   navigation.navigate('CreateAccount',{phone: phoneNumber});
+        // }
+      }else if(otp?.data?.success == false){
+        setOtpError(otp?.error)
+      }
+      // else if(kitchenStatus?.data?.data?.status == 'pending'){
+      //   navigation.navigate('AddKitchen')
+      // }else if(kitchenStatus?.data?.data?.status == 'approved'){
+      //   navigation.navigate('Approved')
+      // }else if(kitchenStatus?.data?.data?.status == 'rejected'){
+      //   navigation.navigate('Rejected')
+      // }
+    },[otp, kitchenStatus])
 
+  useEffect(()=>{
+    dispatch(getKitchenStatus())
+  },[dispatch])
 
   return (
     <View className='justify-center'>
@@ -86,7 +107,7 @@ const LoginOTP = ({navigation,route}) => {
       </View>
 
       <View className='flex-row justify-center'>
-        {otp.map((digit, index) => (
+        {otpValue.map((digit, index) => (
           <TextInput
             key={index}
             ref={(ref) => (inputRefs.current[index] = ref)}
@@ -99,6 +120,7 @@ const LoginOTP = ({navigation,route}) => {
           />
         ))}
       </View>
+      {otpError && <View className='px-4'><Text className='px-4 mt-2 text-red-500'>{otpError}</Text></View>}
       <View className={`flex-row items-center justify-center mt-8 ${timer > 0 ? 'mb-4' : 'mb-9'} mb-4`}>
         <Text className='text-[16px] font-medium text-gray-600'>I didn't receive code. </Text>
         <TouchableOpacity disabled={timer > 0}

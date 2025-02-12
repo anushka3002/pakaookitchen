@@ -1,131 +1,92 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Platform, TouchableOpacity, StyleSheet, Image, ScrollView, Alert, TouchableHighlight } from "react-native";
+import { View, Text, TextInput, Platform, TouchableOpacity, Modal, StyleSheet, Image, ScrollView, TouchableWithoutFeedback } from "react-native";
 import { useForm, Controller } from "react-hook-form";
-import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as ImagePicker from "react-native-image-picker";
-import Camera from '../../assets/camera.svg';
-import EncryptedStorage from "react-native-encrypted-storage";
 import DateTimePicker from '@react-native-community/datetimepicker';
-import Date from '../../assets/date.svg'
+import DateImg from '../../assets/date.svg'
 import Search from '../../assets/search.svg'
 import Info from '../../assets/info.svg'
 import { useDispatch, useSelector } from "react-redux";
 import { createUserData } from "../../reducers/kitchenSlice";
-import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
-import { PermissionStatus, request, RESULTS, PERMISSIONS } from 'react-native-permissions';
-
-const validationSchema = Yup.object().shape({
-  owner_name: Yup.string().required("Owner Name is required"),
-  email: Yup.string().email("Invalid email").required("Email is required"),
-  kitchen_name: Yup.string().required("Kitchen Name is required"),
-  aadhar_number: Yup.string().required("Aadhar Number is required"),
-  pan_number: Yup.string().required("PAN Number is required"),
-  gst_number: Yup.string().required("GST Number is required"),
-  fssia_number: Yup.string().required("FSSAI Number is required"),
-  fssai_expiry_date: Yup.string().required("FSSAI Expiry Date is required"),
-});
-
-const auth_token = EncryptedStorage.getItem('auth_token')
+import { validationSchema, validBanks } from "../../constant";
+import { getGeoLocation, searchMapData } from "../../reducers/mapSlice";
+import Map from "./Map";
+import CustomTextInput from "../Components/CustomTextInput";
+import CustomImageController from "../Components/CustomImageController";
 
 const CreateAccount = ({ navigation }) => {
-  const [images, setImages] = useState({ aadharFront: null, aadharBack: null, panFront: null, panBack: null, gstImage: null, fssaiImage: null })
+  const [images, setImages] = useState({ aadharFront: null, 
+  aadharBack: null, panFront: null, panBack: null, gstImage: null, fssaiImage: null })
   const [expiryDate, setExpiryDate] = useState(new Date());
-  const { otp } = useSelector(state => state.user.otp)
-  const [coordinates, setCoordinates] = useState(null);
-  const [show, setShow] = useState(true);
+  const [convertedExpiryDate, setConvertedExpiryDate] = useState(new Date())
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedBank, setSelectedBank] = useState(null);
+  const [showList, setShowList] = useState(false)
+  const { searchlocation, geolocation } = useSelector(state => state.map)
+  const { createProfile } = useSelector(state => state.kitchenData)
+  const [show, setShow] = useState(false);
+  const [query, setQuery] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState('')
+  const dispatch = useDispatch()
+
   const {
     control,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
   });
 
-  const handleImageUpload = async (imageType, onChange) => {
-    try {
-      let cameraPermission, galleryPermission;
-
-      if (Platform.OS === 'ios') {
-        cameraPermission = await request(PERMISSIONS.IOS.CAMERA);
-        galleryPermission = await request(PERMISSIONS.IOS.PHOTO_LIBRARY);
-      } else if (Platform.OS === 'android') {
-        cameraPermission = await request(PERMISSIONS.ANDROID.CAMERA);
-        galleryPermission = await request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
-      }
-
-      if (!cameraPermission || !galleryPermission) {
-        console.error("Permission request returned null or undefined.");
-        return;
-      }
-
-      if (cameraPermission !== RESULTS.GRANTED || galleryPermission !== RESULTS.GRANTED) {
-        console.log("Camera or gallery permission not granted");
-        return;
-      }
-
-      // Prompt user to choose Camera or Gallery
-      Alert.alert(
-        "Select Image",
-        "Choose an option",
-        [
-          {
-            text: "Camera",
-            onPress: async () => {
-              const response = await launchCamera({
-                mediaType: 'photo',
-                includeBase64: true,
-                saveToPhotos: true,
-              });
-
-              handleImageResponse(response, imageType, onChange);
-            },
-          },
-          {
-            text: "Gallery",
-            onPress: async () => {
-              const response = await launchImageLibrary({
-                mediaType: 'photo',
-                includeBase64: true,
-              });
-
-              handleImageResponse(response, imageType, onChange);
-            },
-          },
-          { text: "Cancel", style: "cancel" },
-        ]
-      );
-    } catch (error) {
-      console.error('Permission request failed:', error);
-    }
-  };
-
-  const handleImageResponse = (response, imageType, onChange) => {
-    if (response.didCancel) {
-      console.log('User cancelled image picker');
-    } else if (response.errorMessage) {
-      console.log('ImagePicker Error:', response.errorMessage);
-    } else {
-      if (response.assets && response.assets.length > 0) {
-        const base64String = `data:image/jpeg;base64,${response.assets[0].base64}`;
-        setImages((prevImages) => ({
-          ...prevImages,
-          [imageType]: base64String,
-        }));
-        onChange(base64String);
-      }
-    }
+  const handleSelectBank = (bank) => {
+    setSelectedBank(bank);
+    setValue('bank_name', bank.value);
+    setModalVisible(false);
   };
 
   const handleExpiryDate = (event, selectedDate) => {
-    if (Platform.OS === 'android') setShow(false);
-    if (selectedDate) setExpiryDate(selectedDate);
+    const date = new Date(event.nativeEvent.timestamp);
+    setExpiryDate(selectedDate)
+    const formattedDate = date.toLocaleDateString('en-GB');
+    setConvertedExpiryDate(formattedDate)
+    setValue('fssai_expiry_date', formattedDate)
+    setShow(false)
   };
-  console.log(EncryptedStorage.getItem('auth_token'), 'afsddd')
 
-  const dispatch = useDispatch()
-  const onSubmit = (data) => {
-    dispatch(createUserData(data))
+  const handleSearchLocation = (text) => {
+    if(text.length>2){
+      if(searchlocation?.data?.predictions?.length > 0){
+        setShowList(true)
+      }
+    }
+  }
+
+  const handleLocation = (value) => {
+    setShowList(false)
+    setQuery(value);
+    dispatch(getGeoLocation(value))
+    setSelectedLocation(value);
+    const words = value.split(' ');
+    const addressLineOne = words.slice(0, 10).join(' ');
+    const addressLineTwo = words.slice(10).join(' ');
+    setValue('address_line_one', addressLineOne);
+    setValue('address_line_two', addressLineTwo);
+  };
+  
+  const onSubmit = async (data) => {
+    try {
+      const response = await dispatch(createUserData(data)).unwrap();
+
+      if (response?.data?.user_data?.status === 'pending') {
+        navigation.navigate('Pending');
+      } else if (response?.data?.user_data?.status === 'rejected') {
+        navigation.navigate('Rejected');
+      } else if (response?.data?.user_data?.status === 'approved') {
+        navigation.navigate('Approved');
+      }
+    } catch (error) {
+      console.error('Error creating user:', error);
+    }
   };
 
   return (
@@ -136,363 +97,91 @@ const CreateAccount = ({ navigation }) => {
       </Text>
 
       <View className='space-y-4'>
-        <View className='mb-3'>
-          <Text className='text-[15px] font-medium mb-2'>Owner Name <Text className="text-red-500">*</Text></Text>
-          <Controller
-            control={control}
-            name="owner_name"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                className='border border-gray-300 rounded-lg px-3 py-3'
-                placeholder="Enter Owner Name"
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
-          />
-          {errors.owner_name && <Text className='text-red-500 text-sm'>{errors.owner_name.message}</Text>}
-        </View>
-
-        <View className='mb-3'>
-          <Text className='text-[15px] font-medium mb-2'>Email <Text className="text-red-500">*</Text></Text>
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                className='border border-gray-300 rounded-lg px-3 py-3'
-                placeholder="Enter Email"
-                keyboardType="email-address"
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
-          />
-          {errors.email && <Text className='text-red-500 text-sm'>{errors.email.message}</Text>}
-        </View>
-
-        <View className='mb-3'>
-          <Text className='text-[15px] font-medium mb-2'>Kitchen Name <Text className='text-red-500'>*</Text></Text>
-          <Controller
-            control={control}
-            name="kitchen_name"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                className='border border-gray-300 rounded-lg px-3 py-3'
-                placeholder="Enter Kitchen Name"
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
-          />
-          {errors.kitchen_name && <Text className='text-red-500 text-sm'>{errors.kitchen_name.message}</Text>}
-        </View>
-
-        <View className='mb-3'>
-          <Text className='text-[15px] font-medium mb-2'>Aadhar Number <Text className="text-red-500">*</Text></Text>
-          <Controller
-            control={control}
-            name="aadhar_number"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                className='border border-gray-300 rounded-lg px-3 py-3'
-                placeholder="Enter Aadhar Number"
-                keyboardType="number-pad"
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
-          />
-          {errors.aadhar_number && <Text className='text-red-500 text-sm'>{errors.aadhar_number.message}</Text>}
-        </View>
+        <CustomTextInput control={control} label={'Owner Name '} name={'owner_name'} placeholder={'Enter Owner Name'} errors={errors} capitalize={false}/>
+        <CustomTextInput control={control} label={'Email '} name={'email'} placeholder={'Enter Email'} errors={errors} capitalize={false}/>
+        <CustomTextInput control={control} label={'Kitchen Name '} name={'kitchen_name'} placeholder={'Enter Kitchen Name'} errors={errors} capitalize={false}/>
+        <CustomTextInput control={control} label={'Aadhar Number '} name={'aadhar_number'} placeholder={'Enter Aadhar Number'} errors={errors} capitalize={false} keyboard={'number-pad'}/>
 
         <View className='mb-3'>
           <Text className='text-[15px] font-medium mb-3'>
             Aadhar Image <Text className='text-red-500'>*</Text>
           </Text>
           <View className='flex flex-row justify-between'>
-            <Controller
-              control={control}
-              name="aadhar_front"
-              render={({ field: { onChange } }) => (
-                <>
-                  <TouchableOpacity
-                    onPress={() => {
-                      handleImageUpload('aadharFront', onChange);
-                    }}
-                    style={[!images.aadharFront && styles.dashedBorder, { width: '47%', height: '121px' }]} className={`${!images.aadharFront && 'py-5 px-3'} justify-center items-center`}
-                  >
-                    {images.aadharFront ? (
-                      <Image
-                        source={{ uri: images.aadharFront }}
-                        style={{ width: '100%', height: 100, borderRadius: 10 }}
-                        resizeMode="contain"
-                      />
-                    ) : (
-                      <View>
-                        <Camera />
-                        <Text className='text-gray-500 mt-1'>Front</Text>
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                </>
-              )}
-            />
-            <Controller
-              control={control}
-              name="aadhar_back"
-              render={({ field: { onChange } }) => (
-                <>
-                  <TouchableOpacity
-                    onPress={() => {
-                      handleImageUpload('aadharBack', onChange);
-                    }}
-                    style={[!images.aadharBack && styles.dashedBorder, { width: '47%', height: '121px' }]}
-                    className={`${!images.aadharBack && 'py-5 px-3'} justify-center items-center`}
-                  >
-                    {images.aadharBack ? (
-                      <Image
-                        source={{ uri: images.aadharBack }}
-                        style={{ width: '100%', height: 100, borderRadius: 10 }}
-                        resizeMode="contain"
-                      />
-                    ) : (
-                      <View>
-                        <Camera />
-                        <Text className="text-gray-500 mt-1">Back</Text>
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                </>
-              )}
-            />
+            <CustomImageController control={control} controllerName={'aadhar_front'} imageValue={'aadharFront'} setImages={setImages} images={images} imageName={'Front'}/>
+            <CustomImageController control={control} controllerName={'aadhar_back'} imageValue={'aadharBack'} setImages={setImages} images={images} imageName={'Back'}/>
           </View>
-          {errors.aadharFront && (
-            <Text className="text-red-500 text-sm">{errors.aadharFront.message}</Text>
+          {errors.aadhar_front && (
+            <Text className="text-red-500 text-sm">{errors.aadhar_front.message}</Text>
+          )}
+          {errors.aadhar_back && (
+            <Text className="text-red-500 mt-1 text-sm">{errors.aadhar_back.message}</Text>
           )}
         </View>
 
-        <View className="mb-3">
-          <Text className="text-[15px] font-medium mb-2">PAN Number <Text className="text-red-500">*</Text></Text>
-          <Controller
-            control={control}
-            name="pan_number"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                className="border border-gray-300 rounded-lg px-3 py-3"
-                placeholder="Enter PAN Number"
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
-          />
-          {errors.pan_number && <Text className="text-red-500 text-sm">{errors.pan_number.message}</Text>}
-        </View>
+        <CustomTextInput control={control} label={'PAN Number '} name={'pan_number'} placeholder={'Enter PAN Number'} errors={errors} capitalize={true}/>
 
         <View className="mb-3">
           <Text className="text-[15px] font-medium mb-3">
             PAN Image <Text className="text-red-500">*</Text>
           </Text>
           <View className="flex flex-row justify-between">
-            <Controller
-              control={control}
-              name="pan_front"
-              render={({ field: { onChange } }) => (
-                <>
-                  <TouchableOpacity
-                    onPress={() => {
-                      handleImageUpload('panFront', onChange);
-                    }}
-                    style={[!images.panFront && styles.dashedBorder, { width: '47%', height: '121px' }]}
-                    className={`${!images.panFront && 'py-5 px-3'} justify-center items-center`}
-                  >
-                    {images.panFront ? (
-                      <Image
-                        source={{ uri: images.panFront }}
-                        style={{ width: '100%', height: 100, borderRadius: 10 }}
-                        resizeMode="contain"
-                      />
-                    ) : (
-                      <View>
-                        <Camera />
-                        <Text className="text-gray-500 mt-1">Front</Text>
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                </>
-              )}
-            />
-            <Controller
-              control={control}
-              name="pan_back"
-              render={({ field: { onChange } }) => (
-                <>
-                  <TouchableOpacity
-                    onPress={() => {
-                      handleImageUpload('panBack', onChange);
-                    }}
-                    style={[!images.panBack && styles.dashedBorder, { width: '47%', height: '121px' }]}
-                    className={`${!images.panBack && 'py-5 px-3'} justify-center items-center`}
-                  >
-                    {images.panBack ? (
-                      <Image
-                        source={{ uri: images.panBack }}
-                        style={{ width: '100%', height: 100, borderRadius: 10 }}
-                        resizeMode="contain"
-                      />
-                    ) : (
-                      <View>
-                        <Camera />
-                        <Text className="text-gray-500 mt-1">Back</Text>
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                </>
-              )}
-            />
+          <CustomImageController control={control} controllerName={'pan_front'} imageValue={'panFront'} setImages={setImages} images={images} imageName={'Front'}/>
+          <CustomImageController control={control} controllerName={'pan_back'} imageValue={'panBack'} setImages={setImages} images={images} imageName={'Back'}/>
           </View>
-          {errors.panFront && (
-            <Text className="text-red-500 text-sm">{errors.panFront.message}</Text>
+          {errors.pan_front && (
+            <Text className="text-red-500 text-sm">{errors.pan_front.message}</Text>
+          )}
+          {errors.pan_back && (
+            <Text className="text-red-500 text-sm mt-1">{errors.pan_back.message}</Text>
           )}
         </View>
 
-        <View className="mb-3">
-          <Text className="text-[15px] font-medium mb-2">GST Number <Text className="text-red-500">*</Text></Text>
-          <Controller
-            control={control}
-            name="gst_number"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                className="border border-gray-300 rounded-lg px-3 py-3"
-                placeholder="Enter GST Number"
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
-          />
-          {errors.gst_number && <Text className="text-red-500 text-sm">{errors.gst_number.message}</Text>}
-        </View>
+        <CustomTextInput control={control} label={'GST Number '} name={'gst_number'} placeholder={'Enter GST Number'} errors={errors} capitalize={true}/>
 
         <View className="mb-3">
           <Text className="text-[15px] font-medium mb-3">
             GST Image <Text className="text-red-500">*</Text>
           </Text>
-          <View className="flex flex-row justify-between">
-            <Controller
-              control={control}
-              name="gst_image"
-              render={({ field: { onChange } }) => (
-                <>
-                  <TouchableOpacity
-                    onPress={() => {
-                      handleImageUpload('gstImage', onChange);
-                    }}
-                    style={[!images.gstImage && styles.dashedBorder, { width: '100%' }]}
-                    className={`border-gray-300 rounded-lg ${!images.gstImage && 'px-3 py-14'} justify-center items-center`}
-                  >
-                    {images.gstImage ? (
-                      <Image
-                        source={{ uri: images.gstImage }}
-                        style={{ width: '100%', height: 230, borderRadius: 10 }}
-                        resizeMode="contain"
-                      />
-                    ) : (
-                      <View>
-                        <Camera />
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                </>
-              )}
-            />
-          </View>
-          {errors.gstImage && (
-            <Text className="text-red-500 text-sm">{errors.gstImage.message}</Text>
+         
+          <CustomImageController control={control} controllerName={'gst_image'} imageValue={'gstImage'} setImages={setImages} images={images} imageName={'Back'}/>
+          
+          {errors.gst_image && (
+            <Text className="text-red-500 text-sm">{errors.gst_image.message}</Text>
           )}
         </View>
 
-        <View className="mb-3">
-          <Text className="text-[15px] font-medium mb-2">FSSAI Number <Text className="text-red-500">*</Text></Text>
-          <Controller
-            control={control}
-            name="fssia_number"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                className="border border-gray-300 rounded-lg px-3 py-3"
-                placeholder="Enter FSSAI Number"
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
-          />
-          {errors.fssia_number && <Text className="text-red-500 text-sm">{errors.fssia_number.message}</Text>}
-        </View>
-
+        <CustomTextInput control={control} label={'FSSAI Number '} name={'fssia_number'} placeholder={'Enter FSSAI Number'} errors={errors} capitalize={true}/>
         <View className="mb-3">
           <Text className="text-[15px] font-medium mb-3">
             FSSAI Image <Text className="text-red-500">*</Text>
           </Text>
-          <View className="flex flex-row justify-between">
-            <Controller
-              control={control}
-              name="fssai_image"
-              render={({ field: { onChange } }) => (
-                <>
-                  <TouchableOpacity
-                    onPress={() => {
-                      handleImageUpload('fssaiImage', onChange);
-                    }}
-                    style={[!images.fssaiImage && styles.dashedBorder, { width: '100%' }]}
-                    className={`${!images.fssaiImage && 'px-3 py-14'} justify-center items-center`}
-                  >
-                    {images.fssaiImage ? (
-                      <Image
-                        source={{ uri: images.fssaiImage }}
-                        style={{ width: '100%', height: 230, borderRadius: 10 }}
-                        resizeMode="contain"
-                      />
-                    ) : (
-                      <View>
-                        <Camera />
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                </>
-              )}
-            />
-          </View>
-          {errors.fssaiImage && (
-            <Text className="text-red-500 text-sm">{errors.fssaiImage.message}</Text>
+          <CustomImageController control={control} controllerName={'fssai_image'} imageValue={'fssaiImage'} setImages={setImages} images={images} imageName={'Back'}/>
+          {errors.fssai_image && (
+            <Text className="text-red-500 text-sm">{errors.fssai_image.message}</Text>
           )}
         </View>
 
         <View className="mb-3">
           <Text className="text-[15px] font-medium mb-2">FSSAI Expiry Date <Text className="text-red-500">*</Text></Text>
-          <Controller
-            control={control}
-            name="fssai_expiry_date"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                className="border border-gray-300 rounded-lg px-3 py-3"
-                placeholder="Enter FSSAI Expiry Date"
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
-          />
-          {/* <View className="border border-gray-300 px-3 py-3 rounded-lg items-center flex-row justify-between">
-          <Text className=" text-gray-400 text-md">Enter FSSAI Expiry Date</Text>
-          <TouchableOpacity onPress={()=>setShow(true)}><Date/></TouchableOpacity>
-          </View> */}
-          {/* {show && (
+          <View className="border border-gray-300 px-3 rounded-lg items-center flex-row justify-between">
+            <TextInput
+              placeholder="Enter FSSAI Expiry Date"
+              onChangeText={(e) => {
+                setConvertedExpiryDate(e);
+                setValue('fssai_expiry_date', e)
+              }}
+              value={convertedExpiryDate}
+            />
+            <TouchableOpacity onPress={() => setShow(true)}><DateImg /></TouchableOpacity>
+          </View>
+          {show && (
             <DateTimePicker
               value={expiryDate}
               mode="date"
               display="default"
-              minimumDate={new Date()}
               onChange={handleExpiryDate}
             />
-          )} */}
+          )}
           {errors.fssai_expiry_date && <Text className="text-red-500 text-sm">{errors.fssai_expiry_date.message}</Text>}
         </View>
 
@@ -510,7 +199,6 @@ const CreateAccount = ({ navigation }) => {
               />
             )}
           />
-          {errors.fssia_number && <Text className="text-red-500 text-sm">{errors.fssia_number.message}</Text>}
           <Controller
             control={control}
             name="address_line_two"
@@ -523,124 +211,92 @@ const CreateAccount = ({ navigation }) => {
               />
             )}
           />
-          {errors.fssia_number && <Text className="text-red-500 text-sm">{errors.fssia_number.message}</Text>}
-          <Controller
-            control={control}
-            name="lat"
-            render={({ field: { onChange, value } }) => (
-              <View className="border border-gray-300 rounded-lg px-3 flex-row justify-between items-center">
-                <TextInput
-                  className=""
-                  placeholder="Search Address"
-                  onChangeText={onChange}
-                  value={value}
-                />
-                <Search />
-              </View>
-            )}
-          />
-          {errors.fssia_number && <Text className="text-red-500 text-sm">{errors.fssia_number.message}</Text>}
+          {errors.address_line_one && <Text className="text-red-500 text-sm">{errors.address_line_one.message}</Text>}
         </View>
-     
-        <View className="mb-3">
-          <Text className="text-[15px] font-medium mb-2">Kitchen Pincode <Text className="text-red-500">*</Text></Text>
-          <Controller
-            control={control}
-            name="pincode"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                className="border border-gray-300 rounded-lg px-3 py-3"
-                placeholder="Enter Owner Name"
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
+        <View className="border mb-3 border-gray-300 rounded-lg px-3 flex-row justify-between items-center">
+          <TextInput
+            className="w-[90%]"
+            placeholder="Search Address"
+            value={query}
+            onChangeText={(text) => {
+              setQuery(text);
+              handleSearchLocation(text)
+              dispatch(searchMapData(text))
+            }}
           />
-          {errors.owner_name && <Text className="text-red-500 text-sm">{errors.owner_name.message}</Text>}
+          <Search />
         </View>
 
-        <View className="mb-3">
-          <Text className="text-[15px] font-medium mb-2">Bank Account Holder Name <Text className="text-red-500">*</Text></Text>
-          <Controller
-            control={control}
-            name="bank_holder_name"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                className="border border-gray-300 rounded-lg px-3 py-3"
-                placeholder="Enter Bank Account Holder Name"
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
-          />
-          {errors.email && <Text className="text-red-500 text-sm">{errors.email.message}</Text>}
-        </View>
+        {showList && <View>
+          {searchlocation?.data?.predictions.map((item, ind)=>(
+            <TouchableOpacity key={ind}
+              style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: "#ddd" }}
+              onPress={() => {
+                handleLocation(item.description)
+              }}
+            >
+              <Text>{item.description}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>}
+
+        {/* map component */}
+        <Map geolocation={geolocation} query={query} selectedLocation={selectedLocation}/>
+
+        <CustomTextInput control={control} label={'Kitchen Pincode '} name={'pincode'} placeholder={'Enter Kitchen Pincode'} errors={errors} keyboard={'number-pad'}/>
+        <CustomTextInput control={control} label={'Bank Account Holder Name '} name={'bank_holder_name'} placeholder={'Enter Bank Account Holder Name'} errors={errors}/>
 
         <View className="mb-3">
-          <Text className="text-[15px] font-medium mb-2">Bank Name <Text className="text-red-500">*</Text></Text>
-          <Controller
-            control={control}
-            name="bank_name"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                className="border border-gray-300 rounded-lg px-3 py-3"
-                placeholder="Enter Kitchen Name"
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
-          />
-          {errors.kitchen_name && <Text className="text-red-500 text-sm">{errors.kitchen_name.message}</Text>}
+          <Text className="text-[15px] font-medium mb-2">
+            Bank Name <Text className="text-red-500">*</Text>
+          </Text>
+          <View className="border border-gray-300 rounded-lg px-3 py-3">
+            <TouchableOpacity
+              onPress={() => setModalVisible(true)}
+              style={styles.dropdownTouchable}
+            >
+              <Text className={`${selectedBank ? '' : 'text-gray-400'}`}>
+                {selectedBank ? selectedBank.label : "Select Bank"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {errors.bank_name && (
+            <Text className="text-red-500 text-sm">{errors.bank_name.message}</Text>
+          )}
         </View>
-
-        <View className="mb-3">
-          <Text className="text-[15px] font-medium mb-2">IFSC Code <Text className="text-red-500">*</Text></Text>
-          <Controller
-            control={control}
-            name="ifsc_code"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                className="border border-gray-300 rounded-lg px-3 py-3"
-                placeholder="Enter Aadhar Number"
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
-          />
-          {errors.aadhar_number && <Text className="text-red-500 text-sm">{errors.aadhar_number.message}</Text>}
-        </View>
-
-        <View className="mb-3">
-          <Text className="text-[15px] font-medium mb-2">Account Number <Text className="text-red-500">*</Text></Text>
-          <Controller
-            control={control}
-            name="account_number"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                className="border border-gray-300 rounded-lg px-3 py-3"
-                placeholder="Enter Aadhar Number"
-                keyboardType="number-pad"
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
-          />
-          {errors.aadhar_number && <Text className="text-red-500 text-sm">{errors.aadhar_number.message}</Text>}
-        </View>
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+            <View style={styles.modalBackdrop} />
+          </TouchableWithoutFeedback>
+          <View className="flex-1 justify-center items-center">
+            <View style={styles.modalContent}>
+              <Text className="text-[18px] font-bold mb-5 text-center">Select Bank</Text>
+              {validBanks.map((bank, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => handleSelectBank(bank)}
+                  className="py-3 px-4"
+                >
+                  <Text className="text-[15px]">{bank.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </Modal>  
+        <CustomTextInput control={control} label={'IFSC Code '} name={'ifsc_code'} placeholder={'Enter IFSC Code'} errors={errors} capitalize={true}/>
+        <CustomTextInput control={control} label={'Account Number '} name={'account_number'} placeholder={'Enter Account Number'} errors={errors} keyboard={'number-pad'}/>
       </View>
 
       <TouchableOpacity
         onPress={handleSubmit(onSubmit)}
-        className="btn-color py-3 rounded-lg mt-4"
+        className="btn-color py-3 rounded-lg mt-4 mb-10"
       >
         <Text className="text-center text-[18px] text-white font-medium">Create Account</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        onPress={() => navigation.navigate('AddKitchen')}
-        className="btn-color py-3 mb-5 rounded-xl mt-4"
-      >
-        <Text className="text-center text-white font-bold">Create Account</Text>
       </TouchableOpacity>
 
     </ScrollView>
@@ -652,8 +308,32 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#D6D6D6",
     borderStyle: "dashed",
-    borderRadius: Platform.OS === 'ios' ? 8 : 0, 
+    borderRadius: Platform.OS === 'ios' ? 8 : 0,
   },
-})
+  dropdownTouchable: {
+    borderRadius: 5,
+    backgroundColor: '#fff',
+  },
+  modalBackdrop: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    elevation: 10,
+  },
+  container: {
+    ...StyleSheet.absoluteFillObject,
+    height: 214,
+    width: '100%',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  map: {
+    ...StyleSheet.absoluteFillObject,
+  },
+});
 
 export default CreateAccount;

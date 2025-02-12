@@ -13,7 +13,7 @@ const ApprovedScreen = () => {
       <Text style={{ color: '#7B7B7B' }} className='text-center text-[18px] mt-5 mx-10 tracking-wide'>Your KYC document has been approved. Welcome aboard!</Text>
 
       <TouchableOpacity
-        onPress={() => navigation.navigate('CreateAccount')}
+        onPress={() => navigation.navigate('AddKitchen')}
         className='py-3 w-[90%] btn-color mb-5 rounded-xl mt-12'
       >
         <Text className='text-center text-[18px] text-white'>Add Kitchen</Text>

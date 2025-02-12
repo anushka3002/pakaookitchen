@@ -3,7 +3,7 @@ import React from 'react'
 import Rejected from '../../assets/rejected.svg';
 import HeaderImage from '../../assets/header-image.svg';
 
-const RejectedScreen = () => {
+const RejectedScreen = ({navigation}) => {
   return (
     <View className='items-center w-full justify-center'>
       <HeaderImage width={'100%'}/>
