@@ -1,13 +1,10 @@
-import { View, StyleSheet, Image, ImageBackground } from 'react-native';
 import React, { useEffect } from 'react';
 import messaging from '@react-native-firebase/messaging';
 import EncryptedStorage from 'react-native-encrypted-storage';
-import { useDispatch } from 'react-redux';
-import { getCategory } from '../../reducers/kitchenSlice';
+import SplashImg from '../../assets/Splash.svg';
+import { View } from 'react-native';
 
-const Splash = ({ navigation }) => {
-
-  const dispatch = useDispatch()
+const Splash = () => {
 
   async function getFCMToken() {
     try {
@@ -23,32 +20,10 @@ const Splash = ({ navigation }) => {
   }, []);
 
   return (
-    <ImageBackground
-      source={require('../../assets/SplashBg.png')} 
-      style={styles.background}
-      resizeMode="cover"
-      className='bg-white'
-    >
-      <View style={styles.logoContainer}>
-        <Image
-          source={require('../../assets/SplashLogo.png')}
-          resizeMode="contain"
-        />
-      </View>
-    </ImageBackground>
+    <View className='w-[100%] border'>
+    <SplashImg/>
+    </View>
   );
 };
-
-const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    justifyContent: 'center', 
-    alignItems: 'center',
-  },
-  logoContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
 
 export default Splash;

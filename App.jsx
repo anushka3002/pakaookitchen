@@ -15,7 +15,6 @@ import { Provider, useDispatch, useSelector } from 'react-redux';
 import { store } from './store';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import { getKitchenStatus } from "./src/reducers/kitchenSlice";
-import Map from "./src/screens/Onboarding/Map";
 
 const Stack = createNativeStackNavigator();
 
@@ -31,7 +30,6 @@ function RootStack() {
       <Stack.Screen name="Rejected" component={RejectedScreen} />
       <Stack.Screen name="AddKitchen" component={AddKitchen} />
       <Stack.Screen name="Dashboard" component={Dashboard} />
-      <Stack.Screen name="Map" component={Map} />
     </Stack.Navigator>
   );
 }

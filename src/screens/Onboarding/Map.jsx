@@ -16,8 +16,8 @@ const Map = ({geolocation, query, selectedLocation}) => {
                 region={{
                   latitude: geolocation?.data?.lat || 20.5937,  
                   longitude: geolocation?.data?.lng || 78.9629, 
-                  latitudeDelta: 0.5,
-                  longitudeDelta: 0.5,
+                  latitudeDelta: 0.02,
+                  longitudeDelta: 0.02,
                 }}
               >
                 <Marker coordinate={{ latitude: geolocation?.data?.lat || 20.5937, longitude: geolocation?.data?.lng || 78.9629 }} />
