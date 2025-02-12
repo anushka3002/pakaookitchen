@@ -96,11 +96,10 @@ const AddKitchen = ({ navigation }) => {
                 <View className="flex-row justify-between mb-4 w-full">
                     {categoryData?.data?.data?.map((e, ind) => {
                         return (
-                            <TouchableOpacity key={ind}
+                            <TouchableOpacity key={ind} onPress={()=>setSelectedMealCategory(e.id)}
                                 style={[selectedMealCategory == e.id ? '' : styles.whiteBtn, { width: '47%' }]}
                                 className={`mr-2 py-3 text-[16px] font-medium rounded-xl ${selectedMealCategory === e.id ? 'btn-color' : 'white-btn'
                                     }`}
-                                onPress={() => setSelectedMealCategory(e.id)}
                             >
                                 <Text
                                     className={`text-center font-medium ${selectedMealCategory === e.id ? 'text-white' : 'text-black'
@@ -141,7 +140,7 @@ const AddKitchen = ({ navigation }) => {
                 </View>
 
                 {/* Food Style */}
-                <Text className="text-[18px] font-semibold mb-2">Food Style <Text className='text-red-500'>*</Text></Text>
+                <TouchableOpacity onPress={()=>navigation.navigate('AddKitchen2')}><Text className="text-[18px] font-semibold mb-2">Food Style <Text className='text-red-500'>*</Text></Text></TouchableOpacity>
                 <View className="relative">
                     <View style={{
                         borderWidth: 1,

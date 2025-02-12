@@ -8,7 +8,8 @@ import RightImg from '../../assets/right-img.svg';
 
 const LoginScreen = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
-  const {user} = useSelector(state => state.user)
+  const {user} = useSelector(state => state.auth)
+  const [authError, setAuthError] = useState('')
   const dispatch = useDispatch()
 
   const handleLogin = () => {
@@ -17,9 +18,10 @@ const LoginScreen = ({ navigation }) => {
 
   useEffect(()=>{
     if(user?.data?.data?.message == 'success'){
+      setAuthError('')
       navigation.navigate('LoginOTP',{phone: phoneNumber});
     }else{
-      console.log(user,'error')
+      setAuthError(user?.error)
     }
   },[user])
 
@@ -51,6 +53,7 @@ const LoginScreen = ({ navigation }) => {
             className='border border-gray-300 text-[16px] rounded-lg py-5 px-4 text-black'
             keyboardType="phone-pad"
           />
+          {authError && <Text className='mt-1 text-red-500'>{authError}</Text>}
         </View>
 
         <TouchableOpacity disabled={phoneNumber.length !=10} onPress={handleLogin} className={`${phoneNumber.length !=10 ? 'btn-disabled' : 'btn-color'} rounded-lg py-4 mt-5`}>

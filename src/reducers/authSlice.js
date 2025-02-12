@@ -11,7 +11,7 @@ const initialState = {
     error: null,
   },
   otp: {
-    otpSent: false,
+    data: null,
     loading: false,
     error: null,
   },
@@ -19,7 +19,7 @@ const initialState = {
 
 // Create a slice for user & OTP
 export const authSlice = createSlice({
-  name: 'user',
+  name: 'auth',
   initialState,
   reducers: {
     // User Reducers
@@ -28,24 +28,30 @@ export const authSlice = createSlice({
     },
     setUserData: (state, action) => {
       state.user.data = action.payload;
+      state.user.error = null; 
       state.user.loading = false;
     },
     setUserError: (state, action) => {
       state.user.error = action.payload;
       state.user.loading = false;
+      state.user.data = null;
     },
+
 
     // OTP Reducers
     setOtpLoading: (state) => {
       state.otp.loading = true;
+      state.otp.error = null;
+      state.otp.data = null;
     },
-    setOtpSuccess: (state) => {
-      state.otp.otpSent = true;
+    setOtpSuccess: (state, action) => {
+      state.otp.data = action.payload;
       state.otp.loading = false;
     },
     setOtpError: (state, action) => {
       state.otp.error = action.payload;
       state.otp.loading = false;
+      state.otp.data = null
     },
   },
 });
@@ -54,43 +60,71 @@ export const authSlice = createSlice({
 export const { setUserLoading, setUserData, setUserError, setOtpLoading, setOtpSuccess, setOtpError } = authSlice.actions;
 
 export const fetchUserData = (phone) => async (dispatch) => {
+  try {
     dispatch(setUserLoading());
+
     const data = {
-        "mobile_number": phone,
-        "country_code": 91
-    }
-    const headers = {
-        'x-api-key': REACT_NATIVE_X_API_KEY,
-        'x-public-key': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2l0Y2hlbiIsImlhdCI6MTczODA4MzEzOSwiZXhwIjoxNzQzMjY3MTM5fQ.dPsxuI8o_kwTllz1WzQqcXhnY6Tgo_Oms8eRIQdwKjM',
+      "mobile_number": phone,
+      "country_code": 91
     };
-    try {
-        const response = await axios.post(`${REACT_NATIVE_API}/auth/generateOtp`, data,{headers});
-        dispatch(setUserData(response.data));
-    } catch (error) {
-        dispatch(setUserError(error.message));
+
+    const headers = {
+      'x-api-key': REACT_NATIVE_X_API_KEY,
+      'x-public-key': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2l0Y2hlbiIsImlhdCI6MTczOTE4NDUwOSwiZXhwIjoxNzQ0MzY4NTA5fQ.N13LSvZ0fpwlvz3OxrPqwP84KzXI6Cs5yuEK6BWCVW4',
+    };
+
+    const response = await axios.post(`${REACT_NATIVE_API}/auth/generateOtp`, data, { headers });
+
+    dispatch(setUserData(response.data));
+  } catch (error) {
+    if (error.response) {
+      dispatch(setUserError(error.response.data.error));
+    } else {
+      dispatch(setUserError(error.message));
     }
+  }
 };
 
+
 export const login = (userData) => async (dispatch) => {
+  try {
     dispatch(setOtpLoading());
-    let token = await EncryptedStorage.getItem('fcm');
+
+    let fcmToken = await EncryptedStorage.getItem('fcm');
+
+    if (fcmToken) {
+      try {
+        fcmToken = JSON.parse(fcmToken); 
+      } catch (e) {
+        console.error('FCM Token Parsing Error:', e);
+      }
+    }
     const data = {
-        "mobile_number": userData.phone,
-        "country_code": 91,
-        "otp": userData.otp,
-        "fcm_token": token
-    }
-    const headers = {
-        'x-api-key': REACT_NATIVE_X_API_KEY,
-        'x-public-key': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2l0Y2hlbiIsImlhdCI6MTczODkyNDAzMiwiZXhwIjoxNzQ0MTA4MDMyfQ.AS0UiJSxsF9fp6NfLSWXYCvmCJDRQUQDIqTOEEf7YYs',
+      "mobile_number": Number(userData.phone),
+      "country_code": 91,
+      "otp": userData.otpValue,
+      "fcm_token": fcmToken
     };
-    try {
-        const response = await axios.post(`${REACT_NATIVE_API}/auth/validateOtp`, data,{headers});
-        dispatch(setOtpSuccess(response.data));
-        EncryptedStorage.setItem('auth_token',JSON.stringify(response?.data?.data?.data?.auth_token))
-    } catch (error) {
-        dispatch(setOtpError(error.message));
+
+    const headers = {
+      'x-api-key': REACT_NATIVE_X_API_KEY,
+      'x-public-key': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2l0Y2hlbiIsImlhdCI6MTczOTE4NDUwOSwiZXhwIjoxNzQ0MzY4NTA5fQ.N13LSvZ0fpwlvz3OxrPqwP84KzXI6Cs5yuEK6BWCVW4',
+    };
+    const response = await axios.post(`${REACT_NATIVE_API}/auth/validateOtp`, data, { headers });
+
+    dispatch(setOtpSuccess(response.data));
+
+    await EncryptedStorage.setItem(
+      'auth_token',
+      response?.data?.data?.data?.auth_token
+    );
+  } catch (error) {
+    if (error.response) {
+      dispatch(setOtpError(error.response.data?.error || "Something went wrong"));
+    } else {
+      dispatch(setOtpError(error.message));
     }
+  }
 };
 
 export default authSlice.reducer;
