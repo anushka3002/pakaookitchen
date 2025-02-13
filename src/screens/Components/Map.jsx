@@ -1,29 +1,59 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
-import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
+import { View, Text, StyleSheet } from 'react-native'
+import React from 'react'
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import Location from '../../assets/grey-location.svg';
 
-const MyMap = () => {
+const Map = ({ geolocation, selectedLocation }) => {
+  console.log(geolocation, 'loading')
+
   return (
-    <View style={styles.container}>
-      <MapView
-        provider={PROVIDER_GOOGLE}
-        style={styles.map}
-        initialRegion={{
-          latitude: 37.78825,
-          longitude: -122.4324,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
-      >
-        <Marker coordinate={{ latitude: 37.78825, longitude: -122.4324 }} />
-      </MapView>
+    <View style={styles.shadowBox} className="pt-2 pb-4 px-4 mb-4">
+      <Text className="text-lg font-medium mb-3">Location</Text>
+      <View style={[{ width: '100%', height: 214 }]}>
+        <View style={styles.container}>
+          <MapView
+            provider={PROVIDER_GOOGLE}
+            style={styles.map}
+            region={{
+              latitude: geolocation?.data?.lat || 20.5937,
+              longitude: geolocation?.data?.lng || 78.9629,
+              latitudeDelta: 0.02,
+              longitudeDelta: 0.02,
+            }}
+          >
+            <Marker coordinate={{ latitude: geolocation?.data?.lat || 20.5937, longitude: geolocation?.data?.lng || 78.9629 }} />
+          </MapView>
+        </View>
+      </View>
+      <View className="flex-row mt-3 pr-3">
+        {selectedLocation && <View className='mt-1'><Location /></View>}
+        <Text className="text-[15px] txt-grey ml-1">{selectedLocation}</Text>
+      </View>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  map: { flex: 1 },
-});
+  container: {
+    ...StyleSheet.absoluteFillObject,
+    height: 214,
+    width: '100%',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  map: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  shadowBox: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 5,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 10,
+  },
+})
 
-export default MyMap;
+export default Map

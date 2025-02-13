@@ -15,6 +15,11 @@ const initialState = {
     loading: false,
     error: null,
   },
+  locationCord: {
+    data: null,
+    loading: false,
+    error: null
+  }
 };
 
 // Create a slice for user & OTP
@@ -38,7 +43,7 @@ export const mapSlice = createSlice({
     },
 
 
-    // OTP Reducers
+    // Location Reducers
     setGeoLocationLoading: (state) => {
       state.geolocation.loading = true;
       state.geolocation.error = null;
@@ -53,11 +58,29 @@ export const mapSlice = createSlice({
       state.geolocation.loading = false;
       state.geolocation.data = null
     },
+
+    // Location Reducers
+    setLocationCordLoading: (state) => {
+      state.locationCord.loading = true;
+      state.locationCord.error = null;
+      state.locationCord.data = null;
+    },
+    setLocationCordSuccess: (state, action) => {
+      state.locationCord.data = action.payload;
+      state.locationCord.loading = false;
+    },
+    setLocationCordError: (state, action) => {
+      state.locationCord.error = action.payload;
+      state.locationCord.loading = false;
+      state.locationCord.data = null
+    },
   },
 });
 
 // Actions
-export const { setSearchLoading, setSearchSuccess, setSearchLocationError, setGeoLocationLoading, setGeoLocationSuccess, setGeoLocationError } = mapSlice.actions;
+export const { setSearchLoading, setSearchSuccess, setSearchLocationError, 
+  setGeoLocationLoading, setGeoLocationSuccess, setGeoLocationError,
+  setLocationCordError, setLocationCordLoading, setLocationCordSuccess } = mapSlice.actions;
 
 export const searchMapData = (inputText) => async (dispatch) => {
   try {
@@ -86,5 +109,22 @@ export const getGeoLocation = (address) => async (dispatch) => {
     }
   }
 };
+
+export const getAddressFromCoordinates = (latitude, longitude) => async (dispatch) => {
+    try {
+      dispatch(setLocationCordLoading());
+      const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`);
+      console.log(response,'response')
+      dispatch(setLocationCordSuccess(response?.data?.results[0].formatted_address));
+      console.log(response?.data?.results[0].formatted_address,'adres')
+    } catch (error) {
+      console.log(error,'error')
+      if (error.response) {
+        dispatch(setLocationCordError(error.response.data?.error || "Something went wrong"));
+      } else {
+        dispatch(setLocationCordError(error.message));
+      }
+    }
+  };
 
 export default mapSlice.reducer;
