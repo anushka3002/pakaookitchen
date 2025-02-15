@@ -1,9 +1,24 @@
-import { View, Text, Image, TouchableOpacity } from 'react-native'
-import React from 'react'
+import { View, Text, Image, TouchableOpacity, Alert, BackHandler } from 'react-native'
+import React, { useEffect } from 'react'
 import Rejected from '../../assets/rejected.svg';
 import HeaderImage from '../../assets/header-image.svg';
 
 const RejectedScreen = ({navigation}) => {
+
+   useEffect(() => {
+      const backAction = () => {
+        Alert.alert("Exit App", "Are you sure you want to exit?", [
+          { text: "Cancel", style: "cancel" },
+          { text: "Exit", onPress: () => BackHandler.exitApp() }
+        ]);
+        return true;
+      };
+      const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
+      return () => {
+        backHandler.remove();
+      };
+    }, []);
+
   return (
     <View className='items-center w-full justify-center'>
       <HeaderImage width={'100%'}/>

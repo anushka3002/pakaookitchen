@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Platform, TouchableOpacity, Modal, StyleSheet, Image, ScrollView, TouchableWithoutFeedback, PermissionsAndroid } from "react-native";
+import { View, Text, TextInput, Platform, TouchableOpacity, Modal, StyleSheet, Image, ScrollView, TouchableWithoutFeedback, PermissionsAndroid, BackHandler, Alert } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -128,20 +128,32 @@ const CreateAccount = ({ navigation }) => {
   
 
   const onSubmit = async (data) => {
-    try {
-      const response = await dispatch(createUserData(data)).unwrap();
-
-      if (response?.data?.user_data?.status === 'pending') {
-        navigation.navigate('Pending');
-      } else if (response?.data?.user_data?.status === 'rejected') {
-        navigation.navigate('Rejected');
-      } else if (response?.data?.user_data?.status === 'approved') {
-        navigation.navigate('Approved');
-      }
-    } catch (error) {
-      console.error('Error creating user:', error);
-    }
+    dispatch(createUserData(data))
   };
+
+  useEffect(() => {
+    const backAction = () => {
+      Alert.alert("Exit App", "Are you sure you want to exit?", [
+        { text: "Cancel", style: "cancel" },
+        { text: "Exit", onPress: () => BackHandler.exitApp() }
+      ]);
+      return true;
+    };
+    const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
+    return () => {
+      backHandler.remove();
+    };
+  }, []);
+
+  useEffect(()=>{
+    if (createProfile?.data?.data?.user_data?.status === 'pending') {
+      navigation.navigate('Pending');
+    } else if (createProfile?.data?.data?.user_data?.status === 'rejected') {
+      navigation.navigate('Rejected');
+    } else if (createProfile?.data?.data?.user_data?.status === 'approved') {
+      navigation.navigate('Approved');
+    }
+  },[createProfile])
 
   return (
     <ScrollView className='flex-1 bg-white px-5 py-6'>

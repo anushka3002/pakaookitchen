@@ -8,7 +8,6 @@ import Veg from '../../assets/veg.svg';
 import NonVeg from '../../assets/non-veg.svg';
 import Both from '../../assets/both.svg';
 import Search from '../../assets/search.svg';
-import Cross from '../../assets/cross.svg';
 import Clock from '../../assets/clock.svg';
 import { useDispatch, useSelector } from 'react-redux';
 import { addKitchenData, getCategory, getFoodStyle } from '../../reducers/kitchenSlice';
@@ -20,7 +19,7 @@ const AddKitchen = ({ navigation }) => {
     const [selectedCuisine, setSelectedCuisine] = useState('veg');
     const [selectedMealTimes, setSelectedMealTimes] = useState(['breakfast']);
     const [foodStyleText, setFoodStyleText] = useState('')
-    const { categoryData, foodStyle } = useSelector((state) => state?.kitchenData)
+    const { categoryData, foodStyle, addKitchen } = useSelector((state) => state?.kitchenData)
     const [foodFlag, setFoodFlag] = useState(false)
     const [foodId, setFoodId] = useState('')
     const [foodError, setFoodError] = useState(false)
@@ -42,8 +41,8 @@ const AddKitchen = ({ navigation }) => {
     };
 
     const serving = [
-        {name:'Mon To Sun', id: 0},
-        {name:'Mon To Fri', id: 1}
+        { name: 'Mon To Sun', id: 0 },
+        { name: 'Mon To Fri', id: 1 }
     ]
 
     function formatTimestampToTime(timestamp, meal) {
@@ -91,6 +90,13 @@ const AddKitchen = ({ navigation }) => {
         setFoodError(false)
     }
 
+    const formatTime = (value) => {
+        if (value.split(':')[0].length == 1) {
+            value = `0${value}`
+        }
+        return value;
+    }
+
     const handleSubmit = () => {
         const data = {
             "categoryId": selectedMealCategory,
@@ -98,13 +104,13 @@ const AddKitchen = ({ navigation }) => {
             "foodStyle": foodId,
             "servingDays": day,
             "mealTime": selectedMealTimes,
-            "breakfastDeliveryTime": breakfastDeliveryTime,
-            "lunchDeliveryTime": lunchDeliveryTime,
-            "dinnerDeliveryTime": dinnerDeliveryTime
+            "breakfastDeliveryTime": formatTime(breakfastDeliveryTime),
+            "lunchDeliveryTime": formatTime(lunchDeliveryTime),
+            "dinnerDeliveryTime": formatTime(dinnerDeliveryTime),
         }
-        if(foodFlag){
+        if (foodFlag) {
             dispatch(addKitchenData(data))
-        }else{
+        } else {
             setFoodError(true)
         }
     }
@@ -115,11 +121,11 @@ const AddKitchen = ({ navigation }) => {
             <ScrollView className="p-4 bg-white flex-1">
                 {/* Meal Category */}
                 <Text className="text-[18px] poppins-semibold mb-2">Meal Category <Text className='text-red-500'>*</Text></Text>
-                <View style={{gap:19}} className="flex-row justify-between mb-4">
+                <View style={{ gap: 19 }} className="flex-row justify-between mb-4">
                     {categoryData?.data?.data?.map((e, ind) => {
                         return (
-                            <TouchableOpacity key={ind} onPress={()=>setSelectedMealCategory(e.id)}
-                                style={{boxShadow:selectedMealCategory == e.id ? '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' : '0px 0px 10px 0px rgba(0, 0, 0, 0.14)'}}
+                            <TouchableOpacity key={ind} onPress={() => setSelectedMealCategory(e.id)}
+                                style={{ boxShadow: selectedMealCategory == e.id ? '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' : '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' }}
                                 className={`py-3 flex-1 w-[50%] text-[16px] poppins-medium rounded-xl ${selectedMealCategory === e.id ? 'btn-color' : ''
                                     }`}
                             >
@@ -141,7 +147,8 @@ const AddKitchen = ({ navigation }) => {
                         <View key={index} className="flex-1 items-center">
                             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                                 <TouchableOpacity
-                                    style={[selectedCuisine == item ? styles.blueBorder : "" ,{boxShadow: selectedCuisine === item ? '0px 0px 10px 0px rgba(5, 194, 104, 0.20)' : '0px 0px 10px 0px rgba(0, 0, 0, 0.14)',
+                                    style={[selectedCuisine == item ? styles.blueBorder : "", {
+                                        boxShadow: selectedCuisine === item ? '0px 0px 10px 0px rgba(5, 194, 104, 0.20)' : '0px 0px 10px 0px rgba(0, 0, 0, 0.14)',
                                         height: 84, width: 100, justifyContent: 'center',
                                         alignItems: 'center',
                                     }]}
@@ -183,7 +190,7 @@ const AddKitchen = ({ navigation }) => {
                     {foodStyleText?.length > 1 && showDropdown && <View
                         className="absolute left-0 right-0 mt-2 w-full border bg-white rounded-lg shadow-lg"
                         style={{
-                            boxShadow:'0px 0px 10px 0px rgba(0, 0, 0, 0.13)',
+                            boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)',
                             top: '100%', backgroundColor: 'white', zIndex: 10, borderWidth: 1,
                             borderColor: '#D6D6D6',
                         }}
@@ -192,7 +199,7 @@ const AddKitchen = ({ navigation }) => {
                             <TouchableOpacity key={ind} style={{
                                 // borderBottomWidth: ind!= foodStyle?.data?.data?.length-1 && 1,
                                 // borderBottomColor: ind!= foodStyle?.data?.data?.length-1 && '#D6D6D6',
-                            }} onPress={() => handleFoodStyleSelect(e.cuisine_name)}>
+                            }} onPress={() => handleFoodStyleSelect(e)}>
                                 <Text className="px-4 py-3 txt-grey poppins-regular">{e.cuisine_name}</Text>
                             </TouchableOpacity>
                         ))}
@@ -201,24 +208,24 @@ const AddKitchen = ({ navigation }) => {
 
                 {/* Serving Days */}
                 <Text className="text-[18px] mt-3 poppins-semibold mb-2">Serving Days <Text className='text-red-500'>*</Text></Text>
-                <View style={{gap:19}} className="flex-row space-x-4 mb-4 justify-between">
-                    {serving.map((el, ind)=>{
+                <View style={{ gap: 19 }} className="flex-row space-x-4 mb-4 justify-between">
+                    {serving.map((el, ind) => {
                         return <View key={ind} className='flex-1'>
-                        <Text className='text-[16px] poppins-medium mb-2'>{el.name == 'Mon To Sun' ? 'All Day' : 'Weekday'}</Text>
-                        <TouchableOpacity
-                            style={{boxShadow: day == el.id ? '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' : '0px 0px 10px 0px rgba(0, 0, 0, 0.14)'}}
-                            className={`py-3 text-[16px] poppins-medium rounded-xl ${day == el.id ? 'btn-color' : ''
-                                }`}
-                            onPress={() => setDay(el.id)}
-                        >
-                            <Text
-                                className={`text-center text-[16px] poppins-medium ${day == el.id ? 'text-white' : 'text-black'
+                            <Text className='text-[16px] poppins-medium mb-2'>{el.name == 'Mon To Sun' ? 'All Day' : 'Weekday'}</Text>
+                            <TouchableOpacity
+                                style={{ boxShadow: day == el.id ? '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' : '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' }}
+                                className={`py-3 text-[16px] poppins-medium rounded-xl ${day == el.id ? 'btn-color' : ''
                                     }`}
+                                onPress={() => setDay(el.id)}
                             >
-                                {el.name}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
+                                <Text
+                                    className={`text-center text-[16px] poppins-medium ${day == el.id ? 'text-white' : 'text-black'
+                                        }`}
+                                >
+                                    {el.name}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
                     })}
                 </View>
 
@@ -228,7 +235,7 @@ const AddKitchen = ({ navigation }) => {
                     {['breakfast', 'lunch', 'dinner'].map((item, index) => (
                         <TouchableOpacity
                             key={index}
-                            style={{boxShadow: selectedMealTimes.includes(item) ? '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' : '0px 0px 10px 0px rgba(0, 0, 0, 0.14)'}}
+                            style={{ boxShadow: selectedMealTimes.includes(item) ? '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' : '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' }}
                             className={`p-3 flex-1 rounded-xl ${selectedMealTimes.includes(item) ? 'btn-color' : ''
                                 }`}
                             onPress={() => toggleMealTime(item)}
@@ -259,7 +266,7 @@ const AddKitchen = ({ navigation }) => {
                                 placeholder="Enter Delivery Time"
                                 className="rounded-lg text-[15px] bg-white poppins-regular"
                             />
-                            <TouchableOpacity className='px-3 py-3' onPress={() => setShow(meal)}><Clock width={25} height={18}/></TouchableOpacity>
+                            <TouchableOpacity className='px-3 py-3' onPress={() => setShow(meal)}><Clock width={25} height={18} /></TouchableOpacity>
                         </View>
                         {show === meal && (
                             <DateTimePicker
