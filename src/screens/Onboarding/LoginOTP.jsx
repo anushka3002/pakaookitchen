@@ -1,23 +1,21 @@
-import { useFocusEffect } from '@react-navigation/native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
-import {tw} from 'nativewind'
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { login } from '../../reducers/authSlice';
+import { fetchUserData, login } from '../../reducers/authSlice';
 import Otp from '../../assets/otp.svg';
 import LeftImg from '../../assets/left-img.svg';
 import RightImg from '../../assets/right-img.svg';
 import { getCategory, getKitchenStatus } from '../../reducers/kitchenSlice';
 
-const LoginOTP = ({navigation,route}) => {
+const LoginOTP = ({ navigation, route }) => {
 
-  const {user,otp} = useSelector(state => state.auth)
-  const {kitchenStatus} = useSelector(state => state.kitchenData)
+  const { user, otp } = useSelector(state => state.auth)
+  const { kitchenStatus } = useSelector(state => state.kitchenData)
   const [otpValue, setOtpValue] = useState(new Array(6).fill(""));
   const [timer, setTimer] = useState(60);
   const [otpError, setOtpError] = useState('')
   const inputRefs = useRef([]);
-  const {phone} = route.params;
+  const { phone } = route.params;
   let phoneNumber = `+91${phone}`
   let maskedPhoneNumber = phoneNumber.replace(/(\d{8})(\d{3})$/, '$1***');
 
@@ -45,7 +43,7 @@ const LoginOTP = ({navigation,route}) => {
         updatedOtp[index] = "";
       } else if (index > 0) {
         inputRefs.current[index - 1]?.focus();
-        updatedOtp[index - 1] = ""; 
+        updatedOtp[index - 1] = "";
       }
       setOtpValue(updatedOtp);
     }
@@ -53,60 +51,60 @@ const LoginOTP = ({navigation,route}) => {
 
   const handleResend = () => {
     setTimer(60);
-    setOtpValue(new Array(6).fill("")); 
+    setOtpValue(new Array(6).fill(""));
     inputRefs.current[0].focus();
+    dispatch(fetchUserData(phone))
   };
   const dispatch = useDispatch()
 
   const handleLogin = () => {
     const userData = {
-      "phone" : phone,
-      "otpValue" : Number(otpValue.join(''))
+      "phone": phone,
+      "otpValue": Number(otpValue.join(''))
     }
     dispatch(login(userData))
     dispatch(getCategory())
   }
 
-  useEffect(()=>{
-      if(otp?.data?.success == true){
-        setOtpError('')
-        navigation.navigate('AddKitchen')
-        // if(otp?.data?.data?.data?.new_user == true){
-        //   navigation.navigate('CreateAccount',{phone: phoneNumber});
-        // }
-      }else if(otp?.data?.success == false){
-        setOtpError(otp?.error)
+  useEffect(() => {
+    if (otp?.data?.success == true) {
+      setOtpError('')
+      if (otp?.data?.data?.data?.new_user == true) {
+        navigation.replace('CreateAccount', { phone: phoneNumber });
       }
-      // else if(kitchenStatus?.data?.data?.status == 'pending'){
-      //   navigation.navigate('AddKitchen')
-      // }else if(kitchenStatus?.data?.data?.status == 'approved'){
-      //   navigation.navigate('Approved')
-      // }else if(kitchenStatus?.data?.data?.status == 'rejected'){
-      //   navigation.navigate('Rejected')
-      // }
-    },[otp, kitchenStatus])
+    } else if (otp?.error) {
+      setOtpError(otp?.error)
+    }
+    else if (kitchenStatus?.data?.data?.status == 'pending') {
+      navigation.replace('Pending')
+    } else if (kitchenStatus?.data?.data?.status == 'approved') {
+      navigation.replace('Approved')
+    } else if (kitchenStatus?.data?.data?.status == 'rejected') {
+      navigation.replace('Rejected')
+    }
+  }, [otp, kitchenStatus])
 
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(getKitchenStatus())
-  },[dispatch])
+  }, [dispatch])
 
   return (
     <View className='justify-center'>
-        <View className='flex flex-row justify-between'>
-        <LeftImg/>
-        <RightImg/>
-        </View>
+      <View className='flex flex-row justify-between'>
+        <LeftImg />
+        <RightImg />
+      </View>
       <View className='items-center mt-3'>
-        <Otp/>
+        <Otp />
       </View>
 
       <View className='items-center mt-4 mb-8'>
-        <Text className='text-[30px] font-bold'>OTP Verification</Text>
-        <Text className='text-xl font-medium text-[#7B7B7B] mt-2'>An authentication code has been sent to</Text>
-        <Text className='text-[17px] font-medium mt-2'>{maskedPhoneNumber}</Text>
+        <Text className='text-[30px] poppins-bold'>OTP Verification</Text>
+        <Text className='text-xl poppins-medium text-[#7B7B7B] mt-2 text-center'>An authentication code has been sent to</Text>
+        <Text className='text-[17px] poppins-medium mt-2'>{maskedPhoneNumber}</Text>
       </View>
 
-      <View className='flex-row justify-center'>
+      <View className='flex-row h-[46px] justify-center items-center'>
         {otpValue.map((digit, index) => (
           <TextInput
             key={index}
@@ -116,18 +114,20 @@ const LoginOTP = ({navigation,route}) => {
             onKeyPress={(e) => handleKeyPress(e, index)}
             keyboardType="numeric"
             maxLength={1}
-            className='w-[46px] h-[46px] rounded-lg border-2 mx-2 border-[#D6D6D6] rounded-lg text-center text-lg font-semibold text-black focus:border-blue-500'
+            className='w-[46px] pt-2 items-center rounded-lg border-2 mx-2 
+            border-[#D6D6D6] rounded-xl text-center text-lg poppins-semibold text-black focus:border-blue-500'
           />
         ))}
       </View>
+
       {otpError && <View className='px-4'><Text className='px-4 mt-2 text-red-500'>{otpError}</Text></View>}
       <View className={`flex-row items-center justify-center mt-8 ${timer > 0 ? 'mb-4' : 'mb-9'} mb-4`}>
-        <Text className='text-[16px] font-medium text-gray-600'>I didn't receive code. </Text>
+        <Text className='text-[16px] poppins-medium text-gray-600'>I didn't receive code. </Text>
         <TouchableOpacity disabled={timer > 0}
-         onPress={handleResend}
-         >
+          onPress={handleResend}
+        >
           <Text
-            className='text-[16px] txt-blue font-medium underline ${
+            className='text-[16px] txt-blue poppins-medium underline ${
               timer > 0 ? "opacity-50" : "opacity-100"
             }'
           >
@@ -135,14 +135,22 @@ const LoginOTP = ({navigation,route}) => {
           </Text>
         </TouchableOpacity>
       </View>
-      {timer && <Text className='text-center text-[15px] font-medium mb-9'>
+      {timer && <Text className='text-center text-[15px] poppins-medium mb-9'>
         {timer > 0 ? `0:${timer < 10 ? `0${timer}` : timer} Sec left` : ""}
       </Text>}
       <TouchableOpacity
+        disabled={!otpValue.every(digit => digit !== "" && /^\d$/.test(digit))}
         onPress={handleLogin}
-        className='mx-4 btn-color py-4 rounded-lg'
+        className={`${otpValue.every(digit => digit !== "" && /^\d$/.test(digit)) ? 'btn-color' : 'btn-disabled'} mx-4 py-3 rounded-xl mt-5`}
+        style={{ height: 56 }}
       >
-        <Text className='text-white text-center text-[18px] font-medium'>Submit</Text>
+        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+          {otp?.loading ? (
+            <ActivityIndicator size="large" color="#FFFFFF" />
+          ) : (
+            <Text className="text-center text-[18px] text-white poppins-medium">Submit</Text>
+          )}
+        </View>
       </TouchableOpacity>
     </View>
   );

@@ -32,12 +32,12 @@ const initialState = {
   }
 };
 
-// Create a slice for user & OTP
+// Create a slice for Kitchen data
 export const kitchenSlice = createSlice({
   name: 'kitchenData',
   initialState,
   reducers: {
-    // User Reducers
+    // Kitchen Reducers
     setProfileLoading: (state) => {
       state.createProfile.loading = true;
     },
@@ -136,7 +136,7 @@ export const addKitchenData = (kitchenData) => async (dispatch) => {
   
       const headers = {
         'x-api-key': REACT_NATIVE_X_API_KEY,
-        'x-public-key': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2l0Y2hlbiIsImlhdCI6MTczODk1OTc2MSwiZXhwIjoxNzQ0MTQzNzYxfQ.7GR1h8_cqTuKJ0kFilekuUEmUJ9sbtr97mIAzYgKEDc',
+        'x-public-key': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2l0Y2hlbiIsImlhdCI6MTczOTYzOTY1NCwiZXhwIjoxNzQ0ODIzNjU0fQ.2Hi-ZZkDY8_cANERVRaFmI-v2_EHFia_lC7rX2Ok79A',
         'x-auth-key': authToken, 
         'Content-Type': 'application/json'
       };

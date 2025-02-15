@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState } from "react";
+import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import "./global.css";
 import PendingScreen from './src/screens/ApplicationStatus/Pending';
@@ -18,9 +18,9 @@ import { getKitchenStatus } from "./src/reducers/kitchenSlice";
 
 const Stack = createNativeStackNavigator();
 
-function RootStack() {
+function RootStack({ initialRoute }) {
   return (
-    <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
+    <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Splash" component={Splash} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="LoginOTP" component={LoginOTP} />
@@ -36,36 +36,48 @@ function RootStack() {
 
 function AppWrapper() {
   const dispatch = useDispatch();
-  const navigation = useNavigation();
   const kitchenStatus = useSelector(state => state.kitchenData?.kitchenStatus);
+  const [initialRoute, setInitialRoute] = useState("Splash");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchToken = async () => {
+    const fetchInitialRoute = async () => {
       try {
         const authToken = await EncryptedStorage.getItem('auth_token');
-        if (authToken) {
+
+        if (!authToken) {
+          setInitialRoute("Login");
+        } else {
           dispatch(getKitchenStatus());
         }
       } catch (error) {
         console.error("Error fetching token:", error);
+        setInitialRoute("Login");
       }
     };
-    fetchToken();
+
+    fetchInitialRoute();
   }, [dispatch]);
 
   useEffect(() => {
-    if (kitchenStatus?.data?.data?.status === null) {
-      navigation.navigate('CreateAccount');
-    } else if (kitchenStatus?.data?.data?.status === 'pending') {
-      navigation.navigate('Pending');
-    } else if (kitchenStatus?.data?.data?.status === 'approved') {
-      navigation.navigate('Approved');
-    } else if (kitchenStatus?.data?.data?.status === 'rejected') {
-      navigation.navigate('Rejected');
-    }
-  }, [kitchenStatus, navigation]);
+    if (kitchenStatus?.data?.data?.status !== undefined) {
+      if (kitchenStatus?.data?.data?.status === null) {
+        setInitialRoute("CreateAccount");
+      } else if (kitchenStatus?.data?.data?.status === 'pending') {
+        setInitialRoute("Pending");
+      } else if (kitchenStatus?.data?.data?.status === 'approved') {
+        setInitialRoute("Approved");
+      } else if (kitchenStatus?.data?.data?.status === 'rejected') {
+        setInitialRoute("Rejected");
+      }
 
-  return <RootStack />;
+      setLoading(false);
+    }
+  }, [kitchenStatus]);
+
+  if (loading) return null;
+
+  return <RootStack initialRoute={initialRoute} />;
 }
 
 export default function App() {

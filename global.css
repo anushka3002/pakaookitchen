@@ -22,11 +22,72 @@
     background-color: rgba(38, 80, 216, 0.06);
     filter: blur(2px);
 }
-
-.white-btn {
-    border-radius: 15px;
-    border: 1px solid rgba(214, 214, 214, 0.60);
-    /* box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.25);  */
-    /* transition: box-shadow 0.3s ease-in-out; */
-  }
   
+.poppins-black {
+    font-family: 'Poppins-Black';
+}
+
+.poppins-black-italic {
+    font-family: 'Poppins-BlackItalic';
+}
+
+.poppins-bold {
+    font-family: 'Poppins-Bold';
+    line-height: 32px;
+}
+
+.poppins-bold-italic {
+    font-family: 'Poppins-BoldItalic';
+}
+
+.poppins-extra-bold {
+    font-family: 'Poppins-ExtraBold';
+}
+
+.poppins-extra-bold-italic {
+    font-family: 'Poppins-ExtraBoldItalic';
+}
+
+.poppins-extra-light {
+    font-family: 'Poppins-ExtraLight';
+}
+
+.poppins-extra-light-italic {
+    font-family: 'Poppins-ExtraLightItalic';
+}
+
+.poppins-light {
+    font-family: 'Poppins-Light';
+}
+
+.poppins-light-italic {
+    font-family: 'Poppins-LightItalic';
+}
+
+.poppins-medium {
+    font-family: 'Poppins-Medium';
+}
+
+.poppins-medium-italic {
+    font-family: 'Poppins-MediumItalic';
+}
+
+.poppins-regular {
+    font-family: 'Poppins-Regular';
+}
+
+.poppins-semibold {
+    font-family: 'Poppins-SemiBold';
+}
+
+.poppins-semibold-italic {
+    font-family: 'Poppins-SemiBoldItalic';
+}
+
+.poppins-thin {
+    font-family: 'Poppins-Thin';
+}
+
+.poppins-thin-italic {
+    font-family: 'Poppins-ThinItalic';
+}

@@ -36,7 +36,7 @@ export const authSlice = createSlice({
       state.user.loading = false;
       state.user.data = null;
     },
-
+    
 
     // OTP Reducers
     setOtpLoading: (state) => {

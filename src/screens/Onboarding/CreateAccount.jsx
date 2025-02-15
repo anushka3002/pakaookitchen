@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Platform, TouchableOpacity, Modal, StyleSheet, Image, ScrollView, TouchableWithoutFeedback, PermissionsAndroid } from "react-native";
+import { View, Text, TextInput, Platform, TouchableOpacity, Modal, StyleSheet, Image, ScrollView, TouchableWithoutFeedback, PermissionsAndroid, BackHandler, Alert } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -67,12 +67,10 @@ const CreateAccount = ({ navigation }) => {
 
   const requestLocationPermission = async () => {
     if (Platform.OS === "android") {
-      console.log('1')
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
       );
 
-      console.log(granted, 'hey')
       if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
         console.log("Location permission denied");
         return;
@@ -84,7 +82,6 @@ const CreateAccount = ({ navigation }) => {
   const getCurrentLocation = () => {
     Geolocation.getCurrentPosition(
       (position) => {
-        console.log("Current Position:", position);
         setLocation({
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
@@ -110,7 +107,6 @@ const CreateAccount = ({ navigation }) => {
       handleLocation(locationCord?.data, 'auto')
     }
   }, [locationCord?.data])
-  console.log(location, 'location')
 
   const handleLocation = (value, type) => {
     if (type == 'manual') {
@@ -132,25 +128,37 @@ const CreateAccount = ({ navigation }) => {
   
 
   const onSubmit = async (data) => {
-    try {
-      const response = await dispatch(createUserData(data)).unwrap();
-
-      if (response?.data?.user_data?.status === 'pending') {
-        navigation.navigate('Pending');
-      } else if (response?.data?.user_data?.status === 'rejected') {
-        navigation.navigate('Rejected');
-      } else if (response?.data?.user_data?.status === 'approved') {
-        navigation.navigate('Approved');
-      }
-    } catch (error) {
-      console.error('Error creating user:', error);
-    }
+    dispatch(createUserData(data))
   };
+
+  useEffect(() => {
+    const backAction = () => {
+      Alert.alert("Exit App", "Are you sure you want to exit?", [
+        { text: "Cancel", style: "cancel" },
+        { text: "Exit", onPress: () => BackHandler.exitApp() }
+      ]);
+      return true;
+    };
+    const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
+    return () => {
+      backHandler.remove();
+    };
+  }, []);
+
+  useEffect(()=>{
+    if (createProfile?.data?.data?.user_data?.status === 'pending') {
+      navigation.navigate('Pending');
+    } else if (createProfile?.data?.data?.user_data?.status === 'rejected') {
+      navigation.navigate('Rejected');
+    } else if (createProfile?.data?.data?.user_data?.status === 'approved') {
+      navigation.navigate('Approved');
+    }
+  },[createProfile])
 
   return (
     <ScrollView className='flex-1 bg-white px-5 py-6'>
-      <Text className='text-[30px] font-bold text-center mb-1'>Create New Account</Text>
-      <Text style={{ color: '#7B7B7B' }} className='text-[14px] font-medium text-center mb-6'>
+      <Text className='text-[29px] poppins-bold text-center mb-1'>Create New Account</Text>
+      <Text style={{ color: '#7B7B7B' }} className='text-[14px] poppins-medium text-center mb-6'>
         Enter your information below and get started.
       </Text>
 
@@ -161,7 +169,7 @@ const CreateAccount = ({ navigation }) => {
         <CustomTextInput control={control} label={'Aadhar Number '} name={'aadhar_number'} placeholder={'Enter Aadhar Number'} errors={errors} capitalize={false} keyboard={'number-pad'} />
 
         <View className='mb-3'>
-          <Text className='text-[15px] font-medium mb-3'>
+          <Text className='text-[15px] poppins-medium'>
             Aadhar Image <Text className='text-red-500'>*</Text>
           </Text>
           <View className='flex flex-row justify-between'>
@@ -179,7 +187,7 @@ const CreateAccount = ({ navigation }) => {
         <CustomTextInput control={control} label={'PAN Number '} name={'pan_number'} placeholder={'Enter PAN Number'} errors={errors} capitalize={true} />
 
         <View className="mb-3">
-          <Text className="text-[15px] font-medium mb-3">
+          <Text className="text-[15px] poppins-medium">
             PAN Image <Text className="text-red-500">*</Text>
           </Text>
           <View className="flex flex-row justify-between">
@@ -197,7 +205,7 @@ const CreateAccount = ({ navigation }) => {
         <CustomTextInput control={control} label={'GST Number '} name={'gst_number'} placeholder={'Enter GST Number'} errors={errors} capitalize={true} />
 
         <View className="mb-3">
-          <Text className="text-[15px] font-medium mb-3">
+          <Text className="text-[15px] poppins-medium">
             GST Image <Text className="text-red-500">*</Text>
           </Text>
 
@@ -210,7 +218,7 @@ const CreateAccount = ({ navigation }) => {
 
         <CustomTextInput control={control} label={'FSSAI Number '} name={'fssia_number'} placeholder={'Enter FSSAI Number'} errors={errors} capitalize={true} />
         <View className="mb-3">
-          <Text className="text-[15px] font-medium mb-3">
+          <Text className="text-[15px] poppins-medium">
             FSSAI Image <Text className="text-red-500">*</Text>
           </Text>
           <CustomImageController control={control} controllerName={'fssai_image'} imageValue={'fssaiImage'} setImages={setImages} images={images} imageName={'Back'} />
@@ -220,10 +228,11 @@ const CreateAccount = ({ navigation }) => {
         </View>
 
         <View className="mb-3">
-          <Text className="text-[15px] font-medium mb-2">FSSAI Expiry Date <Text className="text-red-500">*</Text></Text>
+          <Text className="text-[15px] poppins-medium mb-2">FSSAI Expiry Date <Text className="text-red-500">*</Text></Text>
           <View className="border border-gray-300 px-3 rounded-lg items-center flex-row justify-between">
             <TextInput
               placeholder="Enter FSSAI Expiry Date"
+              className="poppins-regular"
               onChangeText={(e) => {
                 setConvertedExpiryDate(e);
                 setValue('fssai_expiry_date', e)
@@ -244,13 +253,13 @@ const CreateAccount = ({ navigation }) => {
         </View>
 
         <View className="mb-3">
-          <View className="flex-row items-center"><Text className="text-[15px] font-medium mb-2 mr-1">Kitchen Address <Text className="text-red-500">*</Text></Text><Info /></View>
+          <View className="flex-row items-center"><Text className="text-[15px] poppins-medium mb-2 mr-1">Kitchen Address <Text className="text-red-500">*</Text></Text><Info /></View>
           <Controller
             control={control}
             name="address_line_one"
             render={({ field: { onChange, value } }) => (
               <TextInput
-                className="border border-gray-300 mb-3 rounded-lg px-3 py-3"
+                className="border poppins-regular border-gray-300 mb-3 rounded-lg px-3 py-3"
                 placeholder="Enter Address Line 1"
                 onChangeText={onChange}
                 value={value}
@@ -265,7 +274,7 @@ const CreateAccount = ({ navigation }) => {
             name="address_line_two"
             render={({ field: { onChange, value } }) => (
               <TextInput
-                className="border border-gray-300 rounded-lg px-3 py-3"
+                className="border poppins-regular border-gray-300 rounded-lg px-3 py-3"
                 placeholder="Enter Address Line 2"
                 onChangeText={onChange}
                 value={value}
@@ -275,11 +284,11 @@ const CreateAccount = ({ navigation }) => {
               />
             )}
           />
-          {errors.address_line_one && <Text className="text-red-500 text-sm">{errors.address_line_one.message}</Text>}
-        </View>
+          {errors.address_line_one && <Text className="text-red-500 poppins-regular text-sm">{errors.address_line_one.message}</Text>}
+        </View> 
         <View className="border mb-3 border-gray-300 rounded-lg px-3 flex-row justify-between items-center">
           <TextInput
-            className="w-[90%]"
+            className="w-[90%] poppins-regular"
             placeholder="Search Address"
             value={query}
             onChangeText={(text) => {
@@ -287,6 +296,7 @@ const CreateAccount = ({ navigation }) => {
               handleSearchLocation(text)
               dispatch(searchMapData(text))
             }}
+            numberOfLines={1}
           />
           <Search />
         </View>
@@ -299,27 +309,27 @@ const CreateAccount = ({ navigation }) => {
                 handleLocation(item.description, 'manual')
               }}
             >
-              <Text>{item.description}</Text>
+              <Text className="poppins-regular">{item.description}</Text>
             </TouchableOpacity>
           ))}
         </View>}
 
         {/* map component */}
-        <Map geolocation={geolocation} selectedLocation={selectedLocation} />
+        <Map geolocation={geolocation} getCurrentLocation={getCurrentLocation} selectedLocation={selectedLocation} />
 
         <CustomTextInput control={control} label={'Kitchen Pincode '} name={'pincode'} placeholder={'Enter Kitchen Pincode'} errors={errors} keyboard={'number-pad'} />
         <CustomTextInput control={control} label={'Bank Account Holder Name '} name={'bank_holder_name'} placeholder={'Enter Bank Account Holder Name'} errors={errors} />
 
         <View className="mb-3">
-          <Text className="text-[15px] font-medium mb-2">
-            Bank Name <Text className="text-red-500">*</Text>
+          <Text className="text-[15px] poppins-medium mb-2">
+            Bank Name <Text className="text-red-500 poppins-regular">*</Text>
           </Text>
           <View className="border border-gray-300 rounded-lg px-3 py-3">
             <TouchableOpacity
               onPress={() => setModalVisible(true)}
               style={styles.dropdownTouchable}
             >
-              <Text className={`${selectedBank ? '' : 'text-gray-400'}`}>
+              <Text className={`${selectedBank ? '' : 'text-gray-400'} poppins-regular`}>
                 {selectedBank ? selectedBank.label : "Select Bank"}
               </Text>
             </TouchableOpacity>
@@ -328,6 +338,7 @@ const CreateAccount = ({ navigation }) => {
             <Text className="text-red-500 text-sm">{errors.bank_name.message}</Text>
           )}
         </View>
+
         <Modal
           animationType="fade"
           transparent={true}
@@ -339,14 +350,14 @@ const CreateAccount = ({ navigation }) => {
           </TouchableWithoutFeedback>
           <View className="flex-1 justify-center items-center">
             <View style={styles.modalContent}>
-              <Text className="text-[18px] font-bold mb-5 text-center">Select Bank</Text>
+              <Text className="text-[18px] poppins-bold mb-5 text-center">Select Bank</Text>
               {validBanks.map((bank, index) => (
                 <TouchableOpacity
                   key={index}
                   onPress={() => handleSelectBank(bank)}
                   className="py-3 px-4"
                 >
-                  <Text className="text-[15px]">{bank.label}</Text>
+                  <Text className="text-[15px] poppins-regular">{bank.label}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -360,7 +371,7 @@ const CreateAccount = ({ navigation }) => {
         onPress={handleSubmit(onSubmit)}
         className="btn-color py-3 rounded-lg mt-4 mb-10"
       >
-        <Text className="text-center text-[18px] text-white font-medium">Create Account</Text>
+        <Text className="text-center text-[18px] text-white poppins-medium">Create Account</Text>
       </TouchableOpacity>
 
     </ScrollView>
@@ -398,6 +409,9 @@ const styles = StyleSheet.create({
   map: {
     ...StyleSheet.absoluteFillObject,
   },
+  poppinsBlack: {
+    fontFamily: 'Poppins-Black'
+  }
 });
 
 export default CreateAccount;
