@@ -15,6 +15,7 @@ import { Provider, useDispatch, useSelector } from 'react-redux';
 import { store } from './store';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import { getKitchenStatus } from "./src/reducers/kitchenSlice";
+import SplashScreen from 'react-native-splash-screen'
 
 const Stack = createNativeStackNavigator();
 
@@ -37,8 +38,9 @@ function RootStack({ initialRoute }) {
 function AppWrapper() {
   const dispatch = useDispatch();
   const kitchenStatus = useSelector(state => state.kitchenData?.kitchenStatus);
-  const [initialRoute, setInitialRoute] = useState("Splash");
+  const [initialRoute, setInitialRoute] = useState("Login");
   const [loading, setLoading] = useState(true);
+  console.log(loading)
 
   useEffect(() => {
     const fetchInitialRoute = async () => {
@@ -60,6 +62,10 @@ function AppWrapper() {
   }, [dispatch]);
 
   useEffect(() => {
+    SplashScreen.hide()
+  }, [])
+
+  useEffect(() => {
     if (kitchenStatus?.data?.data?.status !== undefined) {
       if (kitchenStatus?.data?.data?.status === null) {
         setInitialRoute("CreateAccount");
@@ -75,7 +81,7 @@ function AppWrapper() {
     }
   }, [kitchenStatus]);
 
-  if (loading) return null;
+
 
   return <RootStack initialRoute={initialRoute} />;
 }
