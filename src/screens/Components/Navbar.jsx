@@ -12,7 +12,7 @@ const Navbar = () => {
     <TouchableOpacity onPress={() =>navigation.goBack()} className=''>
     <Back/>
     </TouchableOpacity>
-    <Text className="flex-1 text-center right-4 text-[21px] font-bold text-black">
+    <Text className="flex-1 text-center right-4 text-[21px] poppins-bold text-black">
       Add Kitchen
     </Text>
   </View>

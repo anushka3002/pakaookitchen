@@ -32,12 +32,12 @@ const initialState = {
   }
 };
 
-// Create a slice for user & OTP
+// Create a slice for Kitchen data
 export const kitchenSlice = createSlice({
   name: 'kitchenData',
   initialState,
   reducers: {
-    // User Reducers
+    // Kitchen Reducers
     setProfileLoading: (state) => {
       state.createProfile.loading = true;
     },

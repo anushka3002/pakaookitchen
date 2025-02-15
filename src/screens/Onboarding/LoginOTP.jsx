@@ -101,9 +101,9 @@ const LoginOTP = ({navigation,route}) => {
       </View>
 
       <View className='items-center mt-4 mb-8'>
-        <Text className='text-[30px] font-bold'>OTP Verification</Text>
-        <Text className='text-xl font-medium text-[#7B7B7B] mt-2'>An authentication code has been sent to</Text>
-        <Text className='text-[17px] font-medium mt-2'>{maskedPhoneNumber}</Text>
+        <Text className='text-[30px] poppins-bold'>OTP Verification</Text>
+        <Text className='text-xl poppins-medium text-[#7B7B7B] mt-2'>An authentication code has been sent to</Text>
+        <Text className='text-[17px] poppins-medium mt-2'>{maskedPhoneNumber}</Text>
       </View>
 
       <View className='flex-row justify-center'>
@@ -116,18 +116,18 @@ const LoginOTP = ({navigation,route}) => {
             onKeyPress={(e) => handleKeyPress(e, index)}
             keyboardType="numeric"
             maxLength={1}
-            className='w-[46px] h-[46px] rounded-lg border-2 mx-2 border-[#D6D6D6] rounded-lg text-center text-lg font-semibold text-black focus:border-blue-500'
+            className='w-[46px] h-[46px] rounded-lg border-2 mx-2 border-[#D6D6D6] rounded-lg text-center text-lg poppins-semibold text-black focus:border-blue-500'
           />
         ))}
       </View>
       {otpError && <View className='px-4'><Text className='px-4 mt-2 text-red-500'>{otpError}</Text></View>}
       <View className={`flex-row items-center justify-center mt-8 ${timer > 0 ? 'mb-4' : 'mb-9'} mb-4`}>
-        <Text className='text-[16px] font-medium text-gray-600'>I didn't receive code. </Text>
+        <Text className='text-[16px] poppins-medium text-gray-600'>I didn't receive code. </Text>
         <TouchableOpacity disabled={timer > 0}
          onPress={handleResend}
          >
           <Text
-            className='text-[16px] txt-blue font-medium underline ${
+            className='text-[16px] txt-blue poppins-medium underline ${
               timer > 0 ? "opacity-50" : "opacity-100"
             }'
           >
@@ -135,14 +135,14 @@ const LoginOTP = ({navigation,route}) => {
           </Text>
         </TouchableOpacity>
       </View>
-      {timer && <Text className='text-center text-[15px] font-medium mb-9'>
+      {timer && <Text className='text-center text-[15px] poppins-medium mb-9'>
         {timer > 0 ? `0:${timer < 10 ? `0${timer}` : timer} Sec left` : ""}
       </Text>}
       <TouchableOpacity
         onPress={handleLogin}
         className='mx-4 btn-color py-4 rounded-lg'
       >
-        <Text className='text-white text-center text-[18px] font-medium'>Submit</Text>
+        <Text className='text-white text-center text-[18px] poppins-medium'>Submit</Text>
       </TouchableOpacity>
     </View>
   );

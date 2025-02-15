@@ -68,10 +68,10 @@ const Dashboard = () => {
                 <View style={{ marginLeft: 13 }}>
                   <View className='flex-row justify-center items-center'>
                     <Location/>
-                    <Text className='text-white ml-2 text-[13px] font-semibold'>No 4, prema mandir, Kodihalli..</Text>
+                    <Text className='text-white ml-2 text-[13px] poppins-semibold'>No 4, prema mandir, Kodihalli..</Text>
                   </View>
                   <View className='flex-row items-center'>
-                    <Text className='text-white text-[13px] font-semibold'>The Cook's Corner</Text>
+                    <Text className='text-white text-[13px] poppins-semibold'>The Cook's Corner</Text>
                     <Text className='text-white ml-2'>(</Text>
                     <Image
                       source={require('../../assets/rating.png')}
@@ -94,16 +94,16 @@ const Dashboard = () => {
                 style={{ left: 12 }}
                 source={require('../../assets/noti.png')}
               />
-              <Text className='absolute left-4 font-medium text-white'
+              <Text className='absolute left-4 poppins-medium text-white'
                 style={{ left: 16, bottom: 8, fontSize: 10 }}
               >5</Text>
             </View>
           </View>
 
           <View className='items-center mt-2'>
-            <Text className='text-white text-[16px] font-bold'>John K Square</Text>
+            <Text className='text-white text-[16px] poppins-bold'>John K Square</Text>
             <Text style={{ fontWeight: 800, fontSize: 22 }} className='text-white mt-1'>Available Balance</Text>
-            <Text style={{ fontSize: 25 }} className='font-semibold text-white mt-1'>₹ 15,000</Text>
+            <Text style={{ fontSize: 25 }} className='poppins-semibold text-white mt-1'>₹ 15,000</Text>
           </View>
 
           <View style={styles.whiteBtn} className='flex-row bg-white items-center mx-auto px-9 py-4 rounded-xl mt-5'>
@@ -113,8 +113,8 @@ const Dashboard = () => {
             /> */}
             <OrderBlue/>
             <View className='ml-3'>
-              <Text className='text-[18px] font-semibold'>Orders</Text>
-              <Text style={{ color: '#7B7B7B' }} className='text-[16px] font-medium'>150 Total Order</Text>
+              <Text className='text-[18px] poppins-semibold'>Orders</Text>
+              <Text style={{ color: '#7B7B7B' }} className='text-[16px] poppins-medium'>150 Total Order</Text>
             </View>
           </View>
         </ImageBackground>
@@ -134,29 +134,29 @@ const Dashboard = () => {
             </View>
           </View>
         </View>
-        <Text className='text-[21px] font-bold mt-2'>Order Statistics</Text>
+        <Text className='text-[21px] poppins-bold mt-2'>Order Statistics</Text>
         <View style={{ gap: 20 }} className='flex-row mt-3'>
           {['Success Orders', 'Cancelled'].map((e,ind) => {
             return <View key={ind} className='items-center flex-1 py-4' style={styles.whiteBtn}>
               {e == 'Success Orders' ? <Success/> : <Cancelled/>}
-              <Text style={{ color: '#000000' }} className='text-[30px] font-bold mt-2'>{e == 'Success Orders' ? 110 : '05'}</Text>
-              <Text style={{ color: '#7B7B7B' }} className='text-[16px] font-medium'>{e == 'Success Orders' ? 'Success Orders' : 'Cancelled'}</Text>
+              <Text style={{ color: '#000000' }} className='text-[30px] poppins-bold mt-2'>{e == 'Success Orders' ? 110 : '05'}</Text>
+              <Text style={{ color: '#7B7B7B' }} className='text-[16px] poppins-medium'>{e == 'Success Orders' ? 'Success Orders' : 'Cancelled'}</Text>
             </View>
           })}
         </View>
-        <Text className='text-[21px] font-bold mt-3 mb-3'>Grow Your Business</Text>
+        <Text className='text-[21px] poppins-bold mt-3 mb-3'>Grow Your Business</Text>
         {business.map((elm,ind) => {
           return <View key={ind} style={styles.whiteBtn} className='relative flex-row mb-5 px-3 py-3 justify-between items-center'>
             <View className='flex-row items-center'>
               {elm.icon}
               <View className='ml-2'>
-                <Text className='text-[17px] font-bold'>{elm.title}</Text>
+                <Text className='text-[17px] poppins-bold'>{elm.title}</Text>
                 <Text style={{ color: '#7B7B7B' }} className='text-[14px]'>{elm.subtitle}</Text>
               </View>
             </View>
             <NextArrow/>
             {elm.plan && <View className='absolute' style={{ backgroundColor: '#008000', top:0, right: 40, borderBottomRightRadius: 20, borderBottomLeftRadius: 20 }}>
-              <Text className='text-white text-[12px] font-medium px-3 py-2'>2 Plan Active</Text></View>}
+              <Text className='text-white text-[12px] poppins-medium px-3 py-2'>2 Plan Active</Text></View>}
           </View>
         })}
       </View>

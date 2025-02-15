@@ -20,7 +20,7 @@ const Stack = createNativeStackNavigator();
 
 function RootStack() {
   return (
-    <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
+    <Stack.Navigator initialRouteName="CreateAccount" screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Splash" component={Splash} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="LoginOTP" component={LoginOTP} />
@@ -57,7 +57,7 @@ function AppWrapper() {
     if (kitchenStatus?.data?.data?.status === null) {
       navigation.navigate('CreateAccount');
     } else if (kitchenStatus?.data?.data?.status === 'pending') {
-      navigation.navigate('Pending');
+      navigation.navigate('CreateAccount');
     } else if (kitchenStatus?.data?.data?.status === 'approved') {
       navigation.navigate('Approved');
     } else if (kitchenStatus?.data?.data?.status === 'rejected') {

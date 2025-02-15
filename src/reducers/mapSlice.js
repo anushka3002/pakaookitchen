@@ -22,12 +22,12 @@ const initialState = {
   }
 };
 
-// Create a slice for user & OTP
+// Create a slice for Map
 export const mapSlice = createSlice({
   name: 'map',
   initialState,
   reducers: {
-    // User Reducers
+    // Map Reducers
     setSearchLoading: (state) => {
       state.searchlocation.loading = true;
     },
@@ -59,7 +59,7 @@ export const mapSlice = createSlice({
       state.geolocation.data = null
     },
 
-    // Location Reducers
+    // Location coordinates Reducers
     setLocationCordLoading: (state) => {
       state.locationCord.loading = true;
       state.locationCord.error = null;
@@ -114,11 +114,8 @@ export const getAddressFromCoordinates = (latitude, longitude) => async (dispatc
     try {
       dispatch(setLocationCordLoading());
       const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`);
-      console.log(response,'response')
       dispatch(setLocationCordSuccess(response?.data?.results[0].formatted_address));
-      console.log(response?.data?.results[0].formatted_address,'adres')
     } catch (error) {
-      console.log(error,'error')
       if (error.response) {
         dispatch(setLocationCordError(error.response.data?.error || "Something went wrong"));
       } else {

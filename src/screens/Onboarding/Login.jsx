@@ -37,13 +37,13 @@ const LoginScreen = ({ navigation }) => {
       </View>
 
       <View className='items-center mt-4 mb-8'>
-        <Text className='text-[30px] font-bold text-black'>Welcome Back</Text>
-        <Text className='text-xl font-medium text-[#7B7B7B] mt-2'>Hello there, login in to</Text>
+        <Text className='text-[30px] poppins-bold text-black'>Welcome Back</Text>
+        <Text className='text-xl poppins-medium text-[#7B7B7B] mt-2'>Hello there, login in to</Text>
       </View>
 
       <View className='px-5'>
         <View>
-          <Text className='text-[15px] font-medium mb-3'>
+          <Text className='text-[15px] poppins-medium mb-3'>
             Phone number <Text className='text-red-500'>*</Text>
           </Text>
           <TextInput
@@ -57,7 +57,7 @@ const LoginScreen = ({ navigation }) => {
         </View>
 
         <TouchableOpacity disabled={phoneNumber.length !=10} onPress={handleLogin} className={`${phoneNumber.length !=10 ? 'btn-disabled' : 'btn-color'} rounded-lg py-4 mt-5`}>
-          <Text className={`text-center text-[18px] text-white font-medium`}>Login Now</Text>
+          <Text className={`text-center text-[18px] text-white poppins-medium`}>Login Now</Text>
         </TouchableOpacity>
       </View>
     </View>

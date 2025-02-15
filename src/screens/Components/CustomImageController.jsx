@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, Image, StyleSheet, ImageBackground } from 'react-native'
 import React from 'react'
 import Camera from '../../assets/camera.svg';
 import { Controller } from 'react-hook-form';
@@ -15,19 +15,22 @@ const CustomImageController = ({control, controllerName, imageValue, setImages, 
                         onPress={() => {
                             handleImageUpload(imageValue, onChange, setImages);
                         }}
-                        style={[!images[imageValue] && styles.dashedBorder, { width: controllerName == 'gst_image' || controllerName == 'fssai_image' ? '100%' : '47%', height: '121px' }]} 
+                        style={[styles.dashedBorder, { width: controllerName == 'gst_image' || controllerName == 'fssai_image' ? '100%' : '47%', height: '121px' }]} 
                         className={`${!images[imageValue] && (controllerName == 'gst_image' || controllerName == 'fssai_image' ? 'py-14 px-3' : 'py-5 px-3')} justify-center items-center`}
                     >
                         {images[imageValue] ? (
-                            <Image
+                            <ImageBackground
                                 source={{ uri: images[imageValue] }}
                                 style={{ width: '100%', height: 100, borderRadius: 10 }}
                                 resizeMode="contain"
-                            />
-                        ) : (
-                            <View>
+                                className='items-center justify-center'
+                            >
                                 <Camera />
-                                { controllerName != 'gst_image' && controllerName != 'fssai_image' && <Text className='text-gray-500 mt-1'>{imageName}</Text>}
+                            </ImageBackground>
+                        ) : (
+                            <View className='items-center'>
+                                <Camera />
+                                { controllerName != 'gst_image' && controllerName != 'fssai_image' && <Text className='text-gray-500 poppins-medium mt-1'>{imageName}</Text>}
                             </View>
                         )}
                     </TouchableOpacity>
