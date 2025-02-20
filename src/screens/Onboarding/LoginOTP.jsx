@@ -1,17 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserData, login } from '../../reducers/authSlice';
+import { fetchUserData, login, setUserData } from '../../reducers/authSlice';
 import Otp from '../../assets/otp.svg';
 import LeftImg from '../../assets/left-img.svg';
 import RightImg from '../../assets/right-img.svg';
 import { getCategory, getKitchenStatus } from '../../reducers/kitchenSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginOTP = ({ navigation, route }) => {
 
   const { user, otp } = useSelector(state => state.auth)
   const { kitchenStatus } = useSelector(state => state.kitchenData)
   const [otpValue, setOtpValue] = useState(new Array(6).fill(""));
+  const [storedKitchenStatus, setStoredKitchenStatus] = useState(null);
   const [timer, setTimer] = useState(60);
   const [otpError, setOtpError] = useState('')
   const inputRefs = useRef([]);
@@ -64,25 +66,43 @@ const LoginOTP = ({ navigation, route }) => {
     }
     dispatch(login(userData))
     dispatch(getCategory())
+    dispatch(setUserData({data:null, loading:false, error:null}))
   }
 
   useEffect(() => {
+    const fetchKitchenStatus = async () => {
+      try {
+        const status = await AsyncStorage.getItem('kitchenApproved');
+        setStoredKitchenStatus(status);
+      } catch (error) {
+        console.error('Error retrieving kitchen status', error);
+      }
+    };
+
+    fetchKitchenStatus();
+  }, []); 
+
+  useEffect(() => {
+    
     if (otp?.data?.success == true) {
       setOtpError('')
       if (otp?.data?.data?.data?.new_user == true) {
         navigation.replace('CreateAccount', { phone: phoneNumber });
+      } else if (kitchenStatus?.data?.data?.status == 'pending') {
+        navigation.replace('Pending')
+      } else if (kitchenStatus?.data?.data?.status == 'approved') {
+        if(storedKitchenStatus == 'kitchenApproved'){
+          navigation.replace('AddKitchen')
+        }else{
+        navigation.replace('Approved')
+        }
+      } else if (kitchenStatus?.data?.data?.status == 'rejected') {
+        navigation.replace('Rejected')
       }
     } else if (otp?.error) {
       setOtpError(otp?.error)
     }
-    else if (kitchenStatus?.data?.data?.status == 'pending') {
-      navigation.replace('Pending')
-    } else if (kitchenStatus?.data?.data?.status == 'approved') {
-      navigation.replace('Approved')
-    } else if (kitchenStatus?.data?.data?.status == 'rejected') {
-      navigation.replace('Rejected')
-    }
-  }, [otp, kitchenStatus])
+  }, [otp, kitchenStatus, storedKitchenStatus])
 
   useEffect(() => {
     dispatch(getKitchenStatus())

@@ -37,21 +37,21 @@ function RootStack({ initialRoute }) {
 function AppWrapper() {
   const dispatch = useDispatch();
   const kitchenStatus = useSelector(state => state.kitchenData?.kitchenStatus);
-  const [initialRoute, setInitialRoute] = useState("Splash");
-  const [loading, setLoading] = useState(true);
+  const [initialRoute, setInitialRoute] = useState("Login");
+  let authToken;
 
   useEffect(() => {
     const fetchInitialRoute = async () => {
       try {
-        const authToken = await EncryptedStorage.getItem('auth_token');
-
+        authToken = await EncryptedStorage.getItem('auth_token');
+        EncryptedStorage.clear('auth_token')
+        let ki = await EncryptedStorage.getItem('auth_token');
         if (!authToken) {
           setInitialRoute("Login");
         } else {
           dispatch(getKitchenStatus());
         }
       } catch (error) {
-        console.error("Error fetching token:", error);
         setInitialRoute("Login");
       }
     };
@@ -60,7 +60,7 @@ function AppWrapper() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (kitchenStatus?.data?.data?.status !== undefined) {
+    if (authToken !== undefined) {
       if (kitchenStatus?.data?.data?.status === null) {
         setInitialRoute("CreateAccount");
       } else if (kitchenStatus?.data?.data?.status === 'pending') {
@@ -70,13 +70,8 @@ function AppWrapper() {
       } else if (kitchenStatus?.data?.data?.status === 'rejected') {
         setInitialRoute("Rejected");
       }
-
-      setLoading(false);
     }
   }, [kitchenStatus]);
-
-  if (loading) return null;
-
   return <RootStack initialRoute={initialRoute} />;
 }
 

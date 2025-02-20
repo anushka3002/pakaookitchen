@@ -5,6 +5,7 @@ import { fetchUserData, setUserData } from '../../reducers/authSlice';
 import PakaooLogo from '../../assets/pakaoo-logo.svg';
 import LeftImg from '../../assets/left-img.svg';
 import RightImg from '../../assets/right-img.svg';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -51,7 +52,7 @@ const LoginScreen = ({ navigation }) => {
             placeholder="Enter Phone Number"
             value={phoneNumber}
             onChangeText={(text) => setPhoneNumber(text)}
-            className='border border-gray-300 text-[16px] rounded-lg py-5 px-4 text-black'
+            className='border border-gray-300 poppins-regular text-[16px] rounded-lg py-4 px-4 text-black'
             keyboardType="phone-pad"
           />
           {authError && <Text className='mt-1 text-red-500'>{authError}</Text>}

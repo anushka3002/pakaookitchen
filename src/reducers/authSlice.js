@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import { REACT_NATIVE_API, REACT_NATIVE_X_API_KEY } from '@env';
+import { getKitchenStatus } from './kitchenSlice';
 
 // Initial state
 const initialState = {
@@ -47,6 +48,7 @@ export const authSlice = createSlice({
     setOtpSuccess: (state, action) => {
       state.otp.data = action.payload;
       state.otp.loading = false;
+      state.otp.error = null;
     },
     setOtpError: (state, action) => {
       state.otp.error = action.payload;
@@ -118,6 +120,7 @@ export const login = (userData) => async (dispatch) => {
       'auth_token',
       response?.data?.data?.data?.auth_token
     );
+    dispatch(getKitchenStatus())
   } catch (error) {
     if (error.response) {
       dispatch(setOtpError(error.response.data?.error || "Something went wrong"));
