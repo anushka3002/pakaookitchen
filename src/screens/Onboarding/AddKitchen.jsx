@@ -109,7 +109,7 @@ const AddKitchen = ({ navigation }) => {
             "dinnerDeliveryTime": formatTime(dinnerDeliveryTime),
         }
         if (foodFlag) {
-            dispatch(addKitchenData(data))
+            dispatch(addKitchenData(data, navigation))
         } else {
             setFoodError(true)
         }
@@ -188,7 +188,7 @@ const AddKitchen = ({ navigation }) => {
                     {foodError && <Text className='poppins-regular text-[12px] text-red-500 mt-1'>Select food style from the list.</Text>}
 
                     {foodStyleText?.length > 1 && showDropdown && <View
-                        className="absolute left-0 right-0 mt-2 w-full border bg-white rounded-lg shadow-lg"
+                        className="absolute left-0 right-0 mt-2 w-full border bg-white rounded-[10px] shadow-lg"
                         style={{
                             boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)',
                             top: '100%', backgroundColor: 'white', zIndex: 10, borderWidth: 1,
@@ -264,7 +264,7 @@ const AddKitchen = ({ navigation }) => {
                             <TextInput
                                 value={meal === 'breakfast' ? breakfastDeliveryTime : meal === 'lunch' ? lunchDeliveryTime : dinnerDeliveryTime}
                                 placeholder="Enter Delivery Time"
-                                className="rounded-lg text-[15px] bg-white poppins-regular"
+                                className="rounded-[10px] text-[15px] bg-white poppins-regular"
                             />
                             <TouchableOpacity className='px-3 py-3' onPress={() => setShow(meal)}><Clock width={25} height={18} /></TouchableOpacity>
                         </View>

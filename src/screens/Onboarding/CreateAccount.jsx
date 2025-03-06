@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Platform, TouchableOpacity, Modal, StyleSheet, Image, ScrollView, TouchableWithoutFeedback, PermissionsAndroid, BackHandler, Alert } from "react-native";
+import { View, Text, TextInput, Platform, TouchableOpacity, Modal, StyleSheet, ScrollView, 
+TouchableWithoutFeedback, PermissionsAndroid, BackHandler, Alert } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -229,10 +230,10 @@ const CreateAccount = ({ navigation }) => {
 
         <View className="mb-3">
           <Text className="text-[15px] poppins-medium mb-2">FSSAI Expiry Date <Text className="text-red-500">*</Text></Text>
-          <View className="border border-gray-300 px-3 rounded-lg items-center flex-row justify-between">
+          <View className="border border-gray-300 px-3 rounded-[10px] items-center flex-row justify-between">
             <TextInput
               placeholder="Enter FSSAI Expiry Date"
-              className="poppins-regular"
+              className="poppins-regular py-3"
               onChangeText={(e) => {
                 setConvertedExpiryDate(e);
                 setValue('fssai_expiry_date', e)
@@ -259,7 +260,7 @@ const CreateAccount = ({ navigation }) => {
             name="address_line_one"
             render={({ field: { onChange, value } }) => (
               <TextInput
-                className="border poppins-regular border-gray-300 mb-3 rounded-lg px-3 py-3"
+                className="border poppins-regular border-gray-300 mb-3 rounded-[10px] px-3 py-3"
                 placeholder="Enter Address Line 1"
                 onChangeText={onChange}
                 value={value}
@@ -274,7 +275,7 @@ const CreateAccount = ({ navigation }) => {
             name="address_line_two"
             render={({ field: { onChange, value } }) => (
               <TextInput
-                className="border poppins-regular border-gray-300 rounded-lg px-3 py-3"
+                className="border poppins-regular border-gray-300 rounded-[10px] px-3 py-3"
                 placeholder="Enter Address Line 2"
                 onChangeText={onChange}
                 value={value}
@@ -286,9 +287,9 @@ const CreateAccount = ({ navigation }) => {
           />
           {errors.address_line_one && <Text className="text-red-500 poppins-regular text-sm">{errors.address_line_one.message}</Text>}
         </View> 
-        <View className="border mb-3 border-gray-300 rounded-lg px-3 flex-row justify-between items-center">
+        <View className="border mb-3 border-gray-300 rounded-[10px] px-3 flex-row justify-between items-center">
           <TextInput
-            className="w-[90%] poppins-regular"
+            className="w-[90%] poppins-regular py-3"
             placeholder="Search Address"
             value={query}
             onChangeText={(text) => {
@@ -324,7 +325,7 @@ const CreateAccount = ({ navigation }) => {
           <Text className="text-[15px] poppins-medium mb-2">
             Bank Name <Text className="text-red-500 poppins-regular">*</Text>
           </Text>
-          <View className="border border-gray-300 rounded-lg px-3 py-3">
+          <View className="border border-gray-300 rounded-[10px] px-3 py-3">
             <TouchableOpacity
               onPress={() => setModalVisible(true)}
               style={styles.dropdownTouchable}
@@ -369,7 +370,7 @@ const CreateAccount = ({ navigation }) => {
 
       <TouchableOpacity
         onPress={handleSubmit(onSubmit)}
-        className="btn-color py-3 rounded-lg mt-4 mb-10"
+        className="btn-color py-3 rounded-[10px] mt-4 mb-10"
       >
         <Text className="text-center text-[18px] text-white poppins-medium">Create Account</Text>
       </TouchableOpacity>
@@ -390,14 +391,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   modalBackdrop: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.3)",
   },
   modalContent: {
-    width: '80%',
-    backgroundColor: '#fff',
+    width: "80%",
+    backgroundColor: "#fff",
     borderRadius: 10,
     padding: 20,
-    elevation: 10,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 }, 
+    shadowOpacity: 0.15, 
+    shadowRadius: 5,
   },
   container: {
     ...StyleSheet.absoluteFillObject,

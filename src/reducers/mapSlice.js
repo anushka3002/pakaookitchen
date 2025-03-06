@@ -8,17 +8,14 @@ const initialState = {
   searchlocation: {
     data: null,
     loading: false,
-    error: null,
   },
   geolocation: {
     data: null,
     loading: false,
-    error: null,
   },
   locationCord: {
     data: null,
     loading: false,
-    error: null
   }
 };
 
@@ -33,20 +30,17 @@ export const mapSlice = createSlice({
     },
     setSearchSuccess: (state,action) => {
       state.searchlocation.data = action.payload;
-      state.searchlocation.error = null; 
       state.searchlocation.loading = false;
     },
     setSearchLocationError: (state, action) => {
-      state.searchlocation.error = action.payload;
+      state.searchlocation.data = action.payload;
       state.searchlocation.loading = false;
-      state.searchlocation.data = null;
     },
 
 
     // Location Reducers
     setGeoLocationLoading: (state) => {
       state.geolocation.loading = true;
-      state.geolocation.error = null;
       state.geolocation.data = null;
     },
     setGeoLocationSuccess: (state, action) => {
@@ -54,15 +48,13 @@ export const mapSlice = createSlice({
       state.geolocation.loading = false;
     },
     setGeoLocationError: (state, action) => {
-      state.geolocation.error = action.payload;
+      state.geolocation.data = action.payload;
       state.geolocation.loading = false;
-      state.geolocation.data = null
     },
 
     // Location coordinates Reducers
     setLocationCordLoading: (state) => {
       state.locationCord.loading = true;
-      state.locationCord.error = null;
       state.locationCord.data = null;
     },
     setLocationCordSuccess: (state, action) => {
@@ -70,9 +62,8 @@ export const mapSlice = createSlice({
       state.locationCord.loading = false;
     },
     setLocationCordError: (state, action) => {
-      state.locationCord.error = action.payload;
+      state.locationCord.data = action.payload;
       state.locationCord.loading = false;
-      state.locationCord.data = null
     },
   },
 });

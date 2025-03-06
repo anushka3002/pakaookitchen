@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserData, login, setUserData } from '../../reducers/authSlice';
 import Otp from '../../assets/otp.svg';
@@ -66,7 +66,7 @@ const LoginOTP = ({ navigation, route }) => {
     }
     dispatch(login(userData))
     dispatch(getCategory())
-    dispatch(setUserData({data:null, loading:false, error:null}))
+    dispatch(setUserData({ data: null, loading: false, error: null }))
   }
 
   useEffect(() => {
@@ -80,10 +80,9 @@ const LoginOTP = ({ navigation, route }) => {
     };
 
     fetchKitchenStatus();
-  }, []); 
+  }, []);
 
   useEffect(() => {
-    
     if (otp?.data?.success == true) {
       setOtpError('')
       if (otp?.data?.data?.data?.new_user == true) {
@@ -91,10 +90,14 @@ const LoginOTP = ({ navigation, route }) => {
       } else if (kitchenStatus?.data?.data?.status == 'pending') {
         navigation.replace('Pending')
       } else if (kitchenStatus?.data?.data?.status == 'approved') {
-        if(storedKitchenStatus == 'kitchenApproved'){
+        if (storedKitchenStatus == 'kitchenApproved') {
           navigation.replace('AddKitchen')
-        }else{
-        navigation.replace('Approved')
+        } else {
+          if (kitchenStatus?.data?.data?.kitchen_added == true) {
+            navigation.replace('Dashboard')
+          } else {
+            navigation.replace('Approved')
+          }
         }
       } else if (kitchenStatus?.data?.data?.status == 'rejected') {
         navigation.replace('Rejected')
@@ -124,7 +127,7 @@ const LoginOTP = ({ navigation, route }) => {
         <Text className='text-[17px] poppins-medium mt-2'>{maskedPhoneNumber}</Text>
       </View>
 
-      <View className='flex-row h-[46px] justify-center items-center'>
+      <View className="flex-row h-[46px] justify-center items-center">
         {otpValue.map((digit, index) => (
           <TextInput
             key={index}
@@ -134,8 +137,9 @@ const LoginOTP = ({ navigation, route }) => {
             onKeyPress={(e) => handleKeyPress(e, index)}
             keyboardType="numeric"
             maxLength={1}
-            className='w-[46px] pt-2 items-center rounded-lg border-2 mx-2 
-            border-[#D6D6D6] rounded-xl text-center text-lg poppins-semibold text-black focus:border-blue-500'
+            className="w-[46px] mx-2 h-[46px] rounded-[10px] border-[2px] border-[#D6D6D6] 
+            text-center text-lg poppins-semibold text-black focus:border-blue-500 
+            leading-none"
           />
         ))}
       </View>

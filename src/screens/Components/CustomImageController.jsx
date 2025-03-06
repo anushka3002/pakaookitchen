@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image, StyleSheet, ImageBackground } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native'
 import React from 'react'
 import Camera from '../../assets/camera.svg';
 import { Controller } from 'react-hook-form';

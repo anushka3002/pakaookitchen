@@ -6,15 +6,17 @@ import { getKitchenStatus } from './kitchenSlice';
 
 // Initial state
 const initialState = {
+  publicKey: {
+    data: null,
+    loading: null,
+  },
   user: {
     data: null,
     loading: false,
-    error: null,
   },
   otp: {
     data: null,
     loading: false,
-    error: null,
   },
 };
 
@@ -23,47 +25,81 @@ export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    // User Reducers
+
+    //public key
+    setPublicKeyLoading: (state) => {
+      state.publicKey.loading = true;
+    },
+    setPublicKeyData: (state, action) => {
+      state.publicKey.data = action.payload;
+      state.publicKey.loading = false;
+    },
+    setPublicKeyError: (state, action) => {
+      state.publicKey.loading = false;
+      state.publicKey.data = action.payload;
+    },
+
+    // PublicKey Reducers
     setUserLoading: (state) => {
       state.user.loading = true;
     },
     setUserData: (state, action) => {
       state.user.data = action.payload;
-      state.user.error = null; 
       state.user.loading = false;
     },
     setUserError: (state, action) => {
-      state.user.error = action.payload;
       state.user.loading = false;
-      state.user.data = null;
+      state.user.data = action.payload;
     },
-    
+
 
     // OTP Reducers
     setOtpLoading: (state) => {
       state.otp.loading = true;
-      state.otp.error = null;
       state.otp.data = null;
     },
     setOtpSuccess: (state, action) => {
       state.otp.data = action.payload;
       state.otp.loading = false;
-      state.otp.error = null;
     },
     setOtpError: (state, action) => {
-      state.otp.error = action.payload;
       state.otp.loading = false;
-      state.otp.data = null
+      state.otp.data = action.payload
     },
   },
 });
 
 // Actions
-export const { setUserLoading, setUserData, setUserError, setOtpLoading, setOtpSuccess, setOtpError } = authSlice.actions;
+export const { setPublicKeyLoading, setPublicKeyData, setPublicKeyError, setUserLoading, setUserData, setUserError, setOtpLoading, setOtpSuccess, setOtpError } = authSlice.actions;
+
+export const getPublicKey = () => async (dispatch) => {
+  try {
+    dispatch(setPublicKeyLoading());
+
+    const headers = {
+      'x-app-check': 'asdasd',
+      'x-api-key': REACT_NATIVE_X_API_KEY,
+    };
+    const response = await axios.get(`${REACT_NATIVE_API}/auth/generatePublickToken`, { headers });
+    await EncryptedStorage.setItem(
+      'public_key',
+      response?.data?.data?.public_key
+    );
+    dispatch(setPublicKeyData(response?.data?.data?.public_key));
+  } catch (error) {
+    if (error.response) {
+      dispatch(setPublicKeyError(error.response.data.error));
+    } else {
+      dispatch(setPublicKeyError(error.message));
+    }
+  }
+};
+
 
 export const fetchUserData = (phone) => async (dispatch) => {
   try {
     dispatch(setUserLoading());
+    let public_key = await EncryptedStorage.getItem('public_key');
 
     const data = {
       "mobile_number": phone,
@@ -72,7 +108,7 @@ export const fetchUserData = (phone) => async (dispatch) => {
 
     const headers = {
       'x-api-key': REACT_NATIVE_X_API_KEY,
-      'x-public-key': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2l0Y2hlbiIsImlhdCI6MTczOTE4NDUwOSwiZXhwIjoxNzQ0MzY4NTA5fQ.N13LSvZ0fpwlvz3OxrPqwP84KzXI6Cs5yuEK6BWCVW4',
+      'x-public-key': public_key
     };
 
     const response = await axios.post(`${REACT_NATIVE_API}/auth/generateOtp`, data, { headers });
@@ -93,10 +129,11 @@ export const login = (userData) => async (dispatch) => {
     dispatch(setOtpLoading());
 
     let fcmToken = await EncryptedStorage.getItem('fcm');
+    let public_key = await EncryptedStorage.getItem('public_key');
 
     if (fcmToken) {
       try {
-        fcmToken = JSON.parse(fcmToken); 
+        fcmToken = JSON.parse(fcmToken);
       } catch (e) {
         console.error('FCM Token Parsing Error:', e);
       }
@@ -110,7 +147,7 @@ export const login = (userData) => async (dispatch) => {
 
     const headers = {
       'x-api-key': REACT_NATIVE_X_API_KEY,
-      'x-public-key': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoia2l0Y2hlbiIsImlhdCI6MTczOTE4NDUwOSwiZXhwIjoxNzQ0MzY4NTA5fQ.N13LSvZ0fpwlvz3OxrPqwP84KzXI6Cs5yuEK6BWCVW4',
+      'x-public-key': public_key
     };
     const response = await axios.post(`${REACT_NATIVE_API}/auth/validateOtp`, data, { headers });
 

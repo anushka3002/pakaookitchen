@@ -10,12 +10,69 @@
     background-color: #babdca;
 }
 
+.btn-light-blue {
+    background-color: rgba(38, 80, 216, 0.30);
+}
+
+.btn-blue-100 {
+    background-color: rgba(170, 190, 255, 0.20);
+}
+
+.btn-grey-640 {
+    background-color: #646464;
+}
+
+.btn-grey-320 {
+    background-color: #323232;
+}
+
+.btn-brown-200 {
+    background-color: #D29F65;
+}
+
+.btn-light-red {
+    background-color: #FFBDBD;
+}
+
 .txt-blue {
     color: #2650D8
 }
 
+.txt-red {
+    color: #FF0F0F
+}
+
 .txt-grey {
     color: #7B7B7B
+}
+
+.txt-grey-600 {
+    color: #686868
+}
+
+.txt-grey-400 {
+    color: #434343
+}
+
+.txt-grey-840 {
+    color:#878787
+}
+
+.txt-grey-590 {
+    color:#595959
+}
+
+.txt-green {
+    color: #29A962;
+}
+
+.txt-green-0E {
+    color: #0EC937
+}
+
+.selectedFoodType {
+    border-radius: 8px;
+    background-color: rgba(38, 80, 216, 0.30);
 }
 
 .nav-bg {
