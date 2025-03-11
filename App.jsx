@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { NavigationContainer, useNavigationState } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import "./global.css";
@@ -26,10 +26,9 @@ import Order from "./src/screens/Home/Order/Order";
 import OrderManagement from "./src/screens/Home/Order/OrderManagement";
 import OrderRating from "./src/screens/Home/Order/OrderRating";
 import OrderDetails from "./src/screens/Home/Order/OrderDetails";
-import Profile from "./src/screens/Home/Profile";
-import FAQ from "./src/screens/Home/FAQ";
-import TermsConditions from "./src/screens/Home/TermsConditions";
-import Invoice from "./src/screens/Home/Invoice";
+import Profile from "./src/screens/Home/Profile/Profile";
+import FAQ from "./src/screens/Home/Profile/FAQ";
+import TermsConditions from "./src/screens/Home/Profile/TermsConditions";
 import InactiveHome from './src/assets/black-home'
 import InactiveOrder from './src/assets/black-order'
 import InactiveInvoice from './src/assets/black-invoice'
@@ -39,6 +38,12 @@ import ActiveOrder from './src/assets/active-order'
 import ActiveInvoice from './src/assets/active-invoice'
 import ActiveProfile from './src/assets/active-profile'
 import { Text, View } from "react-native";
+import Notification from "./src/screens/Home/Profile/Notification";
+import Payouts from "./src/screens/Home/Payouts";
+import CurrentCycle from "./src/screens/Home/CurrentCycle";
+import ContactUs from "./src/screens/Home/Profile/ContactUs";
+import Rider from "./src/screens/Home/Profile/Rider";
+import AddRider from "./src/screens/Home/Profile/AddRider";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -65,9 +70,9 @@ function HomeTabs() {
             IconComponent = focused ? ActiveOrder : InactiveOrder;
             label = "Order";
             break;
-          case "Invoice":
+          case "Payouts":
             IconComponent = focused ? ActiveInvoice : InactiveInvoice;
-            label = "Invoice";
+            label = "Payouts";
             break;
           case "Profile":
             IconComponent = focused ? ActiveProfile : InactiveProfile;
@@ -91,7 +96,7 @@ function HomeTabs() {
     >
       <Tab.Screen name="Dashboard" component={Dashboard} />
       <Tab.Screen name="Order" component={Order} />
-      <Tab.Screen name="Invoice" component={Invoice} />
+      <Tab.Screen name="Payouts" component={Payouts} />
       <Tab.Screen name="Profile" component={Profile} />
     </Tab.Navigator>
   );
@@ -99,8 +104,7 @@ function HomeTabs() {
 
 function RootStack({ initialRoute }) {
   return (
-    <Stack.Navigator initialRouteName={'HomeTabs'} screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="HomeTabs" component={HomeTabs} />
+    <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="LoginOTP" component={LoginOTP} />
       <Stack.Screen name="CreateAccount" component={CreateAccount} />
@@ -117,26 +121,23 @@ function RootStack({ initialRoute }) {
       <Stack.Screen name="OrderManagement" component={OrderManagement} />
       <Stack.Screen name="OrderRating" component={OrderRating} />
       <Stack.Screen name="OrderDetails" component={OrderDetails} />
+      <Stack.Screen name="Payouts" component={Payouts} />
+      <Stack.Screen name="CurrentCycle" component={CurrentCycle} />
       <Stack.Screen name="Profile" component={Profile} />
       <Stack.Screen name="FAQ" component={FAQ} />
       <Stack.Screen name="TermsConditions" component={TermsConditions} />
+      <Stack.Screen name="Notification" component={Notification} />
+      <Stack.Screen name="ContactUs" component={ContactUs}/>
+      <Stack.Screen name="Rider" component={Rider}/>
+      <Stack.Screen name="AddRider" component={AddRider}/>
     </Stack.Navigator>
-  );
-}
-
-function MainApp(){
-  const currentRoute = useNavigationState((state) => state?.routes?.[state.index]?.name);
-
-  return (
-    <>
-      <RootStack />
-    </>
   );
 }
 
 function AppWrapper() {
   const dispatch = useDispatch();
   const kitchenStatus = useSelector(state => state.kitchenData?.kitchenStatus);
+  const {otp, logout, auth_token} = useSelector(state => state.auth)
   
   const [initialRoute, setInitialRoute] = useState(null); 
   const [authToken, setAuthToken] = useState(null);
@@ -145,25 +146,21 @@ function AppWrapper() {
 
   useEffect(() => {
     dispatch(getPublicKey());
-
     const fetchInitialRoute = async () => {
       try {
         const token = await EncryptedStorage.getItem('auth_token');
         setAuthToken(token);
-
         if (!token) {
           setInitialRoute("Login");
         } else {
           dispatch(getKitchenStatus());
         }
       } catch (error) {
-        console.error("Error fetching token:", error);
         setInitialRoute("Login");
       }
     };
-
     fetchInitialRoute();
-  }, [dispatch]);
+  }, [dispatch, logout]);
 
   useEffect(() => {
     const fetchKitchenStatus = async () => {
@@ -196,8 +193,9 @@ function AppWrapper() {
       } else if (kitchenStatus?.data?.data?.status === 'rejected') {
         setInitialRoute("Rejected");
       }
-    } else if (authToken === null) {
-      setInitialRoute("Login");
+    }
+     else if (authToken === null) {
+      setInitialRoute('Login')
     }
     setLoading(false);
   }, [kitchenStatus, authToken, storedKitchenStatus]);
@@ -208,9 +206,8 @@ function AppWrapper() {
     }
   }, [loading, initialRoute]);
 
-  if (loading || initialRoute === null) return null; 
-
-  return <MainApp/>
+  if (loading || initialRoute === null) return <Text>Loading</Text>; 
+  return <RootStack initialRoute={initialRoute}/>
 }
 
 export default function App() {

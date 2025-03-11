@@ -30,6 +30,10 @@
     background-color: #D29F65;
 }
 
+.bg-blue-gradient {
+    background: linear-gradient(99deg, #2650D8 -0.82%, #2D479D 101.53%);
+}
+
 .btn-light-red {
     background-color: #FFBDBD;
 }
@@ -38,12 +42,20 @@
     color: #2650D8
 }
 
+.txt-dark-blue {
+    color: #2B49AB;
+}
+
 .txt-red {
     color: #FF0F0F
 }
 
 .txt-grey {
     color: #7B7B7B
+}
+
+.txt-grey-73 {
+    color: #737373;
 }
 
 .txt-grey-600 {
@@ -68,6 +80,16 @@
 
 .txt-green-0E {
     color: #0EC937
+}
+
+.txt-grey-666 {
+    color: #666;
+}
+
+.payout-card {
+    background-color: rgba(255, 255, 255, 0.78);
+    border-radius: 10;
+    padding-top: 14;
 }
 
 .selectedFoodType {

@@ -8,24 +8,19 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const initialState = {
   createProfile: {
     data: null,
-    loading: false,
   },
   addKitchen: {
     data: null,
-    loading: null,
   },
   categoryData: {
     data: null,
-    loading: null,
   },
   foodStyle: {
     data: null,
-    loading: null,
   },
   kitchenStatus: {
     data: null,
-    loading: null,
-  }
+  },
 };
 
 // Create a slice for Kitchen data
@@ -105,13 +100,13 @@ export const kitchenSlice = createSlice({
 export const { setProfileLoading, setProfileData, setProfileError, setAddKitchenLoading,
   setAddKitchenSuccess, setAddKitchenError, setCategorySuccess, setCategoryError,
   setCategoryLoading, setFoodStyleLoading, setFoodStyleError, setFoodStyleSuccess,
-  setKitchenStatusLoading, setKitchenStatusSuccess, setKitchenStatusError } = kitchenSlice.actions;[]
+  setKitchenStatusLoading, setKitchenStatusSuccess, setKitchenStatusError } = kitchenSlice.actions;
   
 export const createUserData = (userData) => async (dispatch) => {
   try {
     dispatch(setProfileLoading());
     const authToken = await EncryptedStorage.getItem('auth_token');
-    let public_key = await EncryptedStorage.getItem('public_key');
+    const public_key = await EncryptedStorage.getItem('public_key');
 
     const headers = {
       'x-api-key': REACT_NATIVE_X_API_KEY,
@@ -123,7 +118,11 @@ export const createUserData = (userData) => async (dispatch) => {
     dispatch(setProfileData(response.data));
     EncryptedStorage.setItem('application_id', response?.data?.data?.user_data?.application_id)
   } catch (error) {
-    dispatch(setProfileError(error.message));
+    if (error.response) {
+      dispatch(setProfileError(error.response.data.error));
+  } else {
+      dispatch(setProfileError(error.message));
+  }
   }
 };
 
@@ -131,7 +130,7 @@ export const addKitchenData = (kitchenData, navigation) => async (dispatch) => {
   try {
     dispatch(setAddKitchenLoading());
     const authToken = await EncryptedStorage.getItem('auth_token');
-    let public_key = await EncryptedStorage.getItem('public_key');
+    const public_key = await EncryptedStorage.getItem('public_key');
 
     const headers = {
       'x-api-key': REACT_NATIVE_X_API_KEY,
@@ -147,7 +146,11 @@ export const addKitchenData = (kitchenData, navigation) => async (dispatch) => {
       AsyncStorage.removeItem('kitchenApproved')
   }
   } catch (error) {
-    dispatch(setAddKitchenError(error.message));
+    if (error.response) {
+      dispatch(setAddKitchenError(error.response.data.error));
+  } else {
+      dispatch(setAddKitchenError(error.message));
+  }
   }
 };
 
@@ -155,7 +158,7 @@ export const getCategory = () => async (dispatch) => {
   try {
     dispatch(setCategoryLoading());
     const authToken = await EncryptedStorage.getItem('auth_token');
-    let public_key = await EncryptedStorage.getItem('public_key');
+    const public_key = await EncryptedStorage.getItem('public_key');
 
     const headers = {
       'x-api-key': REACT_NATIVE_X_API_KEY,
@@ -165,7 +168,11 @@ export const getCategory = () => async (dispatch) => {
     const response = await axios.get(`${REACT_NATIVE_FOOD_API}/kitchen/category`, { headers });
     dispatch(setCategorySuccess(response.data));
   } catch (error) {
-    dispatch(setCategoryError(error.message));
+    if (error.response) {
+      dispatch(setCategoryError(error.response.data.error));
+  } else {
+      dispatch(setCategoryError(error.message));
+  }
   }
 };
 
@@ -173,7 +180,7 @@ export const getFoodStyle = (value) => async (dispatch) => {
   try {
     dispatch(setFoodStyleLoading());
     const authToken = await EncryptedStorage.getItem('auth_token');
-    let public_key = await EncryptedStorage.getItem('public_key');
+    const public_key = await EncryptedStorage.getItem('public_key');
 
     const headers = {
       'x-api-key': REACT_NATIVE_X_API_KEY,
@@ -183,7 +190,11 @@ export const getFoodStyle = (value) => async (dispatch) => {
     const response = await axios.get(`${REACT_NATIVE_FOOD_API}/kitchen/cuisine_style?name=${value}`, { headers });
     dispatch(setFoodStyleSuccess(response.data));
   } catch (error) {
-    dispatch(setFoodStyleError(error.message));
+    if (error.response) {
+      dispatch(setFoodStyleError(error.response.data.error));
+  } else {
+      dispatch(setFoodStyleError(error.message));
+  }
   }
 };
 
@@ -191,7 +202,7 @@ export const getKitchenStatus = () => async (dispatch) => {
   try {
     dispatch(setKitchenStatusLoading());
     const authToken = await EncryptedStorage.getItem('auth_token');
-    let public_key = await EncryptedStorage.getItem('public_key');
+    const public_key = await EncryptedStorage.getItem('public_key');
 
     const headers = {
       'x-api-key': REACT_NATIVE_X_API_KEY,
@@ -201,7 +212,11 @@ export const getKitchenStatus = () => async (dispatch) => {
     const response = await axios.get(`${REACT_NATIVE_API}/profile/kitchen/get_application_status`, { headers });
     dispatch(setKitchenStatusSuccess(response.data));
   } catch (error) {
-    dispatch(setKitchenStatusError(error.message));
+    if (error.response) {
+      dispatch(setKitchenStatusError(error.response.data.error));
+  } else {
+      dispatch(setKitchenStatusError(error.message));
+  }
   }
 };
 

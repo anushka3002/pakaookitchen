@@ -52,6 +52,16 @@ export const validationSchema = Yup.object().shape({
     account_number: Yup.string()
       .matches(/^[0-9]{6,18}$/, "Account number must be 6-18 digits")
       .required("Account number is required"),
+    lat: Yup.number()
+      .typeError("Latitude must be a number")
+      .min(-90, "Latitude must be between -90 and 90")
+      .max(90, "Latitude must be between -90 and 90")
+      .required("Latitude is required"),
+    long: Yup.number()
+      .typeError("Longitude must be a number")
+      .min(-180, "Longitude must be between -180 and 180")
+      .max(180, "Longitude must be between -180 and 180")
+      .required("Longitude is required"),
   });
 
 export const handleImageUpload = async (imageType, onChange, setImages) => {

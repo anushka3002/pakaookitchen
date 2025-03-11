@@ -4,29 +4,34 @@ import EncryptedStorage from 'react-native-encrypted-storage';
 import { REACT_NATIVE_API, REACT_NATIVE_X_API_KEY } from '@env';
 import { getKitchenStatus } from './kitchenSlice';
 
-// Initial state
 const initialState = {
   publicKey: {
-    data: null,
-    loading: null,
+    data: null
   },
   user: {
-    data: null,
-    loading: false,
+    data: null
   },
   otp: {
-    data: null,
-    loading: false,
+    data: null
   },
+  auth_token: null,
+  deleteReasons: {
+    data: null
+  },
+  deleteProfile: {
+    data: null
+  },
+  logout: {
+    data: null
+  },
+  loading: false
 };
 
-// Create a slice for user & OTP
 export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
 
-    //public key
     setPublicKeyLoading: (state) => {
       state.publicKey.loading = true;
     },
@@ -39,7 +44,6 @@ export const authSlice = createSlice({
       state.publicKey.data = action.payload;
     },
 
-    // PublicKey Reducers
     setUserLoading: (state) => {
       state.user.loading = true;
     },
@@ -52,8 +56,6 @@ export const authSlice = createSlice({
       state.user.data = action.payload;
     },
 
-
-    // OTP Reducers
     setOtpLoading: (state) => {
       state.otp.loading = true;
       state.otp.data = null;
@@ -62,15 +64,62 @@ export const authSlice = createSlice({
       state.otp.data = action.payload;
       state.otp.loading = false;
     },
+    setAuthToken: (state, action) => {
+      state.auth_token = action.payload
+    },
     setOtpError: (state, action) => {
       state.otp.loading = false;
       state.otp.data = action.payload
+    },
+
+    setDeleteReasonsLoading: (state) => {
+      state.deleteReasons.loading = true;
+      state.deleteReasons.data = null;
+    },
+    setDeleteReasonsData: (state, action) => {
+      state.deleteReasons.data = action.payload;
+      state.deleteReasons.loading = false;
+    },
+    setDeleteReasonsError: (state, action) => {
+      state.deleteReasons.loading = false;
+      state.deleteReasons.data = action.payload
+    },
+
+    setDeleteProfileLoading: (state) => {
+      state.deleteProfile.loading = true;
+      state.deleteProfile.data = null;
+    },
+    setDeleteProfileData: (state, action) => {
+      state.deleteProfile.data = action.payload;
+      state.deleteProfile.loading = false;
+    },
+    setDeleteProfileError: (state, action) => {
+      state.deleteProfile.loading = false;
+      state.deleteProfile.data = action.payload
+    },
+
+    setLogoutLoading: (state) => {
+      state.logout.loading = true;
+      state.logout.data = null;
+    },
+    setLogoutData: (state, action) => {
+      state.logout.data = action.payload;
+      state.logout.loading = false;
+    },
+    setLogoutError: (state, action) => {
+      state.logout.loading = false;
+      state.logout.data = action.payload
     },
   },
 });
 
 // Actions
-export const { setPublicKeyLoading, setPublicKeyData, setPublicKeyError, setUserLoading, setUserData, setUserError, setOtpLoading, setOtpSuccess, setOtpError } = authSlice.actions;
+export const { setPublicKeyLoading, setPublicKeyData, setPublicKeyError, setUserLoading,
+  setUserData, setUserError, setOtpLoading, setOtpSuccess, setOtpError,
+  setProfileError, setProfileLoading, setProfileData, setDeleteReasonsData,
+  setDeleteReasonsError, setDeleteReasonsLoading, setDeleteProfileData,
+  setDeleteProfileError, setDeleteProfileLoading, setLogoutLoading, setLogoutData, 
+  setLogoutError, setAuthToken } = authSlice.actions;
 
 export const getPublicKey = () => async (dispatch) => {
   try {
@@ -94,7 +143,6 @@ export const getPublicKey = () => async (dispatch) => {
     }
   }
 };
-
 
 export const fetchUserData = (phone) => async (dispatch) => {
   try {
@@ -122,7 +170,6 @@ export const fetchUserData = (phone) => async (dispatch) => {
     }
   }
 };
-
 
 export const login = (userData) => async (dispatch) => {
   try {
@@ -152,6 +199,7 @@ export const login = (userData) => async (dispatch) => {
     const response = await axios.post(`${REACT_NATIVE_API}/auth/validateOtp`, data, { headers });
 
     dispatch(setOtpSuccess(response.data));
+    dispatch(setAuthToken(response?.data?.data?.data?.auth_token))
 
     await EncryptedStorage.setItem(
       'auth_token',
@@ -163,6 +211,65 @@ export const login = (userData) => async (dispatch) => {
       dispatch(setOtpError(error.response.data?.error || "Something went wrong"));
     } else {
       dispatch(setOtpError(error.message));
+    }
+  }
+};
+
+export const logout = () => async (dispatch) => {
+  try {
+    dispatch(setLogoutLoading());
+    EncryptedStorage.removeItem('public_key');
+    EncryptedStorage.removeItem('auth_token');
+    dispatch(setLogoutData('Logged out'));
+  } catch (error) {
+    if (error) {
+      dispatch(setLogoutError(error));
+    } 
+  }
+};
+
+export const getDeleteReasons = () => async (dispatch) => {
+  try {
+    dispatch(setDeleteReasonsLoading());
+
+    const authToken = await EncryptedStorage.getItem('auth_token');
+    const public_key = await EncryptedStorage.getItem('public_key');
+
+    const headers = {
+      'x-api-key': REACT_NATIVE_X_API_KEY,
+      'x-public-key': public_key,
+      'x-auth-key': authToken,
+    };
+    const response = await axios.get(`${REACT_NATIVE_API}/profile/customer/delete_reason`, { headers });
+    dispatch(setDeleteReasonsData(response.data));
+  } catch (error) {
+    if (error.response) {
+      dispatch(setDeleteReasonsError(error.response.data.error));
+    } else {
+      dispatch(setDeleteReasonsError(error.message));
+    }
+  }
+};
+
+export const deleteAccount = (id) => async (dispatch) => {
+  try {
+    dispatch(setDeleteProfileLoading());
+
+    const authToken = await EncryptedStorage.getItem('auth_token');
+    const public_key = await EncryptedStorage.getItem('public_key');
+
+    const headers = {
+      'x-api-key': REACT_NATIVE_X_API_KEY,
+      'x-public-key': public_key,
+      'x-auth-key': authToken,
+    };
+    const response = await axios.get(`${REACT_NATIVE_API}/profile/customer/delete_account?deleted_reason_id=${id}`, { headers });
+    dispatch(setDeleteProfileData(response.data));
+  } catch (error) {
+    if (error.response) {
+      dispatch(setDeleteProfileError(error.response.data.error));
+    } else {
+      dispatch(setDeleteProfileError(error.message));
     }
   }
 };

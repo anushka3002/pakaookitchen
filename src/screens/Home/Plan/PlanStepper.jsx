@@ -87,8 +87,6 @@ const PlanStepper = () => {
         if (currentIndex < menuDraft?.data?.data?.menu.length - 1) {
             var currentId = menuDraft?.data?.data?.menu[currentIndex].id;
             setCurrentIndex(prevIndex => prevIndex + 1);
-        } else {
-            console.log("End of steps");
         }
         const data = {
             menuId: 26,

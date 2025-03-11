@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
     View, Text, TextInput, TouchableOpacity,
-    ScrollView, StyleSheet,
+    ScrollView, StyleSheet, ActivityIndicator
 } from 'react-native';
 import Navbar from '../Components/Navbar';
 import Veg from '../../assets/veg.svg';
@@ -19,7 +19,7 @@ const AddKitchen = ({ navigation }) => {
     const [selectedCuisine, setSelectedCuisine] = useState('veg');
     const [selectedMealTimes, setSelectedMealTimes] = useState(['breakfast']);
     const [foodStyleText, setFoodStyleText] = useState('')
-    const { categoryData, foodStyle, addKitchen } = useSelector((state) => state?.kitchenData)
+    const { categoryData, foodStyle, addKitchen, loading } = useSelector((state) => state?.kitchenData)
     const [foodFlag, setFoodFlag] = useState(false)
     const [foodId, setFoodId] = useState('')
     const [foodError, setFoodError] = useState(false)
@@ -281,7 +281,7 @@ const AddKitchen = ({ navigation }) => {
 
                 {/* Submit Button */}
                 <TouchableOpacity onPress={handleSubmit} className="btn-color p-4 rounded-xl mt-2 mb-10">
-                    <Text className="text-center text-[18px] poppins-medium text-white">Submit</Text>
+                    {loading ? <ActivityIndicator  size="large" color="#FFFFFF" /> : <Text className="text-center text-[18px] poppins-medium text-white">Submit</Text>}
                 </TouchableOpacity>
             </ScrollView>
         </>

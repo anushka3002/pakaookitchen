@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native'
 import React, { useEffect } from 'react'
 import Navbar from '../../Components/Navbar'
 import OrderCard from '../../Components/OrderCard';
@@ -16,9 +16,10 @@ const OrderDetails = ({ navigation, route }) => {
     }, [orderData])
 
     return (
-        <View>
+        <View className='bg-white h-screen'>
             <Navbar screen={'Order Management'} />
-            <View className='px-4'>
+            <ScrollView>
+            <View className='px-4 pb-10'>
                 <Text className='text-[21px] poppins-semibold my-[10]'>Items List</Text>
                 <OrderCard order={orderData} />
                 <View className="rounded-[10] mt-[20] mb-[18]">
@@ -53,6 +54,7 @@ const OrderDetails = ({ navigation, route }) => {
                         the menu of plan</Text>
                 </View>
             </View>
+            </ScrollView>
         </View>
     )
 }

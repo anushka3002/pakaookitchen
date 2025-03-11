@@ -91,13 +91,13 @@ const LoginOTP = ({ navigation, route }) => {
         navigation.replace('Pending')
       } else if (kitchenStatus?.data?.data?.status == 'approved') {
         if (storedKitchenStatus == 'kitchenApproved') {
-          navigation.replace('AddKitchen')
-        } else {
           if (kitchenStatus?.data?.data?.kitchen_added == true) {
             navigation.replace('Dashboard')
-          } else {
-            navigation.replace('Approved')
+          }else{
+            navigation.replace("AddKitchen");
           }
+        } else{
+          navigation.replace('Dashboard')
         }
       } else if (kitchenStatus?.data?.data?.status == 'rejected') {
         navigation.replace('Rejected')
@@ -144,7 +144,7 @@ const LoginOTP = ({ navigation, route }) => {
         ))}
       </View>
 
-      {otpError && <View className='px-4'><Text className='px-4 mt-2 text-red-500'>{otpError}</Text></View>}
+      {/* {otpError && <View className='px-4'><Text className='px-4 mt-2 text-[12px] poppins-regular text-red-500'>{otpError}</Text></View>} */}
       <View className={`flex-row items-center justify-center mt-8 ${timer > 0 ? 'mb-4' : 'mb-9'} mb-4`}>
         <Text className='text-[16px] poppins-medium text-gray-600'>I didn't receive code. </Text>
         <TouchableOpacity disabled={timer > 0}

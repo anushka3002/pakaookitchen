@@ -1,6 +1,6 @@
 import { View, Text, ScrollView } from 'react-native'
 import React from 'react'
-import Navbar from '../Components/Navbar'
+import Navbar from '../../Components/Navbar'
 
 const TermsConditions = () => {
   return (

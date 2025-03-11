@@ -43,9 +43,9 @@ const OrderManagement = ({ navigation, route }) => {
   }
 
   return (
-    <ScrollView className='bg-white'>
+    <View className='bg-white h-screen'>
       <Navbar screen={'Order Management'} />
-
+      <ScrollView>
       <View className='px-[16] mb-10'>
         <View style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)' }} className='py-[9] rounded-[10] mt-[26]'>
           {viewOrderInfo?.data?.data?.plan_info?.map((elm, ind) => {
@@ -131,7 +131,7 @@ const OrderManagement = ({ navigation, route }) => {
               <Text className='poppins-medium text-[18px] text-white'>Rider Assigned</Text>
               </TouchableOpacity>}
 
-            <Text className='text-[15px] poppins-medium mt-[12] text-center'>Assign Rider : Chandramohan Jha</Text>
+            <Text className='text-[15px] poppins-medium mt-[12] text-center'>Assigned Rider : Chandramohan Jha</Text>
 
             {elm.status == null && <TouchableOpacity onPress={() => handleOrderStatus()} className='btn-color rounded-[10] py-[10] mt-[22]'>
               <Text className='text-[18px] text-white text-center poppins-medium'>Mark Food As Ready</Text>
@@ -140,6 +140,7 @@ const OrderManagement = ({ navigation, route }) => {
         })}
       </View>
     </ScrollView>
+    </View>
   )
 }
 

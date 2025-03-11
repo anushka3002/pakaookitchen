@@ -22,7 +22,7 @@ const Order = ({ navigation }) => {
         <View style={{ gap: 20 }} className="flex-row justify-center mb-4 pt-4 rounded-full">
           {['ongoing', 'delivered'].map((elm, ind) => {
             return <TouchableOpacity key={ind}
-              style={{ borderWidth: 2, borderColor: selectedTab == elm && 'rgba(214, 214, 214, 0.60)' }}
+              style={{ borderWidth: 2, borderColor: 'rgba(214, 214, 214, 0.60)' }}
               className={`px-[14] py-[7] rounded-[30] items-center ${selectedTab === elm ? "btn-color" : ""
                 }`}
               onPress={() => setSelectedTab(elm)}
@@ -33,7 +33,7 @@ const Order = ({ navigation }) => {
               >
                 {elm.split('')[0].toUpperCase() + elm.slice(1)}
                 &nbsp;
-                {selectedTab == elm && <GreenDot />}
+                {orderData?.data?.data?.on_going && elm == 'ongoing' ? <GreenDot /> : orderData?.data?.data?.delivered && elm == 'delivered' && <GreenDot />}
               </Text>
             </TouchableOpacity>
           })}
@@ -41,9 +41,9 @@ const Order = ({ navigation }) => {
 
         <Text className="text-[21px] poppins-semibold mb-[5]">Items List</Text>
         <View style={{ gap: 14 }}>
-          {orderData?.data?.data?.data?.map((order, ind) => (
+          {orderData?.data?.data?.data?.length > 0 ? orderData?.data?.data?.data?.map((order, ind) => (
             <OrderCard key={ind} navigation={navigation} order={order} arrow={true} status={true} />
-          ))}
+          )) : <Text className="poppins-medium text-[16px] text-[#737373] text-center mt-[137]">No data found</Text>}
         </View>
       </View>
     </ScrollView>

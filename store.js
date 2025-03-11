@@ -5,6 +5,7 @@ import kitchenSlice from './src/reducers/kitchenSlice';
 import mapSlice from './src/reducers/mapSlice';
 import planSlice from './src/reducers/planSlice';
 import orderSlice from './src/reducers/orderSlice';
+import profileSlice from './src/reducers/profileSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,8 @@ export const store = configureStore({
     kitchenData: kitchenSlice,
     map: mapSlice,
     plan: planSlice,
-    order: orderSlice
+    order: orderSlice,
+    profileData: profileSlice,
+    auth_token: authSlice
   },
 });

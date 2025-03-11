@@ -7,16 +7,14 @@ import { REACT_NATIVE_API, REACT_NATIVE_X_API_KEY, GOOGLE_API_KEY } from '@env';
 const initialState = {
   searchlocation: {
     data: null,
-    loading: false,
   },
   geolocation: {
     data: null,
-    loading: false,
   },
   locationCord: {
     data: null,
-    loading: false,
-  }
+  },
+  loading: false
 };
 
 // Create a slice for Map
@@ -26,44 +24,44 @@ export const mapSlice = createSlice({
   reducers: {
     // Map Reducers
     setSearchLoading: (state) => {
-      state.searchlocation.loading = true;
+      state.loading = true;
     },
     setSearchSuccess: (state,action) => {
       state.searchlocation.data = action.payload;
-      state.searchlocation.loading = false;
+      state = false;
     },
     setSearchLocationError: (state, action) => {
       state.searchlocation.data = action.payload;
-      state.searchlocation.loading = false;
+      state.loading = false;
     },
 
 
     // Location Reducers
     setGeoLocationLoading: (state) => {
-      state.geolocation.loading = true;
+      state.loading = true;
       state.geolocation.data = null;
     },
     setGeoLocationSuccess: (state, action) => {
       state.geolocation.data = action.payload;
-      state.geolocation.loading = false;
+      state.loading = false;
     },
     setGeoLocationError: (state, action) => {
       state.geolocation.data = action.payload;
-      state.geolocation.loading = false;
+      state.loading = false;
     },
 
     // Location coordinates Reducers
     setLocationCordLoading: (state) => {
-      state.locationCord.loading = true;
+      state.loading = true;
       state.locationCord.data = null;
     },
     setLocationCordSuccess: (state, action) => {
       state.locationCord.data = action.payload;
-      state.locationCord.loading = false;
+      state.loading = false;
     },
     setLocationCordError: (state, action) => {
       state.locationCord.data = action.payload;
-      state.locationCord.loading = false;
+      state.loading = false;
     },
   },
 });
