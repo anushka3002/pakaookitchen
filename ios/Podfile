@@ -9,6 +9,7 @@ platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
 linkage = ENV['USE_FRAMEWORKS']
+linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
   use_frameworks! :linkage => linkage.to_sym
@@ -16,6 +17,8 @@ end
 
 target 'pakaookitchen' do
   config = use_native_modules!
+  use_frameworks! :linkage => :static 
+  $RNFirebaseAsStaticFramework = true
 
   use_react_native!(
     :path => config[:reactNativePath],
@@ -23,13 +26,22 @@ target 'pakaookitchen' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
+  # ✅ Add modular headers for Firebase & GoogleUtilities
+  pod 'FirebaseCoreInternal', :modular_headers => true
+  pod 'GoogleUtilities', :modular_headers => true
+
   post_install do |installer|
-    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
     react_native_post_install(
       installer,
       config[:reactNativePath],
-      :mac_catalyst_enabled => false,
-      # :ccache_enabled => true
+      :mac_catalyst_enabled => false
     )
+
+    # ✅ Ensure modules are properly defined
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['DEFINES_MODULE'] = 'YES'
+      end
+    end
   end
 end
