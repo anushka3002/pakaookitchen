@@ -52,6 +52,16 @@ export const validationSchema = Yup.object().shape({
     account_number: Yup.string()
       .matches(/^[0-9]{6,18}$/, "Account number must be 6-18 digits")
       .required("Account number is required"),
+    lat: Yup.number()
+      .typeError("Latitude must be a number")
+      .min(-90, "Latitude must be between -90 and 90")
+      .max(90, "Latitude must be between -90 and 90")
+      .required("Latitude is required"),
+    long: Yup.number()
+      .typeError("Longitude must be a number")
+      .min(-180, "Longitude must be between -180 and 180")
+      .max(180, "Longitude must be between -180 and 180")
+      .required("Longitude is required"),
   });
 
 export const handleImageUpload = async (imageType, onChange, setImages) => {
@@ -88,9 +98,11 @@ export const handleImageUpload = async (imageType, onChange, setImages) => {
                 includeBase64: true,
                 saveToPhotos: true,
               });
-
-              handleImageResponse(response, imageType, onChange, setImages);
-            },
+              if(imageType){
+                handleImageResponse(response, imageType, onChange, setImages);
+              }else{
+                handlePlanImagePreview(response, onChange, setImages)
+              }            },
           },
           {
             text: "Gallery",
@@ -99,8 +111,11 @@ export const handleImageUpload = async (imageType, onChange, setImages) => {
                 mediaType: 'photo',
                 includeBase64: true,
               });
-
-              handleImageResponse(response, imageType, onChange, setImages);
+              if(imageType){
+                handleImageResponse(response, imageType, onChange, setImages);
+              }else{
+                handlePlanImagePreview(response, onChange, setImages)
+              }
             },
           },
           { text: "Cancel", style: "cancel" },
@@ -126,11 +141,53 @@ export const handleImageResponse = (response, imageType, onChange, setImages) =>
         }
 
         const base64String = `data:image/jpeg;base64,${selectedImage.base64}`;
-        setImages((prevImages) => ({
-          ...prevImages,
-          [imageType]: base64String,
-        }));
+          setImages((prevImages) => ({
+            ...prevImages,
+            [imageType]: base64String,
+          }));
+          onChange(base64String);
+      }
+    }
+  };
+
+  export const handlePlanImagePreview = (response, onChange, setImages) => {
+    if (response.didCancel) {
+      console.log('User cancelled image picker');
+    } else if (response.errorMessage) {
+      console.log('ImagePicker Error:', response.errorMessage);
+    } else {
+      if (response.assets && response.assets.length > 0) {
+        const selectedImage = response.assets[0];
+
+        if (selectedImage.fileSize > 1048576) {
+          Alert.alert("Image too large", "Please select an image smaller than 1MB.");
+          return;
+        }
+
+        const base64String = `data:image/jpeg;base64,${selectedImage.base64}`;
+        setImages(base64String);
         onChange(base64String);
       }
     }
   };
+
+export function formatDate(dateString) {
+  const date = new Date(dateString);
+
+  if (isNaN(date.getTime())) {
+    return "Invalid Date";
+  }
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = String(date.getFullYear()).slice(2); // Get the last two digits of the year
+
+  const hours = String(date.getHours() % 12 || 12).padStart(2, '0'); // Convert to 12-hour format
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const ampm = date.getHours() >= 12 ? 'PM' : 'AM';
+
+  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const dayOfWeek = daysOfWeek[date.getDay()];
+
+  return `${day}-${month}-${year}, ${hours}:${minutes} ${ampm} (${dayOfWeek})`;
+}

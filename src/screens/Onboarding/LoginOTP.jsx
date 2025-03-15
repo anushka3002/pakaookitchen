@@ -1,17 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserData, login } from '../../reducers/authSlice';
+import { fetchUserData, login, setUserData } from '../../reducers/authSlice';
 import Otp from '../../assets/otp.svg';
 import LeftImg from '../../assets/left-img.svg';
 import RightImg from '../../assets/right-img.svg';
 import { getCategory, getKitchenStatus } from '../../reducers/kitchenSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginOTP = ({ navigation, route }) => {
 
   const { user, otp } = useSelector(state => state.auth)
   const { kitchenStatus } = useSelector(state => state.kitchenData)
   const [otpValue, setOtpValue] = useState(new Array(6).fill(""));
+  const [storedKitchenStatus, setStoredKitchenStatus] = useState(null);
   const [timer, setTimer] = useState(60);
   const [otpError, setOtpError] = useState('')
   const inputRefs = useRef([]);
@@ -64,25 +66,46 @@ const LoginOTP = ({ navigation, route }) => {
     }
     dispatch(login(userData))
     dispatch(getCategory())
+    dispatch(setUserData({ data: null, loading: false, error: null }))
   }
+
+  useEffect(() => {
+    const fetchKitchenStatus = async () => {
+      try {
+        const status = await AsyncStorage.getItem('kitchenApproved');
+        setStoredKitchenStatus(status);
+      } catch (error) {
+        console.error('Error retrieving kitchen status', error);
+      }
+    };
+
+    fetchKitchenStatus();
+  }, []);
 
   useEffect(() => {
     if (otp?.data?.success == true) {
       setOtpError('')
       if (otp?.data?.data?.data?.new_user == true) {
         navigation.replace('CreateAccount', { phone: phoneNumber });
+      } else if (kitchenStatus?.data?.data?.status == 'pending') {
+        navigation.replace('Pending')
+      } else if (kitchenStatus?.data?.data?.status == 'approved') {
+        if (storedKitchenStatus == 'kitchenApproved') {
+          if (kitchenStatus?.data?.data?.kitchen_added == true) {
+            navigation.replace('Dashboard')
+          }else{
+            navigation.replace("AddKitchen");
+          }
+        } else{
+          navigation.replace('Dashboard')
+        }
+      } else if (kitchenStatus?.data?.data?.status == 'rejected') {
+        navigation.replace('Rejected')
       }
     } else if (otp?.error) {
       setOtpError(otp?.error)
     }
-    else if (kitchenStatus?.data?.data?.status == 'pending') {
-      navigation.replace('Pending')
-    } else if (kitchenStatus?.data?.data?.status == 'approved') {
-      navigation.replace('Approved')
-    } else if (kitchenStatus?.data?.data?.status == 'rejected') {
-      navigation.replace('Rejected')
-    }
-  }, [otp, kitchenStatus])
+  }, [otp, kitchenStatus, storedKitchenStatus])
 
   useEffect(() => {
     dispatch(getKitchenStatus())
@@ -104,7 +127,7 @@ const LoginOTP = ({ navigation, route }) => {
         <Text className='text-[17px] poppins-medium mt-2'>{maskedPhoneNumber}</Text>
       </View>
 
-      <View className='flex-row h-[46px] justify-center items-center'>
+      <View className="flex-row h-[46px] justify-center items-center">
         {otpValue.map((digit, index) => (
           <TextInput
             key={index}
@@ -114,13 +137,14 @@ const LoginOTP = ({ navigation, route }) => {
             onKeyPress={(e) => handleKeyPress(e, index)}
             keyboardType="numeric"
             maxLength={1}
-            className='w-[46px] pt-2 items-center rounded-lg border-2 mx-2 
-            border-[#D6D6D6] rounded-xl text-center text-lg poppins-semibold text-black focus:border-blue-500'
+            className="w-[46px] mx-2 h-[46px] rounded-[10px] border-[2px] border-[#D6D6D6] 
+            text-center text-lg poppins-semibold text-black focus:border-blue-500 
+            leading-none"
           />
         ))}
       </View>
 
-      {otpError && <View className='px-4'><Text className='px-4 mt-2 text-red-500'>{otpError}</Text></View>}
+      {/* {otpError && <View className='px-4'><Text className='px-4 mt-2 text-[12px] poppins-regular text-red-500'>{otpError}</Text></View>} */}
       <View className={`flex-row items-center justify-center mt-8 ${timer > 0 ? 'mb-4' : 'mb-9'} mb-4`}>
         <Text className='text-[16px] poppins-medium text-gray-600'>I didn't receive code. </Text>
         <TouchableOpacity disabled={timer > 0}

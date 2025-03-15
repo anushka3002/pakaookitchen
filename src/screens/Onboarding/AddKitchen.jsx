@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
     View, Text, TextInput, TouchableOpacity,
-    ScrollView, StyleSheet,
+    ScrollView, StyleSheet, ActivityIndicator
 } from 'react-native';
 import Navbar from '../Components/Navbar';
 import Veg from '../../assets/veg.svg';
@@ -19,7 +19,7 @@ const AddKitchen = ({ navigation }) => {
     const [selectedCuisine, setSelectedCuisine] = useState('veg');
     const [selectedMealTimes, setSelectedMealTimes] = useState(['breakfast']);
     const [foodStyleText, setFoodStyleText] = useState('')
-    const { categoryData, foodStyle, addKitchen } = useSelector((state) => state?.kitchenData)
+    const { categoryData, foodStyle, addKitchen, loading } = useSelector((state) => state?.kitchenData)
     const [foodFlag, setFoodFlag] = useState(false)
     const [foodId, setFoodId] = useState('')
     const [foodError, setFoodError] = useState(false)
@@ -109,7 +109,7 @@ const AddKitchen = ({ navigation }) => {
             "dinnerDeliveryTime": formatTime(dinnerDeliveryTime),
         }
         if (foodFlag) {
-            dispatch(addKitchenData(data))
+            dispatch(addKitchenData(data, navigation))
         } else {
             setFoodError(true)
         }
@@ -188,7 +188,7 @@ const AddKitchen = ({ navigation }) => {
                     {foodError && <Text className='poppins-regular text-[12px] text-red-500 mt-1'>Select food style from the list.</Text>}
 
                     {foodStyleText?.length > 1 && showDropdown && <View
-                        className="absolute left-0 right-0 mt-2 w-full border bg-white rounded-lg shadow-lg"
+                        className="absolute left-0 right-0 mt-2 w-full border bg-white rounded-[10px] shadow-lg"
                         style={{
                             boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)',
                             top: '100%', backgroundColor: 'white', zIndex: 10, borderWidth: 1,
@@ -264,7 +264,7 @@ const AddKitchen = ({ navigation }) => {
                             <TextInput
                                 value={meal === 'breakfast' ? breakfastDeliveryTime : meal === 'lunch' ? lunchDeliveryTime : dinnerDeliveryTime}
                                 placeholder="Enter Delivery Time"
-                                className="rounded-lg text-[15px] bg-white poppins-regular"
+                                className="rounded-[10px] text-[15px] bg-white poppins-regular"
                             />
                             <TouchableOpacity className='px-3 py-3' onPress={() => setShow(meal)}><Clock width={25} height={18} /></TouchableOpacity>
                         </View>
@@ -281,7 +281,7 @@ const AddKitchen = ({ navigation }) => {
 
                 {/* Submit Button */}
                 <TouchableOpacity onPress={handleSubmit} className="btn-color p-4 rounded-xl mt-2 mb-10">
-                    <Text className="text-center text-[18px] poppins-medium text-white">Submit</Text>
+                    {loading ? <ActivityIndicator  size="large" color="#FFFFFF" /> : <Text className="text-center text-[18px] poppins-medium text-white">Submit</Text>}
                 </TouchableOpacity>
             </ScrollView>
         </>

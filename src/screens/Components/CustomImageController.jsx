@@ -1,8 +1,9 @@
-import { View, Text, TouchableOpacity, Image, StyleSheet, ImageBackground } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native'
 import React from 'react'
 import Camera from '../../assets/camera.svg';
 import { Controller } from 'react-hook-form';
 import { handleImageUpload } from '../../constant';
+import CameraFront from '../../assets/camera-front.svg'
 
 const CustomImageController = ({control, controllerName, imageValue, setImages, images, imageName}) => {
     return (
@@ -25,7 +26,7 @@ const CustomImageController = ({control, controllerName, imageValue, setImages, 
                                 resizeMode="contain"
                                 className='items-center justify-center'
                             >
-                                <Camera />
+                                <CameraFront />
                             </ImageBackground>
                         ) : (
                             <View className='items-center'>

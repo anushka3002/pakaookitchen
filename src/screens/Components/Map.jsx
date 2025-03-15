@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useEffect, useRef } from 'react';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import Location from '../../assets/grey-location.svg';
+import Locate from '../../assets/locate.svg';
 
 const Map = ({ geolocation, getCurrentLocation, selectedLocation }) => {
   const mapRef = useRef(null);
@@ -38,8 +39,8 @@ const Map = ({ geolocation, getCurrentLocation, selectedLocation }) => {
             <Marker coordinate={{ latitude: geolocation?.data?.lat || 20.5937, longitude: geolocation?.data?.lng || 78.9629 }} />
           </MapView>
         </View>
+        <TouchableOpacity className='items-end justify-end' onPress={()=>getCurrentLocation()}><Locate/></TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={()=>getCurrentLocation()}><Text className='text-right'>Locate</Text></TouchableOpacity>
       <View className="flex-row mt-3 pr-3">
         {selectedLocation && <View className='mt-1'><Location /></View>}
         <Text className="text-[15px] txt-grey ml-1 poppins-regular">{selectedLocation}</Text>
