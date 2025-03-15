@@ -21,6 +21,7 @@ const initialState = {
   kitchenStatus: {
     data: null,
   },
+  loading: false
 };
 
 // Create a slice for Kitchen data
@@ -34,11 +35,11 @@ export const kitchenSlice = createSlice({
     },
     setProfileData: (state, action) => {
       state.createProfile.data = action.payload;
-      state.createProfile.loading = false;
+      state.loading = false;
     },
     setProfileError: (state, action) => {
       state.createProfile.data = action.payload;
-      state.createProfile.loading = false;
+      state.loading = false;
     },
 
     // Add Kitchen Reducers
@@ -47,50 +48,50 @@ export const kitchenSlice = createSlice({
     },
     setAddKitchenSuccess: (state, action) => {
       state.addKitchen.data = action.payload;
-      state.addKitchen.loading = false;
+      state.loading = false;
     },
     setAddKitchenError: (state, action) => {
       state.addKitchen.data = action.payload;
-      state.addKitchen.loading = false;
+      state.loading = false;
     },
 
     //Get Category Reducers
     setCategoryLoading: (state) => {
-      state.categoryData.loading = true;
+      state.loading = true;
     },
     setCategorySuccess: (state, action) => {
       state.categoryData.data = action.payload;
-      state.categoryData.loading = false;
+      state.loading = false;
     },
     setCategoryError: (state, action) => {
       state.categoryData.data = action.payload;
-      state.categoryData.loading = false;
+      state.loading = false;
     },
 
     //food style
     setFoodStyleLoading: (state) => {
-      state.foodStyle.loading = true;
+      state.loading = true;
     },
     setFoodStyleSuccess: (state, action) => {
       state.foodStyle.data = action.payload;
-      state.foodStyle.loading = false;
+      state.loading = false;
     },
     setFoodStyleError: (state, action) => {
       state.foodStyle.data = action.payload;
-      state.foodStyle.loading = false;
+      state.loading = false;
     },
 
     //kitchen status
     setKitchenStatusLoading: (state) => {
-      state.kitchenStatus.loading = true;
+      state.loading = true;
     },
     setKitchenStatusSuccess: (state, action) => {
       state.kitchenStatus.data = action.payload;
-      state.kitchenStatus.loading = false;
+      state.loading = false;
     },
     setKitchenStatusError: (state, action) => {
       state.kitchenStatus.data = action.payload;
-      state.kitchenStatus.loading = false;
+      state.loading = false;
     },
   },
 }

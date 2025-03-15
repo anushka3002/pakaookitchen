@@ -9,11 +9,6 @@ const PlanDetails = ({ route }) => {
     const { planData, ind } = route.params;
     const { menuDraft } = useSelector(state => state.plan)
     const [mealType, setMealType] = useState('Veg')
-    const dispatch = useDispatch()
-
-    useEffect(() => {
-        dispatch(getMenuDraft())
-    }, [])
 
     return (
         <ScrollView>
@@ -28,21 +23,22 @@ const PlanDetails = ({ route }) => {
                 <Text className='text-[19px] poppins-semibold mt-[11]'>{planData.name}</Text>
                 <View className='flex-row justify-between items-center'>
                     <Text className='text-[15px] poppins-medium txt-grey'>Plan {ind+1}</Text>
-                    <View className='btn-color rounded-[50] px-5 py-2'>
+                    {planData?.status == 'pending' && <View className='btn-color rounded-[50] px-5 py-2'>
                         <Text className='text-white text-[12px] poppins-medium'>Preview</Text>
-                    </View>
+                    </View>}
                 </View>
 
                 <View style={{ gap: 20 }} className='flex-row justify-center my-5'>
                     {['Veg', 'Non veg'].map((el, ind) => {
-                        return <TouchableOpacity onPress={()=>setMealType(el)} className='btn-color w-[110px] items-center py-[7] rounded-[50]' key={ind}>
-                            <Text className='text-white text-[15px] poppins-medium'>{el}</Text>
+                        return <TouchableOpacity style={{borderWidth:1, borderColor:'rgba(214, 214, 214, 0.60)'}} onPress={()=>setMealType(el)} className={`${mealType == el ? 'btn-color' : ''} 
+                        w-[110px] items-center py-[7] rounded-[50]`} key={ind}>
+                        <Text className={`${mealType == el ? 'text-white' : 'text-[#7B7B7B]'} text-[15px] poppins-medium`}>{el}</Text>
                         </TouchableOpacity>
                     })}
                 </View>
 
-                {menuDraft?.data?.data?.menu?.map((el, ind) => {
-                    if(mealType == 'Veg' && el.vegItem.length>0){
+                {menuDraft?.data?.data?.menu.length > 0 ? menuDraft?.data?.data?.menu?.map((el, ind) => {
+                    if(mealType == 'Veg' && el.vegItem.length > 0){
                     return <View style={{boxShadow:'0px 0px 10px 0px rgba(0, 0, 0, 0.13)'}} key={ind} className='rounded-[10] w-full mb-[15]'>
                         <View className='btn-light-blue rounded-t-[10] py-[9] px-[10]'>
                             <Text className='text-[15px] poppins-medium txt-blue'>{el.day.split('')[0].toUpperCase()+el.day.slice(1)}</Text>
@@ -65,7 +61,7 @@ const PlanDetails = ({ route }) => {
                         </View>
                     </View>
                     }
-                })}
+                }) : <Text className='poppins-medium txt-grey text-[18px] text-center mt-[100]'>No data found</Text>}
             </View>
         </ScrollView>
     )

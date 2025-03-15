@@ -49,65 +49,65 @@ export const authSlice = createSlice({
     },
     setUserData: (state, action) => {
       state.user.data = action.payload;
-      state.user.loading = false;
+      state.loading = false;
     },
     setUserError: (state, action) => {
-      state.user.loading = false;
+      state.loading = false;
       state.user.data = action.payload;
     },
 
     setOtpLoading: (state) => {
-      state.otp.loading = true;
+      state.loading = true;
       state.otp.data = null;
     },
     setOtpSuccess: (state, action) => {
       state.otp.data = action.payload;
-      state.otp.loading = false;
+      state.loading = false;
     },
     setAuthToken: (state, action) => {
       state.auth_token = action.payload
     },
     setOtpError: (state, action) => {
-      state.otp.loading = false;
+      state.loading = false;
       state.otp.data = action.payload
     },
 
     setDeleteReasonsLoading: (state) => {
-      state.deleteReasons.loading = true;
+      state.loading = true;
       state.deleteReasons.data = null;
     },
     setDeleteReasonsData: (state, action) => {
       state.deleteReasons.data = action.payload;
-      state.deleteReasons.loading = false;
+      state.loading = false;
     },
     setDeleteReasonsError: (state, action) => {
-      state.deleteReasons.loading = false;
+      state.loading = false;
       state.deleteReasons.data = action.payload
     },
 
     setDeleteProfileLoading: (state) => {
-      state.deleteProfile.loading = true;
+      state.loading = true;
       state.deleteProfile.data = null;
     },
     setDeleteProfileData: (state, action) => {
       state.deleteProfile.data = action.payload;
-      state.deleteProfile.loading = false;
+      state.loading = false;
     },
     setDeleteProfileError: (state, action) => {
-      state.deleteProfile.loading = false;
+      state.loading = false;
       state.deleteProfile.data = action.payload
     },
 
     setLogoutLoading: (state) => {
-      state.logout.loading = true;
+      state.loading = true;
       state.logout.data = null;
     },
     setLogoutData: (state, action) => {
       state.logout.data = action.payload;
-      state.logout.loading = false;
+      state.loading = false;
     },
     setLogoutError: (state, action) => {
-      state.logout.loading = false;
+      state.loading = false;
       state.logout.data = action.payload
     },
   },

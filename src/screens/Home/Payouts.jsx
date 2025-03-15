@@ -1,17 +1,16 @@
-import { View, Text, ImageBackground, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native'
-import React from 'react'
+import { View, Text, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native'
+import React from 'react';
 import { LinearGradient } from 'react-native-linear-gradient';
-import PayoutVector from '../../assets/payout-vector'
-import Arrow from '../../assets/payout-blue-arrow'
-import Dropdown from '../../assets/payout-dropdown'
-import Calendar from '../../assets/black-calender'
-import Download from '../../assets/download'
+import PayoutVector from '../../assets/payout-vector';
+import Arrow from '../../assets/payout-blue-arrow';
+import Dropdown from '../../assets/payout-dropdown';
+import Calendar from '../../assets/black-calender';
+import Download from '../../assets/download';
 
 const Payouts = ({ navigation }) => {
   return (
     <SafeAreaView>
-      <View className='h-screen bg-white'>
-        <ScrollView>
+      <ScrollView>
         <LinearGradient
         colors={['#2650D8', '#2D479D']}
         start={{ x: 0, y: 0 }}
@@ -83,10 +82,8 @@ const Payouts = ({ navigation }) => {
             </View>
         </View>
       })}
-
       </View>
       </ScrollView>
-      </View>
     </SafeAreaView>
   )
 }

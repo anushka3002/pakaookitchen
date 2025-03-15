@@ -14,11 +14,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import { addFoodDetails, getMenuDraft } from '../../../reducers/planSlice'
 import LottieView from "lottie-react-native";
 
-const PlanStepper = () => {
+const PlanStepper = ({route}) => {
 
+    const {planId} = route.params
     const [stepper, setStepper] = useState([])
     const [currentIndex, setCurrentIndex] = useState(0);
-    const { menuDraft, planDetails } = useSelector(state => state.plan)
+    const { menuDraft, planDetails, addItemDetails } = useSelector(state => state.plan)
     const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     const [foodType, setFoodType] = useState('')
     const [loading, setLoading] = useState(false)
@@ -66,7 +67,7 @@ const PlanStepper = () => {
         if (menuDraft?.data?.data?.menu?.length > 0) {
             const menuItems = menuDraft.data.data.menu;
             const emptyIndex = menuItems.findIndex(
-                (item) => item.vegItem.length === 0 && item.nvegItem.length === 0
+                (item) => item?.vegItem?.length === 0 && item?.nvegItem?.length === 0
             );
             if (emptyIndex !== -1) {
                 setCurrentIndex(emptyIndex);
@@ -79,8 +80,8 @@ const PlanStepper = () => {
     }, [])
 
     useEffect(() => {
-        dispatch(getMenuDraft())
-    }, [])
+        dispatch(getMenuDraft(planId, 0, 0, 1, null, null, null))
+    }, [planId, addItemDetails])
 
     const handlePlanSubmit = () => {
         setLoading(true)
@@ -89,7 +90,7 @@ const PlanStepper = () => {
             setCurrentIndex(prevIndex => prevIndex + 1);
         }
         const data = {
-            menuId: 26,
+            menuId: currentId,
             veg: vegFoodList.length == 0 ? 0 : 1,
             nveg: nvegFoodList.length == 0 ? 0 : 1,
             vegItems: vegFoodList,
@@ -109,7 +110,7 @@ const PlanStepper = () => {
                             <View key={ind}>
                                 <View className='flex-row items-center justify-center'>
                                     <TouchableOpacity onPress={() => setStepper([...stepper, ind])}>
-                                        {(e.vegItem.length > 0 || e.nvegItem.length) > 0 ? <BlueTick /> : <View style={{ width: 33, height: 33 }}
+                                        {(e?.vegItem?.length > 0 || e?.nvegItem?.length) > 0 ? <BlueTick /> : <View style={{ width: 33, height: 33 }}
                                             className='border items-center justify-center rounded-full'>
                                             <Text className='text-[17px] poppins-medium txt-grey'>{e?.day?.split('')[0].toUpperCase()}</Text></View>}
                                     </TouchableOpacity>

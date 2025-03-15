@@ -6,19 +6,18 @@ import { REACT_NATIVE_FOOD_API, REACT_NATIVE_X_API_KEY } from '@env';
 const initialState = {
     planDetails: {
         data: null,
-        loading: false,
     },
     menuDraft: {
         data: null,
-        loading: false,
     },
     addPlan: {
         data: null,
-        loading: false,
     },
     addItemDetails: {
         data: null,
-        loading: false,
+    },
+    submitMenuData: {
+        data: null
     },
     loading: false
 };
@@ -52,7 +51,7 @@ export const planSlice = createSlice({
         },
 
         setAddPlanLoading: (state) => {
-            state.addPlan.loading = true;
+            state.loading = true;
         },
         setAddPlanData: (state, action) => {
             state.addPlan.data = action.payload;
@@ -60,19 +59,31 @@ export const planSlice = createSlice({
         },
         setAddPlanError: (state, action) => {
             state.addPlan.data = action.payload;
-            state.addPlan.loading = false;
+            state.loading = false;
         },
 
         setAddItemDetailsLoading: (state) => {
-            state.addPlan.loading = true;
+            state.loading = true;
         },
         setAddItemDetailsData: (state, action) => {
             state.addItemDetails.data = action.payload;
-            state.addPlan.loading = false;
+            state.loading = false;
         },
         setAddItemDetailsError: (state, action) => {
             state.addItemDetails.data = action.payload;
-            state.addPlan.loading = false;
+            state.loading = false;
+        },
+
+        setSubmitMenuLoading: (state) => {
+            state.loading = true;
+        },
+        setSubmitMenuData: (state, action) => {
+            state.submitMenuData.data = action.payload;
+            state.loading = false;
+        },
+        setSubmitMenuError: (state, action) => {
+            state.submitMenuData.data = action.payload;
+            state.loading = false;
         },
     },
 });
@@ -80,7 +91,8 @@ export const planSlice = createSlice({
 // Actions
 export const { setPlanDetailsLoading, setPlanDetailsData, setPlanDetailsError, setMenuDraftLoading, 
     setMenuDraftData, setMenuDraftError, setAddPlanData, setAddPlanError, setAddPlanLoading,
-    setAddItemDetailsData, setAddItemDetailsError, setAddItemDetailsLoading } = planSlice.actions;
+    setAddItemDetailsData, setAddItemDetailsError, setAddItemDetailsLoading, setSubmitMenuData,
+    setSubmitMenuError, setSubmitMenuLoading } = planSlice.actions;
 
 export const getPlanDetails = (meal) => async (dispatch) => {
     try {
@@ -106,7 +118,7 @@ export const getPlanDetails = (meal) => async (dispatch) => {
     }
 };
 
-export const getMenuDraft = () => async (dispatch) => {
+export const getMenuDraft = (id, veg, nveg, edit, navigation, elm, ind) => async (dispatch) => {
     try {
         dispatch(setMenuDraftLoading());
 
@@ -118,9 +130,13 @@ export const getMenuDraft = () => async (dispatch) => {
             'x-public-key': public_key,
             'x-auth-key': authToken
         };
-
-        const response = await axios.get(`${REACT_NATIVE_FOOD_API}/kitchen/plan_draft?planId=11&veg=0&nveg=0`, { headers });
-        dispatch(setMenuDraftData(response?.data));
+        const response = await axios.get(`${REACT_NATIVE_FOOD_API}/kitchen/plan_draft?planId=${id}&veg=${veg}&nveg=${nveg}&menu_editing=${edit}`, { headers });
+        dispatch(setMenuDraftData(response?.data))
+        if(elm && ind != -1){
+            navigation.navigate('PlanDetails', {planData: elm, ind: ind})
+        }else if(ind == -1){
+            navigation.navigate('PlanStepper', {planId: id})
+        }
     } catch (error) {
         if (error.response) {
             dispatch(setMenuDraftError(error.response.data.error));
@@ -146,7 +162,8 @@ export const addPlanDetails = (data, navigation) => async (dispatch) => {
         const response = await axios.post(`${REACT_NATIVE_FOOD_API}/kitchen/add_plan`, data, { headers });
         dispatch(setAddPlanData(response.data));
         dispatch(getPlanDetails(null))
-        navigation.navigate('PlanStepper')
+        
+        navigation.navigate('PlanStepper',{planId: response.data.data.planId})
     } catch (error) {
         if (error.response) {
             dispatch(setAddPlanError(error.response.data.error));
@@ -170,12 +187,35 @@ export const addFoodDetails = (data) => async (dispatch) => {
         };
         const response = await axios.post(`${REACT_NATIVE_FOOD_API}/kitchen/add_item`, data, { headers });
         dispatch(setAddItemDetailsLoading(response.data));
-        dispatch(getMenuDraft(null))
     } catch (error) {
         if (error.response) {
             dispatch(setAddItemDetailsError(error.response.data.error));
         } else {
             dispatch(setAddItemDetailsError(error.message));
+        }
+    }
+};
+
+export const submitMenu = (menu) => async (dispatch) => {
+    try {
+        dispatch(setSubmitMenuLoading());
+            
+        const authToken = await EncryptedStorage.getItem('auth_token')
+        const public_key = await EncryptedStorage.getItem('public_key')
+
+        const headers = {
+            'x-api-key': REACT_NATIVE_X_API_KEY,
+            'x-public-key': public_key,
+            'x-auth-key': authToken
+        };
+
+        const response = await axios.put(`${REACT_NATIVE_FOOD_API}/kitchen/submit_menu`, menu, { headers });
+        dispatch(setSubmitMenuData(response.data));
+    } catch (error) {
+        if (error.response) {
+            dispatch(setSubmitMenuError(error.response.data.error));
+        } else {
+            dispatch(setSubmitMenuError(error.message));
         }
     }
 };

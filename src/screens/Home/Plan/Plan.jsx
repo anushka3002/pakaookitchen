@@ -1,5 +1,5 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { View, Text, StyleSheet, TouchableOpacity, Image, Animated, ScrollView } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
 import Navbar from '../../Components/Navbar'
 import Trial from '../../../assets/trial'
 import RightArrow from '../../../assets/right-arrow-blue'
@@ -7,39 +7,47 @@ import VegSymbol from '../../../assets/veg-symbol'
 import NvegSymbol from '../../../assets/nveg-symbol'
 import NoPlanAdded from '../../../assets/no-plan-added'
 import { useDispatch, useSelector } from 'react-redux'
-import { getPlanDetails } from '../../../reducers/planSlice'
+import { getMenuDraft, getPlanDetails } from '../../../reducers/planSlice'
+import LottieView from 'lottie-react-native'
 
 const Plan = ({navigation}) => {
 
   const dispatch = useDispatch()
-  const [mealType, setMealType] = useState('')
-  const { planDetails } = useSelector(state => state.plan)
-
-  const food = [
-    {name:'Mann ka khana (Premiu..', image:'', time:'10:54 AM',cost:'₹163', status:'Pending'},
-    {name:'Mann ka khana (Premiu..', image:'', time:'10:54 AM',cost:'₹163', status: 'Approved'},
-  ]
+  const { planDetails, loading } = useSelector(state => state.plan)
 
   useEffect(()=>{
     dispatch(getPlanDetails(null))
   },[])
 
+  const handlePlanDetail = (elm, ind) =>{
+    dispatch(getMenuDraft(elm.id, 1,0, elm.status == 'approved' ? 0 : 1, navigation, elm, elm.status == 'pending' ? -1 : ind))
+    // navigation.navigate('PlanDetails', {planData: elm, ind: ind})
+  }
+
   return (
     <View className='bg-white h-screen'>
     <Navbar screen={'Plan'}/>
-    <View style={{gap:20}} className='mt-6 flex-row items-center justify-center'>
+    <View style={{gap:20}} className='pt-6 pb-2 flex-row items-center justify-center'>
       {planDetails?.data?.data?.mealNames.map((el, ind)=>{
-        return <TouchableOpacity key={ind} onPress={()=>{setMealType(el);dispatch(getPlanDetails(el))}}><Text style={[el == planDetails?.data?.data?.selectedMeal ? styles.blueBtn : styles.whiteBtn, {boxShadow: '0 -1px 14px rgba(0, 0, 0, 0.13)'}]} 
+        return <TouchableOpacity key={ind} onPress={()=>dispatch(getPlanDetails(el))}><Text style={[el == planDetails?.data?.data?.selectedMeal ? styles.blueBtn : styles.whiteBtn, {boxShadow: '0 -1px 14px rgba(0, 0, 0, 0.13)'}]} 
         className='text-[15px] poppins-medium text-white rounded-[30px] px-10 py-2'>{el.split('')[0].toUpperCase()+el.slice(1)}</Text></TouchableOpacity>
       })}
     </View>
-    {planDetails?.data?.data?.message == 'No plan exits' ? <View className='flex-1 items-center justify-center'><NoPlanAdded/>
+    <ScrollView>
+    {planDetails?.data?.data?.message == 'No plan exits' ? <View className='flex-1 items-center justify-center mt-[136]'><NoPlanAdded/>
     <Text className='text-[23px] poppins-semibold mt-[20]'>No Plan Added</Text>
     <Text className='text-[15px] poppins-medium txt-grey'>Please add plan to start!!</Text>
     </View> : <>
-    <View className='mx-4 mt-7'>
-    {planDetails?.data?.data?.plan_info?.map((elm, index)=>{
-      return <View key={index} style={{
+    <View className='mx-4 pt-4'>
+    {loading ? <View className="items-center justify-center mt-[160]">
+        <LottieView
+          source={require("../../../assets/Loader.json")}
+          autoPlay
+          loop
+          style={{ width: 150, height: 150 }}
+        />
+      </View> : planDetails?.data?.data?.plan_info?.map((elm, index)=>{
+      return <TouchableOpacity onPress={()=>handlePlanDetail(elm, index)} key={index} style={{
         boxShadow: '0 -1px 14px rgba(0, 0, 0, 0.13)',
       }} className='flex-row mb-6 rounded-[20]'>
         <Image
@@ -65,16 +73,14 @@ const Plan = ({navigation}) => {
             <NvegSymbol/>
             <Text className='text-[15px] mt-1 poppins-semibold items-center ml-[6] '>₹{elm.nveg_price.split('.')[0]}</Text>
             </View>
-            <TouchableOpacity onPress={()=>navigation.navigate('PlanDetails', {planData: elm, ind: index})}>
             <RightArrow/>
-            </TouchableOpacity>
           </View>
-
         </View>
-      </View>
+      </TouchableOpacity>
     })}
     </View>
     </>}
+    </ScrollView>
     <TouchableOpacity style={{borderTopLeftRadius:50, borderBottomLeftRadius:50, bottom:100, boxShadow: ' 0px 0px 10px 0px rgba(47, 95, 248, 0.40)'}}
      className='absolute right-0 btn-color px-6 py-2' onPress={()=>navigation.navigate('AddPlan')}><View>
       <Text className='text-white text-[14px] poppins-medium'>Add Plan</Text>

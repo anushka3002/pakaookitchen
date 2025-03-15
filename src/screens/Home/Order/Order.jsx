@@ -5,11 +5,12 @@ import GreenDot from '../../../assets/green-dot';
 import { useDispatch, useSelector } from "react-redux";
 import { getOrderData } from "../../../reducers/orderSlice";
 import OrderCard from "../../Components/OrderCard";
+import LottieView from "lottie-react-native";
 
 const Order = ({ navigation }) => {
   const [selectedTab, setSelectedTab] = useState("ongoing");
   const dispatch = useDispatch()
-  const { orderData } = useSelector(state => state.order)
+  const { orderData, loading } = useSelector(state => state.order)
 
   useEffect(() => {
     dispatch(getOrderData(selectedTab ?? 'ongoing'))
@@ -41,9 +42,16 @@ const Order = ({ navigation }) => {
 
         <Text className="text-[21px] poppins-semibold mb-[5]">Items List</Text>
         <View style={{ gap: 14 }}>
-          {orderData?.data?.data?.data?.length > 0 ? orderData?.data?.data?.data?.map((order, ind) => (
+          {loading ? <View className="items-center justify-center mt-[160]">
+                  <LottieView
+                    source={require("../../../assets/Loader.json")}
+                    autoPlay
+                    loop
+                    style={{ width: 150, height: 150 }}
+                  />
+                </View> : orderData?.data?.data?.data?.length > 0 ? orderData?.data?.data?.data?.map((order, ind) => (
             <OrderCard key={ind} navigation={navigation} order={order} arrow={true} status={true} />
-          )) : <Text className="poppins-medium text-[16px] text-[#737373] text-center mt-[137]">No data found</Text>}
+          )) : <Text className="poppins-medium text-[16px] text-[#737373] text-center mt-[160]">No data found</Text>}
         </View>
       </View>
     </ScrollView>
