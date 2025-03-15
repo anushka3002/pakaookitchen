@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import EncryptedStorage from 'react-native-encrypted-storage';
-import { REACT_NATIVE_API, REACT_NATIVE_X_API_KEY, REACT_NATIVE_FOOD_API } from '@env';
+import { REACT_NATIVE_API, REACT_NATIVE_X_API_KEY, REACT_NATIVE_FOOD_API, REACT_NATIVE_PAYMENT_KEY } from '@env';
 
 // Initial state
 const initialState = {
@@ -30,6 +30,9 @@ const initialState = {
         data: null
     },
     allInfoData: {
+        data: null
+    },
+    currentCycleData: {
         data: null
     },
     loading: false
@@ -148,6 +151,18 @@ export const profileSlice = createSlice({
             state.allInfoData.data = action.payload;
             state.loading = false;
         },
+
+        setCurrentCycleLoading: (state) => {
+            state.loading = true;
+        },
+        setCurrentCycleData: (state, action) => {
+            state.currentCycleData.data = action.payload;
+            state.loading = false;
+        },
+        setCurrentCycleError: (state, action) => {
+            state.currentCycleData.data = action.payload;
+            state.loading = false;
+        },
     },
 }
 );
@@ -159,7 +174,7 @@ export const { setProfileData, setProfileError, setProfileLoading,
     setReadNotificationData, setReadNotificationError, setReadNotificationLoading, setEditProfileData,
     setEditProfileError, setEditProfileLoading, setDeleteRiderData, setDeleteRiderError,
     setDeleteRiderLoading, setSupportData, setSupportError, setSupportLoading, setAllInfoData,
-    setAllInfoError, setAllInfoLoading } = profileSlice.actions;
+    setAllInfoError, setAllInfoLoading, setCurrentCycleData, setCurrentCycleError,setCurrentCycleLoading } = profileSlice.actions;
 
 export const getProfileData = () => async (dispatch) => {
   try {
@@ -362,6 +377,28 @@ export const getAllInfo = () => async (dispatch) => {
             dispatch(setAllInfoError(error.response.data.error));
         } else {
             dispatch(setAllInfoError(error.message));
+        }
+    }
+};
+
+export const getCurrentCycle = () => async (dispatch) => {
+    try {
+        dispatch(setCurrentCycleLoading());
+        const authToken = await EncryptedStorage.getItem('auth_token');
+        const public_key = await EncryptedStorage.getItem('public_key');
+
+        const headers = {
+            'x-api-key': REACT_NATIVE_X_API_KEY,
+            'x-public-key': public_key,
+            'x-auth-key': authToken,
+        };
+        const response = await axios.get(`${REACT_NATIVE_PAYMENT_KEY}/kitchenWallet/currentcycle`, { headers });
+        dispatch(setCurrentCycleData(response.data));
+    } catch (error) {
+        if (error.response.data.error) {
+            dispatch(setCurrentCycleError(error.response.data.error));
+        } else {
+            dispatch(setCurrentCycleError(error.message));
         }
     }
 };

@@ -20,7 +20,7 @@ const AddPlan = ({ navigation }) => {
   const validationSchema = Yup.object().shape({
     planName: Yup.string().required("Plan name is required"),
     packagingPreview: Yup.string().required('Packaging preview is required'),
-    trialPrice: Yup.number().required('Trial price is required'),
+    trial_price: Yup.number().required('Trial price is required'),
     vegPrice: Yup.number().required('Veg plate price is required'),
     nvegPrice: Yup.number().required('Non veg plate price is required'),
   });
@@ -47,9 +47,9 @@ const AddPlan = ({ navigation }) => {
   }
 
   return (
-    <ScrollView className='bg-white h-full'>
-      <View>
+      <View className='h-screen'>
         <Navbar screen={'Plan'} />
+        <ScrollView className='bg-white'>
         <View className='px-4'>
           <TouchableOpacity onPress={()=>navigation.navigate('PlanStepper')}><Text className='text-[15px] poppins-medium mb-2 pt-7'>Plan Name <Text className="text-red-500">*</Text></Text></TouchableOpacity>
           <Controller
@@ -92,7 +92,7 @@ const AddPlan = ({ navigation }) => {
           <Text className='text-[15px] poppins-medium mb-2 pt-7'>One Day Trial Price <Text className="text-red-500">*</Text></Text>
           <Controller
             control={control}
-            name="trialPrice"
+            name="trial_price"
             render={({ field: { onChange, value } }) => (
               <TextInput
                 className='border poppins-regular text-[15px] border-gray-300 rounded-[10px] px-3 py-3'
@@ -103,7 +103,7 @@ const AddPlan = ({ navigation }) => {
               />
             )}
           />
-          {errors.trialPrice && <Text className='text-red-500 poppins-regular text-xs mt-1'>{errors.trialPrice.message}</Text>}
+          {errors.trial_price && <Text className='text-red-500 poppins-regular text-xs mt-1'>{errors.trial_price.message}</Text>}
 
           <Text className='text-[15px] poppins-medium mb-2 pt-7'>Veg Plate Price <Text className="text-red-500">*</Text></Text>
           <Controller
@@ -144,11 +144,12 @@ const AddPlan = ({ navigation }) => {
               }]} className='text-[15px] poppins-medium text-white rounded-xl px-10 py-3'>{el.split('')[0].toUpperCase()+el.slice(1)}</Text></TouchableOpacity>
             })}
           </View>
+          <TouchableOpacity onPress={handleSubmit(onSubmit)}>
+        <View className='btn-color mt-5 mb-3 py-3 items-center rounded-[10px]'><Text className='text-white text-[18px] poppins-medium text-center'>Next</Text></View>
+        </TouchableOpacity>
         </View>
+        </ScrollView>
       </View>
-      <TouchableOpacity onPress={handleSubmit(onSubmit)}>
-        <View className='btn-color mt-5 mb-3 py-3 items-center rounded-[10px] mx-4'><Text className='text-white text-[18px] poppins-medium text-center'>Next</Text></View></TouchableOpacity>
-    </ScrollView>
   )
 }
 

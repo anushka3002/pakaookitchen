@@ -44,59 +44,69 @@ import CurrentCycle from "./src/screens/Home/CurrentCycle";
 import ContactUs from "./src/screens/Home/Profile/ContactUs";
 import Rider from "./src/screens/Home/Profile/Rider";
 import AddRider from "./src/screens/Home/Profile/AddRider";
+import LottieView from "lottie-react-native";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
+function PayoutStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Payouts" component={Payouts} />
+      <Stack.Screen name="CurrentCycle" component={CurrentCycle} />
+    </Stack.Navigator>
+  );
+}
+
 function HomeTabs() {
   return (
     <Tab.Navigator
-    screenOptions={({ route }) => ({
-      headerShown: false,
-      tabBarActiveTintColor: "#2650D8",
-      tabBarInactiveTintColor: "black",
-      tabBarStyle: { height: 60, paddingBottom: 8, paddingTop: 10 , boxShadow:'0px 0px 10px 0px rgba(0, 0, 0, 0.14)'},
-      tabBarLabel: () => null,
-      tabBarIcon: ({ focused }) => {
-        let IconComponent;
-        let label;
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarActiveTintColor: "#2650D8",
+        tabBarInactiveTintColor: "black",
+        tabBarStyle: { height: 60, paddingBottom: 8, paddingTop: 10, boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' },
+        tabBarLabel: () => null,
+        tabBarIcon: ({ focused }) => {
+          let IconComponent;
+          let label;
 
-        switch (route.name) {
-          case "Dashboard":
-            IconComponent = focused ? ActiveHome : InactiveHome;
-            label = "Dashboard";
-            break;
-          case "Order":
-            IconComponent = focused ? ActiveOrder : InactiveOrder;
-            label = "Order";
-            break;
-          case "Payouts":
-            IconComponent = focused ? ActiveInvoice : InactiveInvoice;
-            label = "Payouts";
-            break;
-          case "Profile":
-            IconComponent = focused ? ActiveProfile : InactiveProfile;
-            label = "Profile";
-            break;
-          default:
-            IconComponent = InactiveHome;
-            label = "";
+          switch (route.name) {
+            case "Dashboard":
+              IconComponent = focused ? ActiveHome : InactiveHome;
+              label = "Dashboard";
+              break;
+            case "Order":
+              IconComponent = focused ? ActiveOrder : InactiveOrder;
+              label = "Order";
+              break;
+            case "PayoutStack":
+              IconComponent = focused ? ActiveInvoice : InactiveInvoice;
+              label = "PayoutStack";
+              break;
+            case "Profile":
+              IconComponent = focused ? ActiveProfile : InactiveProfile;
+              label = "Profile";
+              break;
+            default:
+              IconComponent = InactiveHome;
+              label = "";
+          }
+
+          return (
+            <View className="items-center flex-row" style={{ gap: 5 }}>
+              <IconComponent />
+              {focused && <Text className={`poppins-regular text-[16px] txt-blue`}>
+                {label}
+              </Text>}
+            </View>
+          );
         }
-
-        return (
-          <View className="items-center flex-row" style={{ gap: 5 }}>
-            <IconComponent/>
-            {focused && <Text className={`poppins-regular text-[16px] txt-blue`}>
-              {label}
-            </Text>}
-          </View>
-        );
-      }
-    })}
+      })}
     >
       <Tab.Screen name="Dashboard" component={Dashboard} />
       <Tab.Screen name="Order" component={Order} />
-      <Tab.Screen name="Payouts" component={Payouts} />
+      <Tab.Screen name="PayoutStack" component={PayoutStack} />
       <Tab.Screen name="Profile" component={Profile} />
     </Tab.Navigator>
   );
@@ -105,6 +115,7 @@ function HomeTabs() {
 function RootStack({ initialRoute }) {
   return (
     <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Home" component={HomeTabs}/>
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="LoginOTP" component={LoginOTP} />
       <Stack.Screen name="CreateAccount" component={CreateAccount} />
@@ -112,24 +123,20 @@ function RootStack({ initialRoute }) {
       <Stack.Screen name="Approved" component={ApprovedScreen} />
       <Stack.Screen name="Rejected" component={RejectedScreen} />
       <Stack.Screen name="AddKitchen" component={AddKitchen} />
-      <Stack.Screen name="Dashboard" component={Dashboard} />
       <Stack.Screen name="AddPlan" component={AddPlan} />
       <Stack.Screen name="Plan" component={Plan} />
       <Stack.Screen name="PlanStepper" component={PlanStepper} />
       <Stack.Screen name="PlanDetails" component={PlanDetails} />
-      <Stack.Screen name="Order" component={Order} />
       <Stack.Screen name="OrderManagement" component={OrderManagement} />
       <Stack.Screen name="OrderRating" component={OrderRating} />
       <Stack.Screen name="OrderDetails" component={OrderDetails} />
-      <Stack.Screen name="Payouts" component={Payouts} />
       <Stack.Screen name="CurrentCycle" component={CurrentCycle} />
-      <Stack.Screen name="Profile" component={Profile} />
       <Stack.Screen name="FAQ" component={FAQ} />
       <Stack.Screen name="TermsConditions" component={TermsConditions} />
       <Stack.Screen name="Notification" component={Notification} />
-      <Stack.Screen name="ContactUs" component={ContactUs}/>
-      <Stack.Screen name="Rider" component={Rider}/>
-      <Stack.Screen name="AddRider" component={AddRider}/>
+      <Stack.Screen name="ContactUs" component={ContactUs} />
+      <Stack.Screen name="Rider" component={Rider} />
+      <Stack.Screen name="AddRider" component={AddRider} />
     </Stack.Navigator>
   );
 }
@@ -137,12 +144,16 @@ function RootStack({ initialRoute }) {
 function AppWrapper() {
   const dispatch = useDispatch();
   const kitchenStatus = useSelector(state => state.kitchenData?.kitchenStatus);
-  const {otp, logout, auth_token} = useSelector(state => state.auth)
-  
-  const [initialRoute, setInitialRoute] = useState(null); 
+  const { logout, loading, auth_token } = useSelector(state => state.auth)
+  const {loading: kitchenLoading} = useSelector(state => state.kitchenData)
+  const {loading: orderLoading} = useSelector(state => state.order)
+  const {loading: planLoading} = useSelector(state => state.plan)
+  const {loading: profileLoading} = useSelector(state => state.profileData)
+
+  const [initialRoute, setInitialRoute] = useState(null);
   const [authToken, setAuthToken] = useState(null);
   const [storedKitchenStatus, setStoredKitchenStatus] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
     dispatch(getPublicKey());
@@ -175,39 +186,43 @@ function AppWrapper() {
   }, []);
 
   useEffect(() => {
-    if (authToken !== null && kitchenStatus?.data?.data?.status !== undefined && storedKitchenStatus !== null) {
+    if (authToken !== null) {
       if (kitchenStatus?.data?.data?.status === null) {
         setInitialRoute("CreateAccount");
       } else if (kitchenStatus?.data?.data?.status === 'pending') {
         setInitialRoute("Pending");
       } else if (kitchenStatus?.data?.data?.status === 'approved') {
-        if (storedKitchenStatus === 'kitchenApproved') {
-          if(kitchenStatus?.data?.data?.kitchen_added){
-            setInitialRoute('Dashboard')
-          }else{
-            setInitialRoute("AddKitchen");
-          }
+        if (kitchenStatus?.data?.data?.kitchen_added) {
+          setInitialRoute('Home')
+        } else if (!kitchenStatus?.data?.data?.kitchen_added) {
+          setInitialRoute("AddKitchen");
         }else{
-          setInitialRoute('Approved')
+        setInitialRoute('Approved')
         }
       } else if (kitchenStatus?.data?.data?.status === 'rejected') {
         setInitialRoute("Rejected");
       }
     }
-     else if (authToken === null) {
-      setInitialRoute('Login')
-    }
-    setLoading(false);
-  }, [kitchenStatus, authToken, storedKitchenStatus]);
+    setInitialLoading(false)
+  }, [authToken]);
 
   useEffect(() => {
     if (!loading && initialRoute !== null) {
       SplashScreen.hide();
     }
-  }, [loading, initialRoute]);
+  }, [initialLoading, initialRoute]);
 
-  if (loading || initialRoute === null) return <Text>Loading</Text>; 
-  return <RootStack initialRoute={initialRoute}/>
+  if (loading || initialRoute == null) 
+  return <View className="items-center justify-center h-screen">
+    <LottieView
+      source={require("./src/assets/Loader.json")}
+      autoPlay
+      loop
+      style={{ width: 150, height: 150 }}
+    />
+  </View>
+
+  return <>{initialRoute && <RootStack initialRoute={initialRoute} />}</>
 }
 
 export default function App() {
