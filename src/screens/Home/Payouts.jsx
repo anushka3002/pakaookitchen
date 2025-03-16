@@ -15,12 +15,12 @@ const Payouts = ({ navigation }) => {
         colors={['#2650D8', '#2D479D']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        className="w-full h-[470px]"
+        className="w-full h-[570px]"
       >
-        <View className='w-full relative'>
+        {/* <View className='w-full relative'>
         <PayoutVector/>
-        </View>
-        <View className='px-[15] absolute'>
+        </View> */}
+        <View className='px-[15] pb-[44]'> {/* add absolute */}
         <Text className='text-[21px] poppins-bold text-white mt-[13]'>Payouts</Text>
         <Text className='text-[15px] poppins-semibold text-white mt-[14]'>Current cycle</Text>
         <Text className='text-[14px] poppins-medium text-[#FCFCFC] pr-[6]'>Payouts are credited to your account every Monday by 9 PM for all transaction from the previous Monday-Sunday</Text>

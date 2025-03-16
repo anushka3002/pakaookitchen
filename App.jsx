@@ -61,61 +61,80 @@ function PayoutStack() {
 function HomeTabs() {
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarActiveTintColor: "#2650D8",
-        tabBarInactiveTintColor: "black",
-        tabBarStyle: { height: 60, paddingBottom: 8, paddingTop: 10, boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' },
-        tabBarLabel: () => null,
-        tabBarIcon: ({ focused }) => {
-          let IconComponent;
-          let label;
+  screenOptions={({ route }) => ({
+    headerShown: false,
+    tabBarActiveTintColor: "#2650D8",
+    tabBarInactiveTintColor: "black",
+    tabBarStyle: {
+      height: 60,
+      paddingBottom: 8,
+      paddingTop: 10,
+      shadowColor: "rgba(0, 0, 0, 0.14)",
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 1,
+      shadowRadius: 10,
+    },
+    tabBarLabel: () => null,
+    tabBarIcon: ({ focused }) => {
+      let IconComponent;
+      let label;
 
-          switch (route.name) {
-            case "Dashboard":
-              IconComponent = focused ? ActiveHome : InactiveHome;
-              label = "Dashboard";
-              break;
-            case "Order":
-              IconComponent = focused ? ActiveOrder : InactiveOrder;
-              label = "Order";
-              break;
-            case "PayoutStack":
-              IconComponent = focused ? ActiveInvoice : InactiveInvoice;
-              label = "PayoutStack";
-              break;
-            case "Profile":
-              IconComponent = focused ? ActiveProfile : InactiveProfile;
-              label = "Profile";
-              break;
-            default:
-              IconComponent = InactiveHome;
-              label = "";
-          }
+      switch (route.name) {
+        case "Dashboard":
+          IconComponent = focused ? ActiveHome : InactiveHome;
+          label = "Dashboard";
+          break;
+        case "Order":
+          IconComponent = focused ? ActiveOrder : InactiveOrder;
+          label = "Order";
+          break;
+        case "PayoutStack":
+          IconComponent = focused ? ActiveInvoice : InactiveInvoice;
+          label = "PayoutStack";
+          break;
+        case "Profile":
+          IconComponent = focused ? ActiveProfile : InactiveProfile;
+          label = "Profile";
+          break;
+        default:
+          IconComponent = InactiveHome;
+          label = "";
+      }
 
-          return (
-            <View className="items-center flex-row" style={{ gap: 5 }}>
+      return (
+        <View className="flex-1 justify-center items-center" style={{minWidth:100}}>
+          {focused ? (
+            <View className="absolute flex-row items-center px-5">
               <IconComponent />
-              {focused && <Text className={`poppins-regular text-[16px] txt-blue`}>
-                {label}
-              </Text>}
+              <Text 
+                className="poppins-regular text-[14px] txt-blue ml-2 whitespace-nowrap"
+                numberOfLines={1}
+              >
+                {label == 'PayoutStack' ? 'Payout' : label}
+              </Text>
             </View>
-          );
-        }
-      })}
-    >
-      <Tab.Screen name="Dashboard" component={Dashboard} />
-      <Tab.Screen name="Order" component={Order} />
-      <Tab.Screen name="PayoutStack" component={PayoutStack} />
-      <Tab.Screen name="Profile" component={Profile} />
-    </Tab.Navigator>
+          ) : (
+            <IconComponent />
+          )}
+        </View>
+      );
+    }
+  })}
+>
+  <Tab.Screen name="Dashboard" component={Dashboard} />
+  <Tab.Screen name="Order" component={Order} />
+  <Tab.Screen name="PayoutStack" component={PayoutStack} />
+  <Tab.Screen name="Profile" component={Profile} />
+</Tab.Navigator>
+
+
   );
 }
 
 function RootStack({ initialRoute }) {
   return (
     <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Home" component={HomeTabs}/>
+      <Stack.Screen name="Home" component={HomeTabs} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="LoginOTP" component={LoginOTP} />
       <Stack.Screen name="CreateAccount" component={CreateAccount} />
@@ -145,10 +164,10 @@ function AppWrapper() {
   const dispatch = useDispatch();
   const kitchenStatus = useSelector(state => state.kitchenData?.kitchenStatus);
   const { logout, loading, auth_token } = useSelector(state => state.auth)
-  const {loading: kitchenLoading} = useSelector(state => state.kitchenData)
-  const {loading: orderLoading} = useSelector(state => state.order)
-  const {loading: planLoading} = useSelector(state => state.plan)
-  const {loading: profileLoading} = useSelector(state => state.profileData)
+  const { loading: kitchenLoading } = useSelector(state => state.kitchenData)
+  const { loading: orderLoading } = useSelector(state => state.order)
+  const { loading: planLoading } = useSelector(state => state.plan)
+  const { loading: profileLoading } = useSelector(state => state.profileData)
 
   const [initialRoute, setInitialRoute] = useState(null);
   const [authToken, setAuthToken] = useState(null);
@@ -196,8 +215,8 @@ function AppWrapper() {
           setInitialRoute('Home')
         } else if (!kitchenStatus?.data?.data?.kitchen_added) {
           setInitialRoute("AddKitchen");
-        }else{
-        setInitialRoute('Approved')
+        } else {
+          setInitialRoute('Approved')
         }
       } else if (kitchenStatus?.data?.data?.status === 'rejected') {
         setInitialRoute("Rejected");
@@ -212,15 +231,15 @@ function AppWrapper() {
     }
   }, [initialLoading, initialRoute]);
 
-  if (loading || initialRoute == null) 
-  return <View className="items-center justify-center h-screen">
-    <LottieView
-      source={require("./src/assets/Loader.json")}
-      autoPlay
-      loop
-      style={{ width: 150, height: 150 }}
-    />
-  </View>
+  if (loading || initialRoute == null)
+    return <View className="items-center justify-center h-screen">
+      <LottieView
+        source={require("./src/assets/Loader.json")}
+        autoPlay
+        loop
+        style={{ width: 150, height: 150 }}
+      />
+    </View>
 
   return <>{initialRoute && <RootStack initialRoute={initialRoute} />}</>
 }

@@ -1,5 +1,5 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image, Animated, ScrollView } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native'
+import React, { useEffect } from 'react'
 import Navbar from '../../Components/Navbar'
 import Trial from '../../../assets/trial'
 import RightArrow from '../../../assets/right-arrow-blue'
@@ -9,6 +9,7 @@ import NoPlanAdded from '../../../assets/no-plan-added'
 import { useDispatch, useSelector } from 'react-redux'
 import { getMenuDraft, getPlanDetails } from '../../../reducers/planSlice'
 import LottieView from 'lottie-react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const Plan = ({navigation}) => {
 
@@ -25,6 +26,7 @@ const Plan = ({navigation}) => {
   }
 
   return (
+    <SafeAreaView>
     <View className='bg-white h-screen'>
     <Navbar screen={'Plan'}/>
     <View style={{gap:20}} className='pt-6 pb-2 flex-row items-center justify-center'>
@@ -58,7 +60,7 @@ const Plan = ({navigation}) => {
         source={{uri: elm.packaging_preview}}
         />
         <View className='flex-1 px-4 py-2 realtive'>
-          <View style={{top:'-12', width:100}} className={`absolute right-0 ${elm.status == 'pending' ? 'bg-[#FBAE1E]' : 'bg-[#008000]'} rounded-2xl z-10`}>
+          <View style={{top:-12, width:100}} className={`absolute right-0 ${elm.status == 'pending' ? 'bg-[#FBAE1E]' : 'bg-[#008000]'} bg-opacity-100 rounded-2xl py-1 z-10`}>
             <Text className='poppins-medium text-[11px] text-center text-white'>{elm.status.split('')[0].toUpperCase()+elm.status.slice(1)}</Text></View>
           <Text className='text-[17px] poppins-semibold'>{elm.name.length > 19 ? elm.name.slice(0, 19) + '...' : elm.name}</Text>
           <Text className='text-[15px] poppins-medium txt-grey'>Plan - {index+1}</Text>
@@ -81,12 +83,13 @@ const Plan = ({navigation}) => {
     </View>
     </>}
     </ScrollView>
-    <TouchableOpacity style={{borderTopLeftRadius:50, borderBottomLeftRadius:50, bottom:100, boxShadow: ' 0px 0px 10px 0px rgba(47, 95, 248, 0.40)'}}
+    <TouchableOpacity style={{borderTopLeftRadius:50, borderBottomLeftRadius:50, bottom:120, boxShadow: ' 0px 0px 10px 0px rgba(47, 95, 248, 0.40)'}}
      className='absolute right-0 btn-color px-6 py-2' onPress={()=>navigation.navigate('AddPlan')}><View>
       <Text className='text-white text-[14px] poppins-medium'>Add Plan</Text>
     </View>
     </TouchableOpacity>
     </View>
+    </SafeAreaView>
   )
 }
 
