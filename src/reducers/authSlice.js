@@ -74,7 +74,6 @@ export const authSlice = createSlice({
 
     setDeleteReasonsLoading: (state) => {
       state.loading = true;
-      state.deleteReasons.data = null;
     },
     setDeleteReasonsData: (state, action) => {
       state.deleteReasons.data = action.payload;

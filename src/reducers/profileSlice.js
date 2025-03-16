@@ -35,6 +35,9 @@ const initialState = {
     currentCycleData: {
         data: null
     },
+    transactionsData: {
+        data: null
+    },
     loading: false
 };
 
@@ -163,6 +166,18 @@ export const profileSlice = createSlice({
             state.currentCycleData.data = action.payload;
             state.loading = false;
         },
+
+        setTransactionLoading: (state) => {
+            state.loading = true;
+        },
+        setTransactionData: (state, action) => {
+            state.transactionsData.data = action.payload;
+            state.loading = false;
+        },
+        setTransactionError: (state, action) => {
+            state.transactionsData.data = action.payload;
+            state.loading = false;
+        },
     },
 }
 );
@@ -174,7 +189,8 @@ export const { setProfileData, setProfileError, setProfileLoading,
     setReadNotificationData, setReadNotificationError, setReadNotificationLoading, setEditProfileData,
     setEditProfileError, setEditProfileLoading, setDeleteRiderData, setDeleteRiderError,
     setDeleteRiderLoading, setSupportData, setSupportError, setSupportLoading, setAllInfoData,
-    setAllInfoError, setAllInfoLoading, setCurrentCycleData, setCurrentCycleError,setCurrentCycleLoading } = profileSlice.actions;
+    setAllInfoError, setAllInfoLoading, setCurrentCycleData, setCurrentCycleError,setCurrentCycleLoading,
+    setTransactionData, setTransactionError, setTransactionLoading } = profileSlice.actions;
 
 export const getProfileData = () => async (dispatch) => {
   try {
@@ -399,6 +415,28 @@ export const getCurrentCycle = () => async (dispatch) => {
             dispatch(setCurrentCycleError(error.response.data.error));
         } else {
             dispatch(setCurrentCycleError(error.message));
+        }
+    }
+};
+
+export const getTransactions = () => async (dispatch) => {
+    try {
+        dispatch(setTransactionLoading());
+        const authToken = await EncryptedStorage.getItem('auth_token');
+        const public_key = await EncryptedStorage.getItem('public_key');
+
+        const headers = {
+            'x-api-key': REACT_NATIVE_X_API_KEY,
+            'x-public-key': public_key,
+            'x-auth-key': authToken,
+        };
+        const response = await axios.get(`${REACT_NATIVE_PAYMENT_KEY}/kitchenWallet/payoutList`, { headers });
+        dispatch(setTransactionData(response.data));
+    } catch (error) {
+        if (error.response.data.error) {
+            dispatch(setTransactionError(error.response.data.error));
+        } else {
+            dispatch(setTransactionError(error.message));
         }
     }
 };

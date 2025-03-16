@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
     View, Text, TextInput, TouchableOpacity,
-    ScrollView, StyleSheet, ActivityIndicator
+    ScrollView, StyleSheet, ActivityIndicator,
+    SafeAreaView
 } from 'react-native';
 import Navbar from '../Components/Navbar';
 import Veg from '../../assets/veg.svg';
@@ -116,7 +117,7 @@ const AddKitchen = ({ navigation }) => {
     }
 
     return (
-        <>
+        <SafeAreaView>
             <Navbar screen={'Add Kitchen'} />
             <ScrollView className="p-4 bg-white flex-1">
                 {/* Meal Category */}
@@ -281,10 +282,10 @@ const AddKitchen = ({ navigation }) => {
 
                 {/* Submit Button */}
                 <TouchableOpacity onPress={handleSubmit} className="btn-color p-4 rounded-xl mt-2 mb-10">
-                    {loading ? <ActivityIndicator  size="large" color="#FFFFFF" /> : <Text className="text-center text-[18px] poppins-medium text-white">Submit</Text>}
+                    {loading ? <ActivityIndicator size="large" color="#FFFFFF" /> : <Text className="text-center text-[18px] poppins-medium text-white">Submit</Text>}
                 </TouchableOpacity>
             </ScrollView>
-        </>
+        </SafeAreaView>
     );
 };
 

@@ -9,6 +9,7 @@ import { handleImageUpload } from '../../../constant';
 import { useDispatch, useSelector } from 'react-redux';
 import { addPlanDetails } from '../../../reducers/planSlice';
 import Navbar from '../../Components/Navbar';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const AddPlan = ({ navigation }) => {
 
@@ -47,6 +48,7 @@ const AddPlan = ({ navigation }) => {
   }
 
   return (
+    <SafeAreaView>
       <View className='h-screen'>
         <Navbar screen={'Plan'} />
         <ScrollView className='bg-white'>
@@ -150,6 +152,7 @@ const AddPlan = ({ navigation }) => {
         </View>
         </ScrollView>
       </View>
+      </SafeAreaView>
   )
 }
 

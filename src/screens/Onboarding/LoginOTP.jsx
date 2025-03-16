@@ -92,12 +92,12 @@ const LoginOTP = ({ navigation, route }) => {
       } else if (kitchenStatus?.data?.data?.status == 'approved') {
         if (storedKitchenStatus == 'kitchenApproved') {
           if (kitchenStatus?.data?.data?.kitchen_added == true) {
-            navigation.replace('Dashboard')
+            navigation.replace('Home')
           }else{
             navigation.replace("AddKitchen");
           }
         } else{
-          navigation.replace('Dashboard')
+          navigation.replace('Home')
         }
       } else if (kitchenStatus?.data?.data?.status == 'rejected') {
         navigation.replace('Rejected')
