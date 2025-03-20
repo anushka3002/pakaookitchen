@@ -8,7 +8,7 @@ import RightImg from '../../assets/right-img.svg';
 
 const LoginScreen = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
-  const { user, otp } = useSelector(state => state.auth)
+  const { user, login_loading } = useSelector(state => state.auth)
   const [authError, setAuthError] = useState('')
   const dispatch = useDispatch()
 
@@ -17,7 +17,6 @@ const LoginScreen = ({ navigation }) => {
     dispatch(fetchUserData(phoneNumber))
     dispatch(setOtpSuccess({ data: null }))
   };
-
   useEffect(() => {
     if(user?.data?.data?.message == 'success'){
       setAuthError('')
@@ -40,34 +39,34 @@ const LoginScreen = ({ navigation }) => {
         <PakaooLogo />
       </View>
 
-      <View className='items-center mt-4 mb-8'>
-        <Text className='text-[30px] poppins-bold text-black'>Welcome Back</Text>
-        <Text className='text-xl poppins-medium text-[#7B7B7B] mt-2'>Hello there, login in to</Text>
+      <View className='items-center mt-4'>
+        <Text className='text-[30px] poppins-bold text-black pt-[25]'>Welcome Back</Text>
+        <Text className='text-xl poppins-medium text-[#7B7B7B] mt-[10]'>Hello there, login to</Text>
       </View>
 
-      <View className='px-5'>
+      <View className='px-5 mt-[30]'>
         <View>
-          <Text className='text-[15px] poppins-medium mb-3'>
+          <Text className='text-[15px] poppins-medium'>
             Phone number <Text className='text-red-500'>*</Text>
           </Text>
           <TextInput
             placeholder="Enter Phone Number"
             value={phoneNumber}
             onChangeText={(text) => setPhoneNumber(text)}
-            className='border border-gray-300 poppins-regular text-[16px] rounded-[10px] py-4 px-4 text-black'
+            className='border border-gray-300 poppins-regular leading-normal text-[16px] rounded-[10px] py-4 mt-[14] px-4 text-black'
             keyboardType="phone-pad"
           />
-          {authError && <Text className='mt-1 text-[12px] text-red-500 poppins-regular'>{authError}</Text>}
+          {authError && <Text className='mt-1 text-[14px] text-red-500 poppins-regular'>{authError}</Text>}
         </View>
 
         <TouchableOpacity
           disabled={phoneNumber.length !== 10}
           onPress={handleLogin}
-          className={`${phoneNumber.length !== 10 ? 'btn-disabled' : 'btn-color'} py-3 rounded-xl mt-5`}
+          className={`${phoneNumber.length !== 10 ? 'btn-disabled' : 'btn-color'} py-3 justify-center rounded-xl mt-5`}
           style={{ height: 56 }}
         >
           <View style={{  justifyContent: 'center', alignItems: 'center' }}>
-            {user?.loading ? (
+            {login_loading ? (
               <ActivityIndicator  size="large" color="#FFFFFF" />
             ) : (
               <Text className="text-center text-[18px] text-white poppins-medium">Login Now</Text>

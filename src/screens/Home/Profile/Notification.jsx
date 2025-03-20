@@ -9,10 +9,11 @@ import Commercial from '../../../assets/commercial'
 import Updated from '../../../assets/updated-icon'
 import { useDispatch, useSelector } from 'react-redux'
 import { getNotification, readNotification } from '../../../reducers/profileSlice'
+import LottieView from 'lottie-react-native'
 
 const Notification = () => {
 
-    const { notificationData, readNotificationData } = useSelector(state => state.profileData)
+    const { notificationData, readNotificationData, loading } = useSelector(state => state.profileData)
     const dispatch = useDispatch()
     const screenWidth = Dimensions.get("window").width
 
@@ -34,11 +35,18 @@ const Notification = () => {
             <View className='bg-white h-screen'>
                 <Navbar screen={'Notification'} />
                 <ScrollView>
-                    {notificationData?.data?.data?.length > 0 && <TouchableOpacity onPress={() => handleAllNotification(1, null, 0)} className='flex-row justify-end items-center mt-[15] mb-[5] px-[15]'>
+                    {notificationData?.data?.data?.length > 0 && !loading && <TouchableOpacity onPress={() => handleAllNotification(1, null, 0)} className='flex-row justify-end items-center mt-[15] mb-[5] px-[15]'>
                         <Text className='txt-blue text-[15px] poppins-medium mr-[5]'>Mark all as read</Text>
                         <ReadTick />
                     </TouchableOpacity>}
-                    {notificationData?.data?.data?.length > 0 ? notificationData?.data?.data.map((elm, ind) => {
+                    {loading ? <View className="items-center justify-center mt-[160]">
+                            <LottieView
+                              source={require("../../../assets/pan-loader")}
+                              autoPlay
+                              loop
+                              style={{ width: 150, height: 150 }}
+                            />
+                          </View> : notificationData?.data?.data?.length > 0 ? notificationData?.data?.data.map((elm, ind) => {
                         return <ScrollView key={ind} horizontal={true} showsHorizontalScrollIndicator={false}
                             contentContainerClassName='items-center px-[15]' contentContainerStyle={{ width: screenWidth + 45 }}>
                             <View className='rounded-[10] px-[14] py-[13] flex-row items-center my-[10] mr-[13] w-screen'

@@ -21,7 +21,7 @@ const initialState = {
         data: null
     },
     readNotificationData: {
-        data:null
+        data: null
     },
     faqData: {
         data: null,
@@ -36,6 +36,15 @@ const initialState = {
         data: null
     },
     transactionsData: {
+        data: null
+    },
+    deleteReasons: {
+        data: null
+    },
+    currentDetails: {
+        data: null
+    },
+    transactionDetail: {
         data: null
     },
     loading: false
@@ -178,6 +187,42 @@ export const profileSlice = createSlice({
             state.transactionsData.data = action.payload;
             state.loading = false;
         },
+
+        setDeleteReasonsLoading: (state) => {
+            state.loading = true;
+        },
+        setDeleteReasonsData: (state, action) => {
+            state.deleteReasons.data = action.payload;
+            state.loading = false;
+        },
+        setDeleteReasonsError: (state, action) => {
+            state.loading = false;
+            state.deleteReasons.data = action.payload
+        },
+
+        setCurrentDetailsLoading: (state) => {
+            state.loading = true;
+        },
+        setCurrentDetailsData: (state, action) => {
+            state.currentDetails.data = action.payload;
+            state.loading = false;
+        },
+        setCurrentDetailsError: (state, action) => {
+            state.loading = false;
+            state.currentDetails.data = action.payload
+        },
+
+        setTranDetailLoading: (state) => {
+            state.loading = true;
+        },
+        setTranDetailData: (state, action) => {
+            state.transactionDetail.data = action.payload;
+            state.loading = false;
+        },
+        setTranDetailError: (state, action) => {
+            state.loading = false;
+            state.transactionDetail.data = action.payload
+        },
     },
 }
 );
@@ -189,54 +234,56 @@ export const { setProfileData, setProfileError, setProfileLoading,
     setReadNotificationData, setReadNotificationError, setReadNotificationLoading, setEditProfileData,
     setEditProfileError, setEditProfileLoading, setDeleteRiderData, setDeleteRiderError,
     setDeleteRiderLoading, setSupportData, setSupportError, setSupportLoading, setAllInfoData,
-    setAllInfoError, setAllInfoLoading, setCurrentCycleData, setCurrentCycleError,setCurrentCycleLoading,
-    setTransactionData, setTransactionError, setTransactionLoading } = profileSlice.actions;
+    setAllInfoError, setAllInfoLoading, setCurrentCycleData, setCurrentCycleError, setCurrentCycleLoading,
+    setTransactionData, setTransactionError, setTransactionLoading, setDeleteReasonsData,
+    setDeleteReasonsError, setDeleteReasonsLoading, setCurrentDetailsLoading, setCurrentDetailsError,
+    setCurrentDetailsData, setTranDetailData, setTranDetailLoading, setTranDetailError } = profileSlice.actions;
 
 export const getProfileData = () => async (dispatch) => {
-  try {
-    dispatch(setProfileLoading());
+    try {
+        dispatch(setProfileLoading());
 
-    const authToken = await EncryptedStorage.getItem('auth_token');
-    const public_key = await EncryptedStorage.getItem('public_key');
+        const authToken = await EncryptedStorage.getItem('auth_token');
+        const public_key = await EncryptedStorage.getItem('public_key');
 
-    const headers = {
-      'x-api-key': REACT_NATIVE_X_API_KEY,
-      'x-public-key': public_key,
-      'x-auth-key': authToken,
-    };
-    const response = await axios.get(`${REACT_NATIVE_API}/profile/kitchen/me`, { headers });
-    dispatch(setProfileData(response.data));
-  } catch (error) {
-    if (error.response) {
-      dispatch(setProfileError(error.response.data.error));
-    } else {
-      dispatch(setProfileError(error.message));
+        const headers = {
+            'x-api-key': REACT_NATIVE_X_API_KEY,
+            'x-public-key': public_key,
+            'x-auth-key': authToken,
+        };
+        const response = await axios.get(`${REACT_NATIVE_API}/profile/kitchen/me`, { headers });
+        dispatch(setProfileData(response.data));
+    } catch (error) {
+        if (error.response) {
+            dispatch(setProfileError(error.response.data.error));
+        } else {
+            dispatch(setProfileError(error.message));
+        }
     }
-  }
 };
 
 export const editProfileData = (data) => async (dispatch) => {
     try {
-      dispatch(setEditProfileLoading());
-  
-      const authToken = await EncryptedStorage.getItem('auth_token');
-      const public_key = await EncryptedStorage.getItem('public_key');
-  
-      const headers = {
-        'x-api-key': REACT_NATIVE_X_API_KEY,
-        'x-public-key': public_key,
-        'x-auth-key': authToken,
-      };
-      const response = await axios.post(`${REACT_NATIVE_API}/profile/kitchen/edit_profile`, data, { headers });
-      dispatch(setEditProfileData(response.data));
+        dispatch(setEditProfileLoading());
+
+        const authToken = await EncryptedStorage.getItem('auth_token');
+        const public_key = await EncryptedStorage.getItem('public_key');
+
+        const headers = {
+            'x-api-key': REACT_NATIVE_X_API_KEY,
+            'x-public-key': public_key,
+            'x-auth-key': authToken,
+        };
+        const response = await axios.post(`${REACT_NATIVE_API}/profile/kitchen/edit_profile`, data, { headers });
+        dispatch(setEditProfileData(response.data));
     } catch (error) {
-      if (error.response) {
-        dispatch(setEditProfileError(error.response.data.error));
-      } else {
-        dispatch(setEditProfileError(error.message));
-      }
+        if (error.response) {
+            dispatch(setEditProfileError(error.response.data.error));
+        } else {
+            dispatch(setEditProfileError(error.message));
+        }
     }
-  };
+};
 
 export const getFAQ = () => async (dispatch) => {
     try {
@@ -409,7 +456,7 @@ export const getCurrentCycle = () => async (dispatch) => {
             'x-auth-key': authToken,
         };
         const response = await axios.get(`${REACT_NATIVE_PAYMENT_KEY}/kitchenWallet/currentcycle`, { headers });
-        dispatch(setCurrentCycleData(response.data));
+        dispatch(setCurrentCycleData(response.data.data));
     } catch (error) {
         if (error.response.data.error) {
             dispatch(setCurrentCycleError(error.response.data.error));
@@ -437,6 +484,75 @@ export const getTransactions = () => async (dispatch) => {
             dispatch(setTransactionError(error.response.data.error));
         } else {
             dispatch(setTransactionError(error.message));
+        }
+    }
+};
+
+export const getDeleteReasons = () => async (dispatch) => {
+    try {
+        dispatch(setDeleteReasonsLoading());
+
+        const authToken = await EncryptedStorage.getItem('auth_token');
+        const public_key = await EncryptedStorage.getItem('public_key');
+
+        const headers = {
+            'x-api-key': REACT_NATIVE_X_API_KEY,
+            'x-public-key': public_key,
+            'x-auth-key': authToken,
+        };
+        const response = await axios.get(`${REACT_NATIVE_API}/profile/customer/delete_reason`, { headers });
+        dispatch(setDeleteReasonsData(response.data));
+    } catch (error) {
+        if (error.response) {
+            dispatch(setDeleteReasonsError(error.response.data.error));
+        } else {
+            dispatch(setDeleteReasonsError(error.message));
+        }
+    }
+};
+
+export const currentCycleDetails = () => async (dispatch) => {
+    try {
+        dispatch(setCurrentDetailsLoading());
+
+        const authToken = await EncryptedStorage.getItem('auth_token');
+        const public_key = await EncryptedStorage.getItem('public_key');
+
+        const headers = {
+            'x-api-key': REACT_NATIVE_X_API_KEY,
+            'x-public-key': public_key,
+            'x-auth-key': authToken,
+        };
+        const response = await axios.get(`${REACT_NATIVE_PAYMENT_KEY}/kitchenWallet/currentCycleDetails`, { headers });
+        dispatch(setCurrentDetailsData(response.data));
+    } catch (error) {
+        if (error.response) {
+            dispatch(setCurrentDetailsError(error.response.data.error));
+        } else {
+            dispatch(setCurrentDetailsError(error.message));
+        }
+    }
+};
+
+export const getTransactionDetail = (id) => async (dispatch) => {
+    try {
+        dispatch(setTranDetailLoading());
+
+        const authToken = await EncryptedStorage.getItem('auth_token');
+        const public_key = await EncryptedStorage.getItem('public_key');
+
+        const headers = {
+            'x-api-key': REACT_NATIVE_X_API_KEY,
+            'x-public-key': public_key,
+            'x-auth-key': authToken,
+        };
+        const response = await axios.get(`${REACT_NATIVE_PAYMENT_KEY}/kitchenWallet/payoutDetails?payout_id=${id}`, { headers });
+        dispatch(setTranDetailData(response.data));
+    } catch (error) {
+        if (error.response) {
+            dispatch(setTranDetailError(error.response.data.error));
+        } else {
+            dispatch(setTranDetailError(error.message));
         }
     }
 };

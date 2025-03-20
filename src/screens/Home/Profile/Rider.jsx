@@ -5,16 +5,18 @@ import Delete from '../../../assets/delete-red'
 import { useDispatch, useSelector } from 'react-redux'
 import { getRiderData } from '../../../reducers/orderSlice'
 import { deleteRider } from '../../../reducers/profileSlice'
+import LottieView from 'lottie-react-native'
 
 const Rider = ({ navigation }) => {
 
-  const { riderData } = useSelector(state => state.order)
-  const {deleteRiderData, addRiderData} = useSelector(state => state.profileData)
+  const { riderData, loading: riderLoading } = useSelector(state => state.order)
+  const { deleteRiderData, addRiderData, loading } = useSelector(state => state.profileData)
+
   const dispatch = useDispatch()
 
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(getRiderData())
-  },[addRiderData, deleteRiderData])
+  }, [addRiderData, deleteRiderData])
 
   const handleDeleteRider = (id) => {
     dispatch(deleteRider(id))
@@ -25,7 +27,14 @@ const Rider = ({ navigation }) => {
       <View className='bg-white h-screen'>
         <Navbar screen={'Rider'} />
         <ScrollView className='px-[15] pt-[18]'>
-          {riderData?.data?.data?.map((elm, ind) => {
+          {(riderLoading || loading) ? <View className="items-center justify-center mt-[160]">
+            <LottieView
+              source={require("../../../assets/pan-loader")}
+              autoPlay
+              loop
+              style={{ width: 150, height: 150 }}
+            />
+          </View> : riderData?.data?.data?.map((elm, ind) => {
             return <View key={ind} style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)' }}
               className='flex-row rounded-[10] justify-between py-[15] px-[14] mb-3'>
               <View className='flex-row items-center'>
@@ -47,7 +56,7 @@ const Rider = ({ navigation }) => {
           })}
 
           <TouchableOpacity onPress={() => navigation.navigate('AddRider')} className='btn-color rounded-[10] items-center py-[11] mt-[27]'>
-            <Text className='text-[18px] poppins-medium text-white'>{riderData?.data.length == 0 ? 'No rider exist! Add now' : 'Add'}</Text>
+            <Text className='text-[18px] poppins-medium text-white'>{riderData?.data?.length == 0 ? 'No rider exist! Add now' : 'Add'}</Text>
           </TouchableOpacity>
 
           <Text style={{ lineHeight: 23 }} className='text-[14px] poppins-bold mt-[16]'>Note: <Text className='text-[14px] poppins-regular text-[#666]'>

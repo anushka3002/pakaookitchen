@@ -1,27 +1,28 @@
-import { View, ScrollView, Image, Text, StyleSheet, StatusBar, TouchableOpacity } from 'react-native'
-import React from 'react'
+import { View, ScrollView, Image, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import React, { useEffect } from 'react'
 import Notification from '../../assets/Bell.svg';
 import Location from '../../assets/location.svg';
-import OrderBlue from '../../assets/order-blue.svg';
-import Withdraw from '../../assets/withdraw.svg';
-import Success from '../../assets/success.svg';
-import Cancelled from '../../assets/cancelled.svg';
 import ViewPlan from '../../assets/view-plan.svg';
-import AddMenu from '../../assets/add-menu.svg';
-import WeeklyCombo from '../../assets/weekly-combo.svg';
 import NextArrow from '../../assets/next-arrow.svg';
 import Dummy from '../../assets/dummy.svg';
-import Rating from '../../assets/yellow_star_full';
+import Rating from '../../assets/rating';
 import LinearGradient from 'react-native-linear-gradient';
-import DashboardVector from '../../assets/payout-vector';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import DashboardIcon from '../../assets/dashboard';
+import { getNotification, getProfileData } from '../../reducers/profileSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Dashboard = ({ navigation }) => {
 
+  const dispatch = useDispatch()
+  const { profile, notificationData } = useSelector(state => state.profileData)
   const business = [
     { icon: <ViewPlan />, title: 'View Plan', subtitle: 'You can add upto 2 plans only', plan: true },
-    { icon: <AddMenu />, title: 'Add Menu', subtitle: 'Various versions have evolved over', plan: false },
   ]
+
+  useEffect(() => {
+      dispatch(getProfileData())
+      dispatch(getNotification())
+  }, [dispatch])
 
   return (
     <View className='h-screen'>
@@ -34,41 +35,42 @@ const Dashboard = ({ navigation }) => {
             className="w-full"
           >
             <View className='px-[16] flex-row w-[100%] items-center justify-between mt-20 mb-[24]'>
-              <Dummy />
+              <Dummy/>
               <View>
                 <View className='flex-row items-center'>
                   <Location />
-                  <Text className='text-white ml-2 text-[13px] poppins-semibold'>No 4, prema mandir, Kodihalli..</Text>
+                  <Text className='text-white ml-2 text-[13px] poppins-semibold'>{profile?.data?.data?.address_line1.length > 30 ? profile?.data?.data?.address_line1.slice(0, 30) + '...' : profile?.data?.data?.address_line1}</Text>
                 </View>
                 <View className='flex-row'>
-                  <Text className='text-white text-[13px] poppins-semibold'>The Cook's Corner</Text>
-                  <Text className='text-[13px] poppins-medium text-white'>(</Text><Rating /> <Text className='text-[13px] poppins-medium text-white'>4.5)</Text>
+                  <Text className='text-white text-[13px] poppins-semibold'>{profile?.data?.data?.kitchen_name}</Text>
+                  <Text className='text-[13px] poppins-medium text-white'>(</Text><View className='mt-[3] mr-1'><Rating /></View><Text className='text-[13px] poppins-medium text-white'>{profile?.data?.data?.rating ?? 0})</Text>
                 </View>
               </View>
-              <View className="relative">
+              <TouchableOpacity onPress={()=>navigation.navigate('Notification')} className="relative">
                 <Notification />
                 <View className="absolute w-5 h-5 bg-red-500 rounded-full justify-center items-center"
                   style={{ left: 12, bottom: 8 }}>
-                  <Text className="poppins-medium text-white text-[10px]">5</Text>
+                  <Text className="poppins-medium text-white text-[10px]">{notificationData?.data?.data?.length}</Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             </View>
           </LinearGradient>
         </View>
-        <View className='mx-4 mt-5'>
-          <Text className='text-[21px] poppins-bold mt-3 mb-3'>Grow Your Business</Text>
+        <View className='items-center my-[11]'>
+        <DashboardIcon/>
+        </View>
+        <View className='mx-4'>
+          <Text className='text-[21px] poppins-semibold mb-3'>Manage Your Business</Text>
           {business.map((elm, ind) => {
             return <TouchableOpacity onPress={() => elm.title == 'View Plan' && navigation.navigate('Plan')} key={ind} style={styles.whiteBtn} className='relative flex-row mb-5 px-3 py-3 justify-between items-center'>
               <View className='flex-row items-center'>
                 {elm.icon}
                 <View className='ml-2 w-[85%]'>
-                  <Text className='text-[17px] poppins-bold'>{elm.title}</Text>
+                  <Text className='text-[17px] poppins-semibold'>{elm.title}</Text>
                   <Text numberOfLines={2} style={{ color: '#7B7B7B' }} className='text-[14px] poppins-regular'>{elm.subtitle}</Text>
                 </View>
               </View>
               <NextArrow />
-              {elm.plan && <View className='absolute' style={{ backgroundColor: '#008000', top: 0, right: 40, borderBottomRightRadius: 30, borderBottomLeftRadius: 30 }}>
-                <Text className='text-white text-[12px] poppins-medium px-4 py-2'>2 Plan Active</Text></View>}
             </TouchableOpacity>
           })}
         </View>

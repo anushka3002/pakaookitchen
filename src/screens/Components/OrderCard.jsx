@@ -6,7 +6,7 @@ import { formatDate } from '../../constant';
 
 const OrderCard = ({navigation, order, arrow, status}) => {
     return (
-        <TouchableOpacity onPress={() => navigation.navigate('OrderDetails', { orderData: order })} style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)' }}
+        <TouchableOpacity onPress={() => order.kitchen_status == 'delivered' ? navigation.navigate('OrderRating',{id: order.kitchen_order_id}) : navigation.navigate('OrderDetails', { orderData: order })} style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)' }}
         className="px-[18] py-[9] rounded-[10]">
             <View className="flex-row justify-between items-center mb-1">
                 <Text className="text-[20px] poppins-semibold">{order.meal_time.split('')[0].toUpperCase() + order.meal_time.slice(1)}</Text>

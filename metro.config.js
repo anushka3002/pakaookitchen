@@ -11,6 +11,7 @@ const config = mergeConfig(defaultConfig, {
     assetExts: defaultConfig.resolver.assetExts.filter((ext) => ext !== "svg"),
     sourceExts: [...defaultConfig.resolver.sourceExts, "svg"],
   },
+  watchFolders: [__dirname],
 });
 
 module.exports = withNativeWind(config, { input: "./global.css" });

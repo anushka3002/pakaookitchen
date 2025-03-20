@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import React, { useEffect, useRef } from 'react';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import Location from '../../assets/grey-location.svg';
@@ -27,7 +27,7 @@ const Map = ({ geolocation, getCurrentLocation, selectedLocation }) => {
         <View style={styles.container}>
           <MapView
             ref={mapRef}
-            provider={PROVIDER_GOOGLE}
+            provider={Platform.OS === "ios" ? undefined : PROVIDER_GOOGLE}
             style={styles.map}
             region={{
               latitude: geolocation?.data?.lat || 20.5937,

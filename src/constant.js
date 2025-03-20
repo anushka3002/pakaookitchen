@@ -71,6 +71,7 @@ export const handleImageUpload = async (imageType, onChange, setImages) => {
       if (Platform.OS === 'ios') {
         cameraPermission = await request(PERMISSIONS.IOS.CAMERA);
         galleryPermission = await request(PERMISSIONS.IOS.PHOTO_LIBRARY);
+        console.log(galleryPermission,'gallery permission hey anushka')
       } else if (Platform.OS === 'android') {
         cameraPermission = await request(PERMISSIONS.ANDROID.CAMERA);
         galleryPermission = await request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
@@ -180,9 +181,9 @@ export function formatDate(dateString) {
 
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = String(date.getFullYear()).slice(2); // Get the last two digits of the year
+  const year = String(date.getFullYear()).slice(2); 
 
-  const hours = String(date.getHours() % 12 || 12).padStart(2, '0'); // Convert to 12-hour format
+  const hours = String(date.getHours() % 12 || 12).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
   const ampm = date.getHours() >= 12 ? 'PM' : 'AM';
 
@@ -190,4 +191,26 @@ export function formatDate(dateString) {
   const dayOfWeek = daysOfWeek[date.getDay()];
 
   return `${day}-${month}-${year}, ${hours}:${minutes} ${ampm} (${dayOfWeek})`;
+}
+
+export function formatPayoutDate(dateString, type) {
+  const date = new Date(dateString);
+
+  if (isNaN(date.getTime())) {
+    return "Invalid Date";
+  }
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const year = String(date.getFullYear()).slice(2);
+
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthStr = months[date.getMonth()];
+
+  if(type == 'start'){
+    return `${day} ${monthStr}`;
+  }else if(type == 'end'){
+    return `${day} ${monthStr}, ${year}`;
+  }else{
+    return `${day}, ${monthStr}, ${year}`;
+  }
 }

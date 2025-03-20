@@ -3,69 +3,79 @@ import React, { useEffect } from 'react'
 import Navbar from '../Components/Navbar'
 import LinearGradient from 'react-native-linear-gradient'
 import { useDispatch, useSelector } from 'react-redux'
-import { getCurrentCycle } from '../../reducers/profileSlice'
+import { currentCycleDetails, getTransactionDetail } from '../../reducers/profileSlice'
+import { formatPayoutDate } from '../../constant'
 
-const CurrentCycle = () => {
+const CurrentCycle = ({route}) => {
 
+    const {id} = route.params;
     const dispatch = useDispatch()
-    const { currentCycleData } = useSelector(state => state.profileData)
+    const { currentDetails, transactionDetail } = useSelector(state => state.profileData)
 
     useEffect(() => {
-        dispatch(getCurrentCycle())
-    }, [])
+        if(id != -1){
+            dispatch(getTransactionDetail(id))
+        }else{
+            dispatch(currentCycleDetails())
+        }
+    }, [dispatch])
+
+    const value = id == -1 ? currentDetails?.data?.data : transactionDetail?.data?.return_payout;
 
     return (
         <SafeAreaView>
             <View className='bg-white h-screen'>
                 <Navbar screen={'Current cycle'} />
                 <View className='px-[15]'>
-                    {currentCycleData.data.data.length == 0 ? <Text className='text-[16px] poppins-medium text-[#737373] text-center mt-[236]'>Pay out is not available</Text> :
+                    {value?.length == 0 ? <Text className='text-[16px] poppins-medium text-[#737373] text-center mt-[236]'>Pay out is not available</Text> :
                         <LinearGradient
                             colors={['#2650D8', '#2D479D']}
                             start={{ x: 0, y: 1 }}
                             end={{ x: 0, y: 1 }}
                             style={{ borderRadius: 16 }}
-                            className="w-full px-[18] pt-[19] pb-[26] mt-[24]"
+                            className="w-full0 mt-[24]"
                         >
+                            <View className='px-[18] pt-[19] pb-[26]'>
                             <View className='flex-row justify-between'>
                                 <Text className='text-[14px] poppins-semibold text-white'>Payout Summary</Text>
-                                <Text className='text-[14px] poppins-medium text-white'>{currentCycleData?.data?.data?.startDate} - {currentCycleData?.data?.data?.endDate}</Text>
+                                <Text className='text-[14px] poppins-medium text-white'>{formatPayoutDate(value?.start_date,'start')} - {formatPayoutDate(value?.end_date, 'end')}</Text>
                             </View>
                             <View style={{ borderTopWidth: 1, borderTopColor: '#FFF' }} className='mt-[14] mb-[16]'></View>
                             <View className='flex-row justify-between items-center'>
                                 <Text className='text-[12px] poppins-medium text-white'>Total Order Value</Text>
-                                <Text className='text-[12px] poppins-bold text-white'>₹ {currentCycleData?.data?.data?.total_order_value}</Text>
+                                <Text className='text-[12px] poppins-bold text-white'>₹ {value?.total_amount}</Text>
                             </View>
                             <View className='flex-row justify-between items-center'>
                                 <Text className='text-[12px] poppins-medium text-white'>Pakaoo Commission (20%)</Text>
-                                <Text className='text-[12px] poppins-bold text-[#FF4646]'>₹ {currentCycleData?.data?.data?.commission_amount}</Text>
+                                <Text className='text-[12px] poppins-bold text-[#FF4646]'>₹ {value?.commission}</Text>
                             </View>
                             <View className='flex-row justify-between items-center'>
                                 <Text className='text-[12px] poppins-medium text-white'>GST on Commission (18%)</Text>
-                                <Text className='text-[12px] poppins-bold text-[#FF4646]'>₹ {currentCycleData?.data?.data?.commission_gst_amount}</Text>
+                                <Text className='text-[12px] poppins-bold text-[#FF4646]'>₹ {value?.commission_gst}</Text>
                             </View>
                             <View className='flex-row justify-between items-center'>
                                 <Text className='text-[12px] poppins-medium text-white'>Refund Hold (30%)</Text>
-                                <Text className='text-[12px] poppins-bold text-[#FF4646]'>₹ {currentCycleData?.data?.data?.refundAmount}</Text>
+                                <Text className='text-[12px] poppins-bold text-[#FF4646]'>₹ {value?.amount_hold}</Text>
                             </View>
                             <View className='flex-row justify-between items-center'>
                                 <Text className='text-[12px] poppins-medium text-white'>Immediate Payout to Vendor</Text>
-                                <Text className='text-[12px] poppins-bold text-[#4DE56F]'>₹ {currentCycleData?.data?.data?.immediatePayout}</Text>
+                                <Text className='text-[12px] poppins-bold text-[#4DE56F]'>₹ {value?.immediate_payout}</Text>
                             </View>
                             <View className='flex-row justify-between items-center'>
                                 <Text className='text-[12px] poppins-medium text-white'>Refund Deducted from Hold</Text>
-                                <Text className='text-[12px] poppins-bold text-[#FF4646]'>₹ {currentCycleData?.data?.data?.final_amount_on_hold}</Text>
+                                <Text className='text-[12px] poppins-bold text-[#FF4646]'>₹ {value?.refund}</Text>
                             </View>
                             <View className='flex-row justify-between items-center'>
                                 <Text className='text-[12px] poppins-medium text-white'>Final Hold Amount Released</Text>
-                                <Text className='text-[12px] poppins-bold text-[#4DE56F]'>₹ {currentCycleData?.data?.data?.final_amount_on_hold_after_commission}</Text>
+                                <Text className='text-[12px] poppins-bold text-[#4DE56F]'>₹ {value?.release_hold_amount}</Text>
                             </View>
-                            <View style={{ borderTopWidth: 1, borderTopColor: '#FFF' }} className='mt-[14] mb-[16]'></View>
+                            <View style={{ borderTopWidth: 1, borderTopColor: '#FFF' }} className='mt-[14] mb-[10]'></View>
                             <View className='flex-row justify-between items-center'>
-                                <Text className='text-[12px] poppins-medium text-white'>Total Final Vendor Payout</Text>
-                                <Text className='text-[12px] poppins-bold text-white'>₹ {currentCycleData?.data?.data?.final_commission_amount}</Text>
+                                <Text className='text-[12px] poppins-bold text-white'>Total Final Vendor Payout</Text>
+                                <Text className='text-[12px] poppins-bold text-white'>₹ {value?.payout}</Text>
                             </View>
-                            <View style={{ borderTopWidth: 1, borderTopColor: '#FFF' }} className='mt-[14]'></View>
+                            <View style={{ borderTopWidth: 1, borderTopColor: '#FFF' }} className='mt-[10]'></View>
+                            </View>
                         </LinearGradient>}
                 </View>
             </View>

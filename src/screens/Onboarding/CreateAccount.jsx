@@ -18,8 +18,7 @@ import Map from "../Components/Map";
 import CustomTextInput from "../Components/CustomTextInput";
 import CustomImageController from "../Components/CustomImageController";
 import Geolocation from '@react-native-community/geolocation';
-import { editProfileData, getAllInfo } from "../../reducers/profileSlice";
-import Navbar from "../Components/Navbar";
+import { getAllInfo } from "../../reducers/profileSlice";
 
 const CreateAccount = ({ navigation }) => {
   const [images, setImages] = useState({
@@ -192,7 +191,7 @@ const CreateAccount = ({ navigation }) => {
 
   return (
     <SafeAreaView>
-      <View className="h-screen">
+      <View className="h-screen pb-16">
         <ScrollView className='flex-1 bg-white px-5 py-6'>
           <Text className='text-[29px] poppins-bold text-center mb-1'>Create New Account</Text>
           <Text style={{ color: '#7B7B7B' }} className='text-[14px] poppins-medium text-center mb-6'>
@@ -205,8 +204,8 @@ const CreateAccount = ({ navigation }) => {
             <CustomTextInput control={control} label={'Kitchen Name '} name={'kitchen_name'} placeholder={'Enter Kitchen Name'} errors={errors} capitalize={false} />
             <CustomTextInput control={control} label={'Aadhar Number '} name={'aadhar_number'} placeholder={'Enter Aadhar Number'} errors={errors} capitalize={false} keyboard={'number-pad'} />
 
-            <View className='mb-3'>
-              <Text className='text-[15px] poppins-medium'>
+            <View className='mb-[20]'>
+              <Text className='text-[15px] poppins-medium mb-[14]'>
                 Aadhar Image <Text className='text-red-500'>*</Text>
               </Text>
               <View className='flex flex-row justify-between'>
@@ -223,8 +222,8 @@ const CreateAccount = ({ navigation }) => {
 
             <CustomTextInput control={control} label={'PAN Number '} name={'pan_number'} placeholder={'Enter PAN Number'} errors={errors} capitalize={true} />
 
-            <View className="mb-3">
-              <Text className="text-[15px] poppins-medium">
+            <View className="mb-[20]">
+              <Text className="text-[15px] poppins-medium mb-[14]">
                 PAN Image <Text className="text-red-500">*</Text>
               </Text>
               <View className="flex flex-row justify-between">
@@ -241,8 +240,8 @@ const CreateAccount = ({ navigation }) => {
 
             <CustomTextInput control={control} label={'GST Number '} name={'gst_number'} placeholder={'Enter GST Number'} errors={errors} capitalize={true} />
 
-            <View className="mb-3">
-              <Text className="text-[15px] poppins-medium">
+            <View className="mb-[20]">
+              <Text className="text-[15px] poppins-medium mb-[14]">
                 GST Image <Text className="text-red-500">*</Text>
               </Text>
 
@@ -254,8 +253,8 @@ const CreateAccount = ({ navigation }) => {
             </View>
 
             <CustomTextInput control={control} label={'FSSAI Number '} name={'fssia_number'} placeholder={'Enter FSSAI Number'} errors={errors} capitalize={true} />
-            <View className="mb-3">
-              <Text className="text-[15px] poppins-medium">
+            <View className="mb-[20]">
+              <Text className="text-[15px] poppins-medium mb-[14]">
                 FSSAI Image <Text className="text-red-500">*</Text>
               </Text>
               <CustomImageController control={control} controllerName={'fssai_image'} imageValue={'fssaiImage'} setImages={setImages} images={images} imageName={'Back'} />
@@ -264,8 +263,8 @@ const CreateAccount = ({ navigation }) => {
               )}
             </View>
 
-            <View className="mb-3">
-              <Text className="text-[15px] poppins-medium mb-2">FSSAI Expiry Date <Text className="text-red-500">*</Text></Text>
+            <View className="mb-[20]">
+              <Text className="text-[15px] poppins-medium mb-[14]">FSSAI Expiry Date <Text className="text-red-500">*</Text></Text>
               <View className="border border-gray-300 px-3 rounded-[10px] items-center flex-row justify-between">
                 <TextInput
                   placeholder="Enter FSSAI Expiry Date"
@@ -289,14 +288,14 @@ const CreateAccount = ({ navigation }) => {
               {errors.fssai_expiry_date && <Text className="text-red-500 text-sm">{errors.fssai_expiry_date.message}</Text>}
             </View>
 
-            <View className="mb-3">
-              <View className="flex-row items-center"><Text className="text-[15px] poppins-medium mb-2 mr-1">Kitchen Address <Text className="text-red-500">*</Text></Text><Info /></View>
+            <View className="mb-[20]">
+              <View className="flex-row items-center"><Text className="text-[15px] poppins-medium mb-[14] mr-1">Kitchen Address <Text className="text-red-500">*</Text></Text><Info /></View>
               <Controller
                 control={control}
                 name="address_line_one"
                 render={({ field: { onChange, value } }) => (
                   <TextInput
-                    className="border poppins-regular border-gray-300 mb-3 rounded-[10px] px-3 py-3"
+                    className="border poppins-regular border-gray-300 mb-[20] rounded-[10px] px-3 py-3"
                     placeholder="Enter Address Line 1"
                     onChangeText={onChange}
                     value={value}
@@ -323,7 +322,7 @@ const CreateAccount = ({ navigation }) => {
               />
               {errors.address_line_one && <Text className="text-red-500 poppins-regular text-sm">{errors.address_line_one.message}</Text>}
             </View>
-            <View className="border mb-3 border-gray-300 rounded-[10px] px-3 flex-row justify-between items-center">
+            <View className="border mb-[14] border-gray-300 rounded-[10px] px-3 flex-row justify-between items-center">
               <TextInput
                 className="w-[90%] poppins-regular py-3"
                 placeholder="Search Address"
@@ -357,20 +356,10 @@ const CreateAccount = ({ navigation }) => {
             <CustomTextInput control={control} label={'Kitchen Pincode '} name={'pincode'} placeholder={'Enter Kitchen Pincode'} errors={errors} keyboard={'number-pad'} />
             <CustomTextInput control={control} label={'Bank Account Holder Name '} name={'bank_holder_name'} placeholder={'Enter Bank Account Holder Name'} errors={errors} />
 
-            <View className="mb-3">
-              <Text className="text-[15px] poppins-medium mb-2">
+            <View className="mb-[20]">
+              <Text className="text-[15px] poppins-medium mb-[14]">
                 Bank Name <Text className="text-red-500 poppins-regular">*</Text>
               </Text>
-              {/* <View className="border border-gray-300 rounded-[10px] px-3 py-3">
-            <TouchableOpacity
-              onPress={() => setModalVisible(true)}
-              style={styles.dropdownTouchable}
-            >
-              <Text className={`${selectedBank ? '' : 'text-gray-400'} poppins-regular`}>
-                {selectedBank ? selectedBank.label : "Select Bank"}
-              </Text>
-            </TouchableOpacity>
-          </View> */}
               <Controller
                 control={control}
                 name="bank_name"
