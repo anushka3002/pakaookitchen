@@ -87,7 +87,7 @@ const PlanDetails = ({ navigation, route }) => {
                 </View>
             </ScrollView>
 
-            {planData.status == 'approved' || !planData.stepper && <View className="absolute bottom-0 left-0 w-full bg-white pt-[17] pb-[23] items-center px-5 shadow-lg border-t border-gray-200">
+            {planData.status == 'approved' || planData.stepper && <View className="absolute bottom-0 left-0 w-full bg-white pt-[17] pb-[23] items-center px-5 shadow-lg border-t border-gray-200">
                 <TouchableOpacity onPress={handleSubmit} style={{gap:8}} className='w-[125px] border border-[#2650D8] rounded-[10] py-2 flex-row items-center justify-center'>
                     <EditIcon/>
                     <Text className="txt-blue text-center text-[17px] poppins-semibold">{planData.status == 'approved' ? 'Edit' : 'Submit'}</Text>
