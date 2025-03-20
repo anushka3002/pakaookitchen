@@ -10,7 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginOTP = ({ navigation, route }) => {
 
-  const { user, otp } = useSelector(state => state.auth)
+  const { user, otp, otp_loading } = useSelector(state => state.auth)
   const { kitchenStatus } = useSelector(state => state.kitchenData)
   const [otpValue, setOtpValue] = useState(new Array(6).fill(""));
   const [storedKitchenStatus, setStoredKitchenStatus] = useState(null);
@@ -66,7 +66,7 @@ const LoginOTP = ({ navigation, route }) => {
     }
     dispatch(login(userData))
     dispatch(getCategory())
-    dispatch(setUserData({ data: null, loading: false, error: null }))
+    dispatch(setUserData({ data: null }))
   }
 
   useEffect(() => {
@@ -102,8 +102,9 @@ const LoginOTP = ({ navigation, route }) => {
       } else if (kitchenStatus?.data?.data?.status == 'rejected') {
         navigation.replace('Rejected')
       }
-    } else if (otp?.error) {
-      setOtpError(otp?.error)
+    } 
+    else if (typeof otp?.data == 'string') {
+      setOtpError(otp?.data)
     }
   }, [otp, kitchenStatus, storedKitchenStatus])
 
@@ -121,13 +122,13 @@ const LoginOTP = ({ navigation, route }) => {
         <Otp />
       </View>
 
-      <View className='items-center mt-4 mb-8'>
-        <Text className='text-[30px] poppins-bold'>OTP Verification</Text>
-        <Text className='text-xl poppins-medium text-[#7B7B7B] mt-2 text-center'>An authentication code has been sent to</Text>
-        <Text className='text-[17px] poppins-medium mt-2'>{maskedPhoneNumber}</Text>
+      <View className='items-center mt-4'>
+        <Text className='text-[30px] poppins-bold pt-[25]'>OTP Verification</Text>
+        <Text className='text-xl poppins-medium text-[#7B7B7B] mt-[10] text-center'>An authentication code has been sent to</Text>
+        <Text className='text-[17px] poppins-medium mt-[11]'>{maskedPhoneNumber}</Text>
       </View>
 
-      <View className="flex-row h-[46px] justify-center items-center">
+      <View className="flex-row h-[46px] justify-center items-center mt-[30]">
         {otpValue.map((digit, index) => (
           <TextInput
             key={index}
@@ -137,15 +138,15 @@ const LoginOTP = ({ navigation, route }) => {
             onKeyPress={(e) => handleKeyPress(e, index)}
             keyboardType="numeric"
             maxLength={1}
-            className="w-[46px] mx-2 h-[46px] rounded-[10px] border-[2px] border-[#D6D6D6] 
-            text-center text-lg poppins-semibold text-black focus:border-blue-500 
+            className="w-[46px] mx-2 py-3 leading-normal rounded-[10px] border-[2px] border-[#D6D6D6] 
+            text-center text-lg poppins-semibold text-black focus:border-[#2650D8]
             leading-none"
           />
         ))}
       </View>
 
-      {/* {otpError && <View className='px-4'><Text className='px-4 mt-2 text-[12px] poppins-regular text-red-500'>{otpError}</Text></View>} */}
-      <View className={`flex-row items-center justify-center mt-8 ${timer > 0 ? 'mb-4' : 'mb-9'} mb-4`}>
+      {otpError && <View className='px-4'><Text className='px-4 mt-2 text-[14px] poppins-regular text-red-500'>{otpError}</Text></View>}
+      <View className={`flex-row items-center justify-center mt-[32] ${timer > 0 ? 'mb-4' : 'mb-9'} mb-4`}>
         <Text className='text-[16px] poppins-medium text-gray-600'>I didn't receive code. </Text>
         <TouchableOpacity disabled={timer > 0}
           onPress={handleResend}
@@ -165,11 +166,11 @@ const LoginOTP = ({ navigation, route }) => {
       <TouchableOpacity
         disabled={!otpValue.every(digit => digit !== "" && /^\d$/.test(digit))}
         onPress={handleLogin}
-        className={`${otpValue.every(digit => digit !== "" && /^\d$/.test(digit)) ? 'btn-color' : 'btn-disabled'} mx-4 py-3 rounded-xl mt-5`}
+        className={`${otpValue.every(digit => digit !== "" && /^\d$/.test(digit)) ? 'btn-color' : 'btn-disabled'} mx-4 py-3 justify-center rounded-xl mt-5`}
         style={{ height: 56 }}
       >
         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-          {otp?.loading ? (
+          {otp_loading ? (
             <ActivityIndicator size="large" color="#FFFFFF" />
           ) : (
             <Text className="text-center text-[18px] text-white poppins-medium">Submit</Text>

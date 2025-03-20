@@ -89,7 +89,7 @@ export const planSlice = createSlice({
 });
 
 // Actions
-export const { setPlanDetailsLoading, setPlanDetailsData, setPlanDetailsError, setMenuDraftLoading, 
+export const { setPlanDetailsLoading, setPlanDetailsData, setPlanDetailsError, setMenuDraftLoading,
     setMenuDraftData, setMenuDraftError, setAddPlanData, setAddPlanError, setAddPlanLoading,
     setAddItemDetailsData, setAddItemDetailsError, setAddItemDetailsLoading, setSubmitMenuData,
     setSubmitMenuError, setSubmitMenuLoading } = planSlice.actions;
@@ -97,7 +97,7 @@ export const { setPlanDetailsLoading, setPlanDetailsData, setPlanDetailsError, s
 export const getPlanDetails = (meal) => async (dispatch) => {
     try {
         dispatch(setPlanDetailsLoading());
-            
+
         const authToken = await EncryptedStorage.getItem('auth_token')
         const public_key = await EncryptedStorage.getItem('public_key')
 
@@ -132,11 +132,16 @@ export const getMenuDraft = (id, veg, nveg, edit, navigation, elm, ind) => async
         };
         const response = await axios.get(`${REACT_NATIVE_FOOD_API}/kitchen/plan_draft?planId=${id}&veg=${veg}&nveg=${nveg}&menu_editing=${edit}`, { headers });
         dispatch(setMenuDraftData(response?.data))
-        if(elm && ind != -1){
-            navigation.navigate('PlanDetails', {planData: elm, ind: ind})
-        }else if(ind == -1){
-            navigation.navigate('PlanStepper', {planId: id})
-        }
+        if (elm.status == 'approved') {
+            navigation.navigate('PlanDetails', { planData: elm, ind: ind })
+        } else{
+            if (elm.stepper) {
+                navigation.navigate('PlanStepper', { planId: id, planData: elm, ind: ind, edit: 1  })
+            } else {
+                navigation.navigate('PlanDetails', { planData: elm, ind: ind})
+            }
+        } 
+
     } catch (error) {
         if (error.response) {
             dispatch(setMenuDraftError(error.response.data.error));
@@ -149,7 +154,7 @@ export const getMenuDraft = (id, veg, nveg, edit, navigation, elm, ind) => async
 export const addPlanDetails = (data, navigation) => async (dispatch) => {
     try {
         dispatch(setAddPlanLoading());
-        
+
         const authToken = await EncryptedStorage.getItem('auth_token')
         const public_key = await EncryptedStorage.getItem('public_key')
 
@@ -162,8 +167,8 @@ export const addPlanDetails = (data, navigation) => async (dispatch) => {
         const response = await axios.post(`${REACT_NATIVE_FOOD_API}/kitchen/add_plan`, data, { headers });
         dispatch(setAddPlanData(response.data));
         dispatch(getPlanDetails(null))
-        
-        navigation.navigate('PlanStepper',{planId: response.data.data.planId})
+
+        navigation.navigate('PlanStepper', { planId: response.data.data.planId })
     } catch (error) {
         if (error.response) {
             dispatch(setAddPlanError(error.response.data.error));
@@ -176,7 +181,7 @@ export const addPlanDetails = (data, navigation) => async (dispatch) => {
 export const addFoodDetails = (data) => async (dispatch) => {
     try {
         dispatch(setAddItemDetailsLoading());
-        
+
         const authToken = await EncryptedStorage.getItem('auth_token')
         const public_key = await EncryptedStorage.getItem('public_key')
 
@@ -196,10 +201,10 @@ export const addFoodDetails = (data) => async (dispatch) => {
     }
 };
 
-export const submitMenu = (menu) => async (dispatch) => {
+export const submitMenu = (menu, navigation) => async (dispatch) => {
     try {
         dispatch(setSubmitMenuLoading());
-            
+
         const authToken = await EncryptedStorage.getItem('auth_token')
         const public_key = await EncryptedStorage.getItem('public_key')
 
@@ -211,6 +216,7 @@ export const submitMenu = (menu) => async (dispatch) => {
 
         const response = await axios.put(`${REACT_NATIVE_FOOD_API}/kitchen/submit_menu`, menu, { headers });
         dispatch(setSubmitMenuData(response.data));
+        navigation.navigate('Plan')
     } catch (error) {
         if (error.response) {
             dispatch(setSubmitMenuError(error.response.data.error));

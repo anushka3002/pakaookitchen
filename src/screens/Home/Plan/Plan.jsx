@@ -21,8 +21,7 @@ const Plan = ({navigation}) => {
   },[])
 
   const handlePlanDetail = (elm, ind) =>{
-    dispatch(getMenuDraft(elm.id, 1,0, elm.status == 'approved' ? 0 : 1, navigation, elm, elm.status == 'pending' ? -1 : ind))
-    // navigation.navigate('PlanDetails', {planData: elm, ind: ind})
+    dispatch(getMenuDraft(elm.id, 1,0, elm.status == 'approved' ? 0 : 1, navigation, elm, ind))
   }
 
   return (
@@ -43,7 +42,7 @@ const Plan = ({navigation}) => {
     <View className='mx-4 pt-4'>
     {loading ? <View className="items-center justify-center mt-[160]">
         <LottieView
-          source={require("../../../assets/Loader.json")}
+          source={require("../../../assets/pan-loader")}
           autoPlay
           loop
           style={{ width: 150, height: 150 }}

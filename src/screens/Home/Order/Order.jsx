@@ -47,13 +47,13 @@ const Order = ({ navigation }) => {
           <View style={{ gap: 14 }}>
             {loading ? <View className="items-center justify-center mt-[160]">
               <LottieView
-                source={require("../../../assets/Loader.json")}
+                source={require("../../../assets/pan-loader")}
                 autoPlay
                 loop
                 style={{ width: 150, height: 150 }}
               />
             </View> : orderData?.data?.data?.data?.length > 0 ? orderData?.data?.data?.data?.map((order, ind) => (
-              <OrderCard key={ind} navigation={navigation} order={order} arrow={true} status={true} />
+              <OrderCard key={ind} navigation={navigation} order={order} arrow={true} status={selectedTab == 'ongoing'} />
             )) : <Text className="poppins-medium text-[16px] text-[#737373] text-center mt-[160]">No data found</Text>}
           </View>
         </View>

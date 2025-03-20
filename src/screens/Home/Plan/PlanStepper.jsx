@@ -10,14 +10,15 @@ import BothActive from '../../../assets/both-active'
 import Cross from '../../../assets/cross'
 import Dash from '../../../assets/dash'
 import VerticalBar from '../../../assets/vertical-bar'
+import Drop from '../../../assets/drop'
 import { useDispatch, useSelector } from 'react-redux'
-import { addFoodDetails, getMenuDraft } from '../../../reducers/planSlice'
+import { addFoodDetails, getMenuDraft, getPlanDetails } from '../../../reducers/planSlice'
 import LottieView from "lottie-react-native";
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-const PlanStepper = ({ route }) => {
+const PlanStepper = ({ navigation, route }) => {
 
-    const { planId } = route.params
+    const { planId, planData, ind, edit } = route.params
     const [stepper, setStepper] = useState([])
     const [currentIndex, setCurrentIndex] = useState(0);
     const { menuDraft, planDetails, addItemDetails } = useSelector(state => state.plan)
@@ -28,6 +29,9 @@ const PlanStepper = ({ route }) => {
     const [vegFoodList, setVegFoodList] = useState([]);
     const [nvegFoodItem, setNvegFoodItem] = useState("");
     const [nvegFoodList, setNvegFoodList] = useState([]);
+    const [dropdown, setDropdown] = useState(-1)
+    const [nvegDropdown, setNvegDropdown] = useState(-1)
+    const [selectedUnit, setSelectedUnit] = useState('gm')
     const dispatch = useDispatch()
 
     const addFoodItem = (type) => {
@@ -64,6 +68,30 @@ const PlanStepper = ({ route }) => {
         }
     };
 
+    const updateSelectedUnit = (index, unit, type) => {
+        if (type == 'veg') {
+            const updatedList = [...vegFoodList];
+            updatedList[index].selectedUnit = unit;
+            if (unit === "gm") {
+                updatedList[index].quantity = "";
+            } else {
+                updatedList[index].weight = "";
+            }
+
+            setVegFoodList(updatedList);
+        } else {
+            const updatedList = [...nvegFoodList];
+            updatedList[index].selectedUnit = unit;
+            if (unit === "gm") {
+                updatedList[index].quantity = "";
+            } else {
+                updatedList[index].weight = "";
+            }
+
+            setNvegFoodList(updatedList);
+        }
+    };
+
     useEffect(() => {
         if (menuDraft?.data?.data?.menu?.length > 0) {
             const menuItems = menuDraft.data.data.menu;
@@ -81,12 +109,12 @@ const PlanStepper = ({ route }) => {
     }, [])
 
     useEffect(() => {
-        dispatch(getMenuDraft(planId, 0, 0, 1, null, null, null))
+        dispatch(getMenuDraft(planId, 0, 0, edit, null, null, null))
     }, [planId, addItemDetails])
 
     const handlePlanSubmit = () => {
         setLoading(true)
-        if (currentIndex < menuDraft?.data?.data?.menu.length - 1) {
+        if (currentIndex <= menuDraft?.data?.data?.menu.length - 1) {
             var currentId = menuDraft?.data?.data?.menu[currentIndex].id;
             setCurrentIndex(prevIndex => prevIndex + 1);
         }
@@ -97,14 +125,25 @@ const PlanStepper = ({ route }) => {
             vegItems: vegFoodList,
             nvegItems: nvegFoodList
         }
-        dispatch(addFoodDetails(data)).then(() => setLoading(false)).catch(() => setLoading(false))
-        setLoading(false)
+        dispatch(addFoodDetails(data)).then(() => {
+            setLoading(false); dispatch(getMenuDraft(planId, 0, 0, 1, null, null, null)); setVegFoodItem('');
+            setNvegFoodItem('');
+            setNvegFoodList([]);
+            setVegFoodList([]);
+        }).catch(() => setLoading(false))
     }
+
+    const handlePreview = async () =>{
+        navigation.navigate('PlanDetails',{planData: planData, ind: ind })
+    }
+
+    const menuDataVal = menuDraft?.data?.data?.menu;
 
     return (
         <SafeAreaView>
-            <ScrollView className='bg-white'>
-                <Navbar screen={'Plan'} />
+            <Navbar screen={'Plan'} />
+            <View className='bg-white h-screen'>
+            <ScrollView>
                 <View className='mx-4'>
                     <View className='flex-row items-center justify-center mt-5'>
                         {menuDraft?.data?.data?.menu.map((e, ind) => {
@@ -113,7 +152,7 @@ const PlanStepper = ({ route }) => {
                                     <View className='flex-row items-center justify-center'>
                                         <TouchableOpacity onPress={() => setStepper([...stepper, ind])}>
                                             {(e?.vegItem?.length > 0 || e?.nvegItem?.length) > 0 ? <BlueTick /> : <View style={{ width: 33, height: 33 }}
-                                                className='border items-center justify-center rounded-full'>
+                                                className='border border-[#D6D6D6] items-center justify-center rounded-full'>
                                                 <Text className='text-[17px] poppins-medium txt-grey'>{e?.day?.split('')[0].toUpperCase()}</Text></View>}
                                         </TouchableOpacity>
                                         {ind < weekdays.length - 1 && <View className='mx-1'><Dots /></View>}
@@ -142,7 +181,7 @@ const PlanStepper = ({ route }) => {
                                 className="txt-grey flex-1 poppins-regular rounded-lg p-3 items-center justify-center"
                                 placeholder="Enter Food Item"
                                 value={vegFoodItem}
-                                onChangeText={setVegFoodItem}
+                                onChangeText={(e) => setVegFoodItem(e)}
                                 onSubmitEditing={() => addFoodItem('veg')}
                             />
                             <TouchableOpacity onPress={() => addFoodItem('veg')} disabled={vegFoodItem.length < 3} className={` ${vegFoodItem.length < 3 ? 'btn-disabled' : 'btn-color'} m-2 px-4 rounded-lg items-center justify-center`}>
@@ -150,30 +189,64 @@ const PlanStepper = ({ route }) => {
                             </TouchableOpacity>
                         </View>
                         {vegFoodList.map((item, index) => {
-                            return <View key={index} className='border border-[#D6D6D6] rounded-[10px] flex-row items-center mb-[10]'>
-                                <TouchableOpacity onPress={() => removeFoodItem(index, 'veg')} style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' }} className='flex-row border border-[#D6D6D6] items-center py-[7px] px-3 m-2 rounded-[10]'>
-                                    <Text className='text-[13px] poppins-medium txt-grey mr-2'>
-                                        {item.itemName.length > 10 ? item.itemName.slice(0, 6) + '...' : item.itemName}
-                                    </Text>
-                                    <Cross />
-                                </TouchableOpacity>
-                                <View className='mr-[10] ml-[4]'><VerticalBar /></View>
-                                <TextInput
-                                    className='poppins-regular text-[#7B7B7B] text-[14px] mr-[11]'
-                                    placeholder='Enter Gram'
-                                    keyboardType='numeric'
-                                    value={item.weight ? item.weight.toString() : ""}
-                                    onChangeText={(text) => updateFoodItem(index, "weight", text, 'veg')}
-                                />
-                                <Dash />
-                                <TextInput
-                                    className='poppins-regular text-[#7B7B7B] text-[14px] ml-[11]'
-                                    placeholder='Enter Qty'
-                                    keyboardType="numeric"
-                                    value={item.quantity ? item.quantity.toString() : ""}
-                                    onChangeText={(text) => updateFoodItem(index, "quantity", text, 'veg')}
-                                />
-                            </View>
+                            return (
+                                <View
+                                    key={index}
+                                    className="border border-[#D6D6D6] rounded-[10px] flex-row items-center justify-between mb-[10]"
+                                >
+                                    <View className="flex-row">
+                                        <TouchableOpacity
+                                            onPress={() => removeFoodItem(index, "veg")}
+                                            style={{ boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.14)" }}
+                                            className="flex-row border border-[#D6D6D6] items-center py-[7px] px-3 m-2 rounded-[10]"
+                                        >
+                                            <Text className="text-[13px] poppins-medium txt-grey mr-2">
+                                                {item.itemName.length > 10 ? item.itemName.slice(0, 6) + "..." : item.itemName}
+                                            </Text>
+                                            <Cross />
+                                        </TouchableOpacity>
+                                        <View className="mr-[10] ml-[4] my-auto">
+                                            <VerticalBar />
+                                        </View>
+                                        <TextInput
+                                            className="poppins-regular text-[#7B7B7B] text-[14px] mr-[11]"
+                                            placeholder={selectedUnit == "gm" ? "Enter Gram" : "Enter quantity"}
+                                            keyboardType="number-pad"
+                                            value={item.weight ? item.weight.toString() : item.quantity ? item.quantity.toString() : ""}
+                                            onChangeText={(text) => updateFoodItem(index, selectedUnit == "gm" ? "weight" : "quantity", text, "veg")}
+                                        />
+                                    </View>
+
+                                    <View className="relative m-2">
+                                        <TouchableOpacity
+                                            style={{ boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.14)" }}
+                                            className="flex-row border border-[#D6D6D6] items-center py-[7px] px-4 w-[77px] rounded-[10] bg-white"
+                                            onPress={() => dropdown == -1 ? setDropdown(index) : setDropdown(-1)}
+                                        >
+                                            <Text className="text-[14px] poppins-regular text-[#4E4E4E] mr-[6]">
+                                                {item.selectedUnit ?? 'gm'}
+                                            </Text>
+                                            <Drop />
+                                        </TouchableOpacity>
+
+                                        {dropdown == index && (
+                                            <View className="absolute top-full left-0 mt-1 w-[77px] bg-white border border-[#D6D6D6] rounded-md shadow-md z-10">
+                                                {["gm", "qt"].map((unit, unitIndex) => (
+                                                    <TouchableOpacity
+                                                        key={unitIndex}
+                                                        onPress={() => { updateSelectedUnit(index, unit, "veg"); setSelectedUnit(unit); setDropdown(-1); }}
+                                                        className="px-4 py-2 border-b last:border-b-0 border-gray-200"
+                                                    >
+                                                        <Text className="text-[14px] poppins-regular text-[#4E4E4E]">
+                                                            {unit}
+                                                        </Text>
+                                                    </TouchableOpacity>
+                                                ))}
+                                            </View>
+                                        )}
+                                    </View>
+                                </View>
+                            );
                         })}
                     </View>}
 
@@ -191,35 +264,59 @@ const PlanStepper = ({ route }) => {
                                 <Text className='text-white poppins-medium text-[12px]'>Add</Text>
                             </TouchableOpacity>
                         </View>
+
+                        {/* non veg food list */}
                         {nvegFoodList.map((item, index) => {
-                            return <View key={index} className='border border-[#D6D6D6] rounded-[10px] flex-row items-center mb-[10]'>
-                                <TouchableOpacity onPress={() => removeFoodItem(index, 'nveg')} style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' }} className='flex-row border border-[#D6D6D6] items-center py-[7px] px-3 m-2 rounded-[10]'>
-                                    <Text className='text-[13px] poppins-medium txt-grey mr-2'>
-                                        {item.itemName.length > 10 ? item.itemName.slice(0, 6) + '...' : item.itemName}
-                                    </Text>
-                                    <Cross />
-                                </TouchableOpacity>
-                                <View className='mr-[10] ml-[4]'><VerticalBar /></View>
-                                <TextInput
-                                    className='poppins-regular text-[#7B7B7B] text-[14px] mr-[11]'
-                                    placeholder='Enter Gram'
-                                    keyboardType='numeric'
-                                    value={item.weight ? item.weight.toString() : ""}
-                                    onChangeText={(text) => updateFoodItem(index, "weight", text, 'nveg')}
-                                />
-                                <Dash />
-                                <TextInput
-                                    className='poppins-regular text-[#7B7B7B] text-[14px] ml-[11]'
-                                    placeholder='Enter Qty'
-                                    keyboardType="numeric"
-                                    value={item.quantity ? item.quantity.toString() : ""}
-                                    onChangeText={(text) => updateFoodItem(index, "quantity", text, 'nveg')}
-                                />
+                            return <View key={index} className='border border-[#D6D6D6] rounded-[10px] flex-row items-center justify-between mb-[10]'>
+                                <View className='flex-row'>
+                                    <TouchableOpacity onPress={() => removeFoodItem(index, 'nveg')} style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' }} className='flex-row border border-[#D6D6D6] items-center py-[7px] px-3 m-2 rounded-[10]'>
+                                        <Text className='text-[13px] poppins-medium txt-grey mr-2'>
+                                            {item.itemName.length > 10 ? item.itemName.slice(0, 6) + '...' : item.itemName}
+                                        </Text>
+                                        <Cross />
+                                    </TouchableOpacity>
+                                    <View className='mr-[10] ml-[4]'><VerticalBar /></View>
+                                    <TextInput
+                                        className='poppins-regular text-[#7B7B7B] text-[14px] mr-[11]'
+                                        placeholder='Enter Gram'
+                                        keyboardType='numeric'
+                                        value={item.weight ? item.weight.toString() : ""}
+                                        onChangeText={(text) => updateFoodItem(index, "weight", text, 'nveg')}
+                                    />
+                                </View>
+                                <View className="relative m-2">
+                                    <TouchableOpacity
+                                        style={{ boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.14)" }}
+                                        className="flex-row border border-[#D6D6D6] items-center py-[7px] px-4 w-[77px] rounded-[10] bg-white"
+                                        onPress={() => dropdown == -1 ? setNvegDropdown(index) : setNvegDropdown(-1)}
+                                    >
+                                        <Text className="text-[14px] poppins-regular text-[#4E4E4E] mr-[6]">
+                                            {item.selectedUnit ?? 'gm'}
+                                        </Text>
+                                        <Drop />
+                                    </TouchableOpacity>
+
+                                    {nvegDropdown == index && (
+                                        <View className="absolute top-full left-0 mt-1 w-[77px] bg-white border border-[#D6D6D6] rounded-md shadow-md z-10">
+                                            {["gm", "qt"].map((unit, unitIndex) => (
+                                                <TouchableOpacity
+                                                    key={unitIndex}
+                                                    onPress={() => { updateSelectedUnit(index, unit, "nveg"); setNvegDropdown(-1); }}
+                                                    className="px-4 py-2 border-b last:border-b-0 border-gray-200"
+                                                >
+                                                    <Text className="text-[14px] poppins-regular text-[#4E4E4E]">
+                                                        {unit}
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            ))}
+                                        </View>
+                                    )}
+                                </View>
                             </View>
                         })}
                     </View>}
-                    <TouchableOpacity
-                        style={{ height: 60 }}
+                    {(menuDataVal[menuDataVal?.length-1]?.veg == 0 && menuDataVal[menuDataVal?.length-1].nveg == 0) && <TouchableOpacity
+                        style={{ height: 48 }}
                         onPress={handlePlanSubmit}
                         disabled={
                             vegFoodList.length === 0 && nvegFoodList.length === 0 ||
@@ -232,14 +329,21 @@ const PlanStepper = ({ route }) => {
                             ? 'btn-disabled' : 'btn-color'
                             } mt-[10] rounded-[10] items-center justify-center`}>
                         {loading ? <LottieView
-                            source={require("../../../assets/food-loader.json")}
+                            source={require("../../../assets/pan-loader.json")}
                             autoPlay
                             loop
                             style={styles.animation}
                         /> : <Text className='text-[18px] text-center text-white poppins-medium'>Next</Text>}
-                    </TouchableOpacity>
+                    </TouchableOpacity>}
+
+                    {(menuDataVal[menuDataVal?.length-1].veg > 0 || menuDataVal[menuDataVal?.length-1].nveg > 0) && <TouchableOpacity 
+                    onPress={()=>handlePreview()}
+                    style={{ height: 48 }} className='btn-color mt-[10] rounded-[10] items-center justify-center'>
+                        <Text className='text-[18px] text-center text-white poppins-medium'>Preview</Text>
+                    </TouchableOpacity>}
                 </View>
             </ScrollView>
+            </View>
         </SafeAreaView>
     )
 }

@@ -29,6 +29,9 @@ target 'pakaookitchen' do
   # ✅ Add modular headers for Firebase & GoogleUtilities
   pod 'FirebaseCoreInternal', :modular_headers => true
   pod 'GoogleUtilities', :modular_headers => true
+  pod 'react-native-maps', :path => '../node_modules/react-native-maps'
+  pod 'GoogleMaps'
+  pod 'Google-Maps-iOS-Utils'
 
   post_install do |installer|
     react_native_post_install(

@@ -8,7 +8,7 @@ const Navbar = ({screen, noBackArrow}) => {
   const navigation = useNavigation();
 
   return (
-    <View className="nav-bg flex-row items-center px-4 py-10">
+    <View className="nav-bg flex-row items-center px-4 py-[24]">
     {!noBackArrow && <TouchableOpacity onPress={() =>navigation.goBack()} className=''>
     <Back/>
     </TouchableOpacity>}
@@ -16,7 +16,6 @@ const Navbar = ({screen, noBackArrow}) => {
       {screen}
     </Text>
   </View>
-
   )
 }
 

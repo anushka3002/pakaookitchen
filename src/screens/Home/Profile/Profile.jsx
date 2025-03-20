@@ -9,7 +9,6 @@ import Email from '../../../assets/email'
 import Phone from '../../../assets/phone'
 import Location from '../../../assets/blue-location'
 import Rider from '../../../assets/white-rider'
-import EditProfile from '../../../assets/edit-profile'
 import Notification from '../../../assets/Bell'
 import Terms from '../../../assets/terms'
 import Contact from '../../../assets/contact'
@@ -20,8 +19,8 @@ import Logout from '../../../assets/logout'
 import Delete from '../../../assets/delete'
 import BlueBg from '../../../assets/blue-bg'
 import { useDispatch, useSelector } from 'react-redux'
-import { deleteAccount, getDeleteReasons, logout } from '../../../reducers/authSlice'
-import { getProfileData } from '../../../reducers/profileSlice'
+import { deleteAccount, logout } from '../../../reducers/authSlice'
+import { getProfileData, getDeleteReasons } from '../../../reducers/profileSlice'
 import { Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -32,13 +31,12 @@ const Profile = ({ navigation }) => {
   const [modalValue, setModalValue] = useState('')
   const [deleteVisible, setDeleteVisible] = useState('')
   const [deleteReason, setDeleteReason] = useState('')
-  const { profile } = useSelector(state => state.profileData)
-  const { deleteReasons } = useSelector(state => state.auth)
+  const { auth_token } = useSelector(state => state.auth)
+  const { profile, deleteReasons } = useSelector(state => state.profileData)
   const dispatch = useDispatch()
 
   const accountList = [
     { name: 'Riders', icon: <Rider />, route: 'Rider' },
-    // { name: 'Edit Profile', icon: <EditProfile />, route: 'CreateAccount' }, //mvp 2
     { name: 'Notification', icon: <Notification />, route: 'Notification' },
     { name: 'Terms & Conditions', icon: <Terms />, route: 'TermsConditions' },
   ]
@@ -55,14 +53,15 @@ const Profile = ({ navigation }) => {
   const handleDeleteReason = () => {
     setModalValue('Delete')
     setModalVisible(true)
-    // dispatch(getDeleteReasons())
+    dispatch(getDeleteReasons())
   }
 
   const handleDelete = (value) => {
     if (value == 'Delete') {
       dispatch(deleteAccount(deleteReason.id))
     } else {
-      dispatch(logout())
+      dispatch(logout(navigation))
+      setModalVisible(false)
     }
   }
 
@@ -123,7 +122,7 @@ const Profile = ({ navigation }) => {
           })}
 
           <View style={{ gap: 12, marginTop: '68' }} className='flex-row mb-10'>
-            <TouchableOpacity onPress={() => { setModalVisible(true); setModalValue('Logout') }} className='btn-light-blue rounded-[10] py-[10] flex-1'>
+            <TouchableOpacity onPress={() => { setModalVisible(true); setModalValue('Logout')}} className='btn-light-blue rounded-[10] py-[10] flex-1'>
               <Text className='text-[18px] poppins-medium txt-blue text-center'>Logout</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={handleDeleteReason} style={{ backgroundColor: '#FFBDBD' }} className='rounded-[10] py-[10] flex-1'>

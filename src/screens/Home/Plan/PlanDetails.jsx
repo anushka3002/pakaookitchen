@@ -1,25 +1,45 @@
 import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Navbar from '../../Components/Navbar'
 import { useDispatch, useSelector } from 'react-redux'
-import { getMenuDraft } from '../../../reducers/planSlice'
+import { getMenuDraft, submitMenu } from '../../../reducers/planSlice'
+import EditIcon from '../../../assets/edit'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-const PlanDetails = ({ route }) => {
+const PlanDetails = ({ navigation, route }) => {
 
     const { planData, ind } = route.params;
     const { menuDraft } = useSelector(state => state.plan)
     const [mealType, setMealType] = useState('Veg')
+    const dispatch = useDispatch()
+
+    const handleSubmit = () =>{
+        const data = {
+            planId: Number(menuDraft.data.data.planId),
+            status: 'submitted'
+        }
+        if(planData.status == 'approved'){
+            dispatch(submitMenu(data, navigation))
+        }else{
+            dispatch(getMenuDraft(planData.id, 0, 0, 0, null, null, null))
+            navigation.navigate('PlanStepper', { planId: planData.id, planData: planData, ind: ind, edit: 0 })
+        }
+    }
+
+    useEffect(() => {
+            dispatch(getMenuDraft(planData.id, 0, 0, 1, null, null, null))
+        }, [planData])
 
     return (
-        <SafeAreaView>
-            <ScrollView>
-                <Navbar screen={'Plan Details'} />
-                <View className='mx-[15]'>
+        <SafeAreaView className='flex-1'>
+            <Navbar screen={'Plan Details'} />
+            <ScrollView className='bg-white'>
+                <View className='px-[15] pb-14'>
                     <Image
                         width={'100%'}
                         height={197}
                         borderRadius={10}
+                        marginTop={19}
                         source={{ uri: planData.packaging_preview }}
                     />
                     <Text className='text-[19px] poppins-semibold mt-[11]'>{planData.name}</Text>
@@ -39,8 +59,8 @@ const PlanDetails = ({ route }) => {
                         })}
                     </View>
 
-                    {menuDraft?.data?.data?.menu.length > 0 ? menuDraft?.data?.data?.menu?.map((el, ind) => {
-                        if (mealType == 'Veg' && el.vegItem.length > 0) {
+                    {menuDraft?.data?.data?.menu?.length > 0 ? menuDraft?.data?.data?.menu?.map((el, ind) => {
+                        if (mealType == 'Veg' && el?.vegItem?.length > 0) {
                             return <View style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)' }} key={ind} className='rounded-[10] w-full mb-[15]'>
                                 <View className='btn-light-blue rounded-t-[10] py-[9] px-[10]'>
                                     <Text className='text-[15px] poppins-medium txt-blue'>{el.day.split('')[0].toUpperCase() + el.day.slice(1)}</Text>
@@ -51,9 +71,9 @@ const PlanDetails = ({ route }) => {
                                     })}
                                 </View>
                             </View>
-                        } else if (el.nvegItem.length > 0) {
+                        } else if (el?.nvegItem?.length > 0) {
                             return <View style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)' }} key={ind} className='w-full rounded-[10] mb-[15]'>
-                                <View className='btn-light-blue py-[9] px-[10]'>
+                                <View className='btn-light-blue rounded-t-[10] py-[9] px-[10]'>
                                     <Text className='text-[15px] poppins-medium txt-blue'>{el.day.split('')[0].toUpperCase() + el.day.slice(1)}</Text>
                                 </View>
                                 <View className='flex-row flex-wrap py-[9] px-[10]'>
@@ -66,6 +86,13 @@ const PlanDetails = ({ route }) => {
                     }) : <Text className='poppins-medium txt-grey text-[18px] text-center mt-[100]'>No data found</Text>}
                 </View>
             </ScrollView>
+
+            {planData.status == 'approved' || !planData.stepper && <View className="absolute bottom-0 left-0 w-full bg-white pt-[17] pb-[23] items-center px-5 shadow-lg border-t border-gray-200">
+                <TouchableOpacity onPress={handleSubmit} style={{gap:8}} className='w-[125px] border border-[#2650D8] rounded-[10] py-2 flex-row items-center justify-center'>
+                    <EditIcon/>
+                    <Text className="txt-blue text-center text-[17px] poppins-semibold">{planData.status == 'approved' ? 'Edit' : 'Submit'}</Text>
+                </TouchableOpacity>
+            </View>}
         </SafeAreaView>
     )
 }
