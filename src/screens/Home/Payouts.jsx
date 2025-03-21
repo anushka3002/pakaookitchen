@@ -51,7 +51,7 @@ const Payouts = ({ navigation }) => {
     setShowEndPicker(false);
     if (selectedDate) setEndDate(selectedDate);
   };
-
+  
   return (
     <SafeAreaView>
       <View className='h-screen bg-white'>
@@ -71,9 +71,9 @@ const Payouts = ({ navigation }) => {
                 <View className='flex-row justify-between items-center'>
                   <View>
                     <Text className='text-[12px] poppins-medium text-[#737373]'>Net payout</Text>
-                    <Text className='text-[17px] poppins-semibold text-[#26B746]'>₹ {currentCycleData?.data?.final_immediatePayout}</Text>
+                    <Text className='text-[17px] poppins-semibold text-[#26B746]'>₹ {currentCycleData?.data?.final_immediatePayout ?? 0}</Text>
                   </View>
-                  <Text className='text-[12px] poppins-medium text-[#737373]'>{currentCycleData?.data?.orders_count} Subcription</Text>
+                  <Text className='text-[12px] poppins-medium text-[#737373]'>{currentCycleData?.data?.orders_count ?? 0} Subcription</Text>
                 </View>
                 <View style={{ borderTopWidth: 1, borderColor: '#A4A4A4' }} className='mt-[7]'></View>
                 <View className='flex-row justify-between mt-[10]'>
@@ -126,7 +126,7 @@ const Payouts = ({ navigation }) => {
                       loop
                       style={{ width: 150, height: 150 }}
                     />
-                  </View> : transactionsData?.data?.payouts.length == 0 ? <Text className='text-[16px] text-center poppins-medium text-[#737373] mt-[60]'>No data found</Text> :
+                  </View> : transactionsData?.data?.payouts?.length == 0 ? <Text className='text-[16px] text-center poppins-medium text-[#737373] mt-[60]'>No data found</Text> :
               transactionsData?.data?.payouts?.map((elm, ind) => {
                 return <TouchableOpacity onPress={() => handleTransaction(elm.payout_id)} key={ind} style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' }}
                   className='relative rounded-[10] py-[9] pl-[15] mb-[15]'>

@@ -119,7 +119,8 @@ const AddKitchen = ({ navigation }) => {
     return (
         <SafeAreaView>
             <Navbar screen={'Add Kitchen'} />
-            <ScrollView className="p-4 bg-white flex-1">
+            <ScrollView className="p-4 bg-white">
+                <View className='mb-20'>
                 {/* Meal Category */}
                 <Text className="text-[18px] poppins-semibold mb-2">Meal Category <Text className='text-red-500'>*</Text></Text>
                 <View style={{ gap: 19 }} className="flex-row justify-between mb-4">
@@ -196,10 +197,10 @@ const AddKitchen = ({ navigation }) => {
                             borderColor: '#D6D6D6',
                         }}
                     >
-                        {foodStyle?.data?.data?.map((e, ind) => (
+                        {foodStyle?.data?.data.length > 0 && foodStyle?.data?.data?.map((e, ind) => (
                             <TouchableOpacity key={ind} style={{
-                                // borderBottomWidth: ind!= foodStyle?.data?.data?.length-1 && 1,
-                                // borderBottomColor: ind!= foodStyle?.data?.data?.length-1 && '#D6D6D6',
+                                borderBottomWidth: ind!= foodStyle?.data?.data?.length-1 ? 1 : 0,
+                                borderBottomColor: ind!= foodStyle?.data?.data?.length-1 ? '#D6D6D6' : '',
                             }} onPress={() => handleFoodStyleSelect(e)}>
                                 <Text className="px-4 py-3 txt-grey poppins-regular">{e.cuisine_name}</Text>
                             </TouchableOpacity>
@@ -281,9 +282,10 @@ const AddKitchen = ({ navigation }) => {
                 ))}
 
                 {/* Submit Button */}
-                <TouchableOpacity onPress={handleSubmit} className="btn-color p-4 rounded-xl mt-2 mb-10">
-                    {loading ? <ActivityIndicator size="large" color="#FFFFFF" /> : <Text className="text-center text-[18px] poppins-medium text-white">Submit</Text>}
+                <TouchableOpacity onPress={handleSubmit} className="btn-color py-[10] rounded-xl mt-2 mb-10">
+                <Text className="text-center text-[18px] poppins-medium text-white">Submit</Text>
                 </TouchableOpacity>
+                </View>
             </ScrollView>
         </SafeAreaView>
     );
@@ -298,9 +300,9 @@ const styles = StyleSheet.create({
     whiteBtn: {
         borderWidth: 1,
         borderColor: 'rgba(214, 214, 214, 0.60)',
-        borderRadius: 10,  // Rounded corners
-        backgroundColor: '#FFF', // White background
-        elevation: 10, // Required for Android shadows
+        borderRadius: 10,
+        backgroundColor: '#FFF',
+        elevation: 10,
         shadowColor: '#000',
     },
     blueBorder: {

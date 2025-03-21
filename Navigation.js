@@ -162,7 +162,7 @@ function AppWrapper() {
   const dispatch = useDispatch();
   const kitchenStatus = useSelector(state => state.kitchenData?.kitchenStatus);
   const { logout, loading, auth_token , otp} = useSelector(state => state.auth)
-  const { loading: kitchenLoading } = useSelector(state => state.kitchenData)
+  const { loading: kitchenLoading, kitchenApproved } = useSelector(state => state.kitchenData)
   const { loading: orderLoading } = useSelector(state => state.order)
   const { loading: planLoading } = useSelector(state => state.plan)
   const { loading: profileLoading } = useSelector(state => state.profileData)
@@ -214,9 +214,9 @@ function AppWrapper() {
       } else if (status === 'approved') {
         if (kitchen_added) {
           setInitialRoute('Home')
-        } else if (!kitchen_added) {
+        } else if (!kitchen_added && storedKitchenStatus) {
           setInitialRoute("AddKitchen");
-        } else {
+        } else if(!kitchen_added && !storedKitchenStatus) {
           setInitialRoute('Approved')
         }
       } else if (status === 'rejected') {

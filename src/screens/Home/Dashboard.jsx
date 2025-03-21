@@ -1,4 +1,4 @@
-import { View, ScrollView, Image, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, ScrollView, Image, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native'
 import React, { useEffect } from 'react'
 import Notification from '../../assets/Bell.svg';
 import Location from '../../assets/location.svg';
@@ -34,9 +34,9 @@ const Dashboard = ({ navigation }) => {
             end={{ x: 1, y: 1 }}
             className="w-full"
           >
-            <View className='px-[16] flex-row w-[100%] items-center justify-between mt-20 mb-[24]'>
+            <View className={`px-[16] flex-row w-[100%] items-center justify-between ${Platform.OS == 'ios' ? 'mt-20' : 'mt-[31]'} mb-[24]`}>
               <Dummy/>
-              <View>
+              <View className='px-1'>
                 <View className='flex-row items-center'>
                   <Location />
                   <Text className='text-white ml-2 text-[13px] poppins-semibold'>{profile?.data?.data?.address_line1.length > 30 ? profile?.data?.data?.address_line1.slice(0, 30) + '...' : profile?.data?.data?.address_line1}</Text>
@@ -62,7 +62,8 @@ const Dashboard = ({ navigation }) => {
         <View className='mx-4'>
           <Text className='text-[21px] poppins-semibold mb-3'>Manage Your Business</Text>
           {business.map((elm, ind) => {
-            return <TouchableOpacity onPress={() => elm.title == 'View Plan' && navigation.navigate('Plan')} key={ind} style={styles.whiteBtn} className='relative flex-row mb-5 px-3 py-3 justify-between items-center'>
+            return <TouchableOpacity onPress={() => elm.title == 'View Plan' && navigation.navigate('Plan')} key={ind} style={[styles.whiteBtn,{boxShadow:'0px 0px 10px 0px rgba(0, 0, 0, 0.14)'}]} 
+            className='relative flex-row mb-5 pl-[16] pr-[18] py-3 justify-between items-center'>
               <View className='flex-row items-center'>
                 {elm.icon}
                 <View className='ml-2 w-[85%]'>

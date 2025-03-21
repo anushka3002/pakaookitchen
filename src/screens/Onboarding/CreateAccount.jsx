@@ -191,7 +191,7 @@ const CreateAccount = ({ navigation }) => {
 
   return (
     <SafeAreaView>
-      <View className="h-screen pb-16">
+      <View className="h-screen">
         <ScrollView className='flex-1 bg-white px-5 py-6'>
           <Text className='text-[29px] poppins-bold text-center mb-1'>Create New Account</Text>
           <Text style={{ color: '#7B7B7B' }} className='text-[14px] poppins-medium text-center mb-6'>
@@ -357,7 +357,7 @@ const CreateAccount = ({ navigation }) => {
             <CustomTextInput control={control} label={'Bank Account Holder Name '} name={'bank_holder_name'} placeholder={'Enter Bank Account Holder Name'} errors={errors} />
 
             <View className="mb-[20]">
-              <Text className="text-[15px] poppins-medium mb-[14]">
+              <Text className="text-[15px] poppins-medium mb-[14] leading-none">
                 Bank Name <Text className="text-red-500 poppins-regular">*</Text>
               </Text>
               <Controller
@@ -413,7 +413,7 @@ const CreateAccount = ({ navigation }) => {
 
           <TouchableOpacity
             onPress={handleSubmit(onSubmit)}
-            className="btn-color py-3 rounded-[10px] mt-4 mb-10"
+            className={`btn-color py-3 rounded-[10px] mt-4 ${Platform.OS == 'ios' ? 'mb-28' : 'mb-10'}`}
           >
             <Text className="text-center text-[18px] text-white poppins-medium">Create Account</Text>
           </TouchableOpacity>

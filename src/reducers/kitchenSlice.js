@@ -21,7 +21,8 @@ const initialState = {
   kitchenStatus: {
     data: null,
   },
-  loading: false
+  kitchenApproved: null,
+  loading: false,
 };
 
 // Create a slice for Kitchen data
@@ -53,6 +54,9 @@ export const kitchenSlice = createSlice({
     setAddKitchenError: (state, action) => {
       state.addKitchen.data = action.payload;
       state.loading = false;
+    },
+    setKitchenApproved: (state, action) => {
+      state.kitchenApproved = action.payload
     },
 
     //Get Category Reducers
@@ -101,7 +105,7 @@ export const kitchenSlice = createSlice({
 export const { setProfileLoading, setProfileData, setProfileError, setAddKitchenLoading,
   setAddKitchenSuccess, setAddKitchenError, setCategorySuccess, setCategoryError,
   setCategoryLoading, setFoodStyleLoading, setFoodStyleError, setFoodStyleSuccess,
-  setKitchenStatusLoading, setKitchenStatusSuccess, setKitchenStatusError } = kitchenSlice.actions;
+  setKitchenStatusLoading, setKitchenStatusSuccess, setKitchenStatusError, setKitchenApproved } = kitchenSlice.actions;
   
 export const createUserData = (userData) => async (dispatch) => {
   try {
@@ -143,7 +147,7 @@ export const addKitchenData = (kitchenData, navigation) => async (dispatch) => {
     const response = await axios.post(`${REACT_NATIVE_API}/profile/kitchen/add_kitchen`, kitchenData, { headers });
     dispatch(setAddKitchenSuccess(response.data));
     if (response?.data?.data?.message == 'success') {
-      navigation.navigate('Dashboard')
+      navigation.navigate('Home')
       AsyncStorage.removeItem('kitchenApproved')
   }
   } catch (error) {

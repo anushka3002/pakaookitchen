@@ -133,7 +133,7 @@ export const getMenuDraft = (id, veg, nveg, edit, navigation, elm, ind) => async
         const response = await axios.get(`${REACT_NATIVE_FOOD_API}/kitchen/plan_draft?planId=${id}&veg=${veg}&nveg=${nveg}&menu_editing=${edit}`, { headers });
         dispatch(setMenuDraftData(response?.data))
         if (elm.status == 'approved') {
-            navigation.navigate('PlanDetails', { planData: elm, ind: ind })
+            navigation.navigate('PlanDetails', { planData: elm, ind: ind, editMenu: 1 })
         } else{
             if (elm.stepper) {
                 navigation.navigate('PlanStepper', { planId: id, planData: elm, ind: ind, edit: 1  })
@@ -141,7 +141,6 @@ export const getMenuDraft = (id, veg, nveg, edit, navigation, elm, ind) => async
                 navigation.navigate('PlanDetails', { planData: elm, ind: ind})
             }
         } 
-
     } catch (error) {
         if (error.response) {
             dispatch(setMenuDraftError(error.response.data.error));
@@ -167,7 +166,6 @@ export const addPlanDetails = (data, navigation) => async (dispatch) => {
         const response = await axios.post(`${REACT_NATIVE_FOOD_API}/kitchen/add_plan`, data, { headers });
         dispatch(setAddPlanData(response.data));
         dispatch(getPlanDetails(null))
-
         navigation.navigate('PlanStepper', { planId: response.data.data.planId })
     } catch (error) {
         if (error.response) {

@@ -5,6 +5,7 @@ import HeaderImage from '../../assets/header-image.svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setOtpSuccess, setUserData } from '../../reducers/authSlice';
 import { useDispatch } from 'react-redux';
+import { setKitchenApproved } from '../../reducers/kitchenSlice';
 
 const ApprovedScreen = ({navigation}) => {
 
@@ -25,10 +26,11 @@ const ApprovedScreen = ({navigation}) => {
     }, []);
 
     const handleLogin = () => {
-      navigation.navigate('Login'); 
+      dispatch(setKitchenApproved({kitchenApproved: 'kitchenApproved'}))
       AsyncStorage.setItem('kitchenApproved','kitchenApproved');
       dispatch(setUserData({data: null,loading: false, error: null}))
       dispatch(setOtpSuccess({data: null,loading: false, error: null}))
+      navigation.navigate('Login'); 
     }
     
   return (
