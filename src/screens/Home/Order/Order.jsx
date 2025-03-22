@@ -18,8 +18,7 @@ const Order = ({ navigation }) => {
   }, [selectedTab])
 
   return (
-    <SafeAreaView>
-      <View className="h-screen bg-white">
+    <SafeAreaView className="flex-1 bg-white">
       <ScrollView>
         <Navbar screen={'Order'} noBackArrow={true} />
         <View className="px-[16] bg-white mb-10">
@@ -54,11 +53,10 @@ const Order = ({ navigation }) => {
               />
             </View> : orderData?.data?.data?.data?.length > 0 ? orderData?.data?.data?.data?.map((order, ind) => (
               <OrderCard key={ind} navigation={navigation} order={order} arrow={true} status={selectedTab == 'ongoing'} />
-            )) : <Text className="poppins-medium text-[16px] text-[#737373] text-center mt-[160]">No data found</Text>}
+            )) : <Text className="poppins-medium text-[16px] text-[#737373] text-center mt-[200]">No data found</Text>}
           </View>
         </View>
       </ScrollView>
-      </View>
     </SafeAreaView>
   );
 }

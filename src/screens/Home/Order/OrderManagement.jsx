@@ -7,13 +7,14 @@ import { useDispatch, useSelector } from 'react-redux'
 import SwipeButton from "rn-swipe-button";
 import { assignRiderData, getOrderInfo, getRiderData, updateOrderStatus } from '../../../reducers/orderSlice'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import LottieView from 'lottie-react-native'
 
 const OrderManagement = ({ navigation, route }) => {
 
   const { orderId } = route.params;
   const [modalVisible, setModalVisible] = useState(false)
   const [riderDetail, setRiderDetail] = useState('')
-  const { viewOrderInfo, riderData, assignRider } = useSelector(state => state.order)
+  const { viewOrderInfo, riderData, assignRider, loading } = useSelector(state => state.order)
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -48,7 +49,14 @@ const OrderManagement = ({ navigation, route }) => {
       <View className='bg-white h-screen'>
         <Navbar screen={'Order Management'} />
         <ScrollView>
-          <View className='px-[16] mb-10'>
+          {loading ? <View className="items-center justify-center mt-[160]">
+            <LottieView
+              source={require("../../../assets/pan-loader")}
+              autoPlay
+              loop
+              style={{ width: 150, height: 150 }}
+            />
+          </View> : <View className='px-[16] mb-10'>
             <View style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)' }} className='py-[9] rounded-[10] mt-[26]'>
               {viewOrderInfo?.data?.data?.plan_info?.map((elm, ind) => {
                 return <View key={ind} className={`${ind != viewOrderInfo?.data?.data?.plan_info.length - 1 ? 'border-b border-gray-300' : 'mt-2'} px-2`}>
@@ -140,7 +148,7 @@ const OrderManagement = ({ navigation, route }) => {
                 </TouchableOpacity>}
               </View>
             })}
-          </View>
+          </View>}
         </ScrollView>
       </View>
     </SafeAreaView>

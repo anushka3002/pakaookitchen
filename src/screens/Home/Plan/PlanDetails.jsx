@@ -18,9 +18,9 @@ const PlanDetails = ({ navigation, route }) => {
             planId: Number(menuDraft.data.data.planId),
             status: 'submitted'
         }
-        if (edit == 1) {
+        if (editMenu == 1) {
             dispatch(getMenuDraft(planData.id, 0, 0, 1, null, null, null))
-            navigation.navigate('PlanStepper', { planId: planData.id, planData: planData, ind: ind, edit: 0 })
+            navigation.navigate('PlanStepper', { planId: planData.id, planData: planData, ind: ind, edit: 1 })
         } else {
             dispatch(submitMenu(data, navigation))
         }
@@ -58,39 +58,38 @@ const PlanDetails = ({ navigation, route }) => {
                         })}
                     </View>
 
-                    {menuDraft?.data?.data?.menu?.length > 0 ? menuDraft?.data?.data?.menu?.map((el, ind) => {
-                        if (mealType == 'Veg' && el?.vegItem?.length > 0) {
-                            return <View style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)' }} key={ind} className='rounded-[10] w-full mb-[15]'>
+                    {menuDraft?.data?.data?.menu?.length > 0 ? (() => {
+                        const filteredMenu = menuDraft.data.data.menu.filter(el => mealType === 'Veg' ? el.vegItem?.length > 0 : el.nvegItem?.length > 0);
+
+                        if (filteredMenu.length === 0) {
+                            return <Text className='poppins-medium txt-grey text-[18px] text-center mt-[100]'>No data found</Text>
+                        }
+
+                        return filteredMenu.map((el, ind) => (
+                            <View style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)' }} key={ind} className='rounded-[10] w-full mb-[15]'>
                                 <View className='btn-light-blue rounded-t-[10] py-[9] px-[10]'>
-                                    <Text className='text-[15px] poppins-medium txt-blue'>{el.day.split('')[0].toUpperCase() + el.day.slice(1)}</Text>
+                                    <Text className='text-[15px] poppins-medium txt-blue'>
+                                        {el.day.charAt(0).toUpperCase() + el.day.slice(1)}
+                                    </Text>
                                 </View>
                                 <View className='flex-row flex-wrap py-[9] rounded-b-[10] px-[10]'>
-                                    {el.vegItem.map((elm, index) => {
-                                        return <Text key={index} className='text-[13px] poppins-regular mr-[14]'>{elm.item_name} - {elm.quantity ? elm.quantity + 'qty' : elm.weight + 'gm'}</Text>
-                                    })}
+                                    {(mealType === 'Veg' ? el.vegItem : el.nvegItem).map((elm, index) => (
+                                        <Text key={index} className='text-[13px] poppins-regular mr-[14]'>
+                                            {elm.item_name} - {elm.quantity ? `${elm.quantity} qty` : `${elm.weight} gm`}
+                                        </Text>
+                                    ))}
                                 </View>
                             </View>
-                        } else if (el?.nvegItem?.length > 0) {
-                            return <View style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)' }} key={ind} className='w-full rounded-[10] mb-[15]'>
-                                <View className='btn-light-blue rounded-t-[10] py-[9] px-[10]'>
-                                    <Text className='text-[15px] poppins-medium txt-blue'>{el.day.split('')[0].toUpperCase() + el.day.slice(1)}</Text>
-                                </View>
-                                <View className='flex-row flex-wrap py-[9] px-[10]'>
-                                    {el.nvegItem.map((elm, index) => {
-                                        return <Text key={index} className='text-[13px] poppins-regular'>{elm.item_name} - {elm.quantity ? elm.quantity + 'qty' : elm.weight + 'gm'}</Text>
-                                    })}
-                                </View>
-                            </View>
-                        }
-                    }) : <Text className='poppins-medium txt-grey text-[18px] text-center mt-[100]'>No data found</Text>}
+                        ));
+                    })() : <Text className='poppins-medium txt-grey text-[18px] text-center mt-[100]'>No data found</Text>}
                 </View>
             </ScrollView>
 
-            {(editMenu == 0 || editMenu == 1) && <View className={`absolute bottom-0 left-0 w-full bg-white pt-[17] ${Platform.OS == 'ios' ? 'pb-[23]' : 'pb-[12]'} items-center px-5 shadow-lg border-t border-gray-200`} 
-            style={{boxShadow:'0px 0px 10px 0px rgba(0, 0, 0, 0.13)'}}>
+            {(editMenu == 0 || editMenu == 1) && <View className={`absolute bottom-0 left-0 w-full bg-white pt-[17] ${Platform.OS == 'ios' ? 'pb-[23]' : 'pb-[12]'} items-center px-5 shadow-lg border-t border-gray-200`}
+                style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)' }}>
                 <TouchableOpacity onPress={handleSubmit} style={{ gap: 8 }} className='w-[125px] border border-[#2650D8] rounded-[10] py-2 flex-row items-center justify-center'>
                     <EditIcon />
-                    <Text className="txt-blue text-center text-[17px] poppins-semibold">{edit == 0 ? 'Submit': 'Edit'}</Text>
+                    <Text className="txt-blue text-center text-[17px] poppins-semibold">{editMenu == 0 ? 'Submit' : 'Edit'}</Text>
                 </TouchableOpacity>
             </View>}
         </SafeAreaView>
