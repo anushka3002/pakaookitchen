@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Button } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Button } from 'react-native'
 import React, { useEffect, useState } from 'react';
 import { LinearGradient } from 'react-native-linear-gradient';
 import Arrow from '../../assets/payout-blue-arrow';
@@ -9,6 +9,7 @@ import { getCurrentCycle, getTransactions } from '../../reducers/profileSlice';
 import { formatPayoutDate } from '../../constant';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import LottieView from 'lottie-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Payouts = ({ navigation }) => {
 
@@ -53,7 +54,7 @@ const Payouts = ({ navigation }) => {
   };
   
   return (
-    <SafeAreaView>
+    <SafeAreaView className="bg-[#2650D8]">
       <View className='h-screen bg-white'>
         <ScrollView>
           <LinearGradient
