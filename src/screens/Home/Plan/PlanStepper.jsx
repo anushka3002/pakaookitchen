@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Navbar from '../../Components/Navbar'
 import Dots from '../../../assets/dots'
@@ -10,21 +10,17 @@ import NvegInactive from '../../../assets/non-veg-inactive'
 import BothInactive from '../../../assets/both-inactive'
 import BothActive from '../../../assets/both-active'
 import Cross from '../../../assets/cross'
-import Dash from '../../../assets/dash'
 import VerticalBar from '../../../assets/vertical-bar'
 import Drop from '../../../assets/drop'
 import { useDispatch, useSelector } from 'react-redux'
 import { addFoodDetails, getMenuDraft, getPlanDetails } from '../../../reducers/planSlice'
-import LottieView from "lottie-react-native";
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 const PlanStepper = ({ navigation, route }) => {
 
     const { planId, planData, ind, edit } = route.params
-    const [stepper, setStepper] = useState([])
     const [currentIndex, setCurrentIndex] = useState(0);
     const { menuDraft, planDetails, addItemDetails } = useSelector(state => state.plan)
-    const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     const [foodType, setFoodType] = useState('')
     const [loading, setLoading] = useState(false)
     const [vegFoodItem, setVegFoodItem] = useState("");
@@ -281,7 +277,7 @@ const PlanStepper = ({ navigation, route }) => {
                         </View>
 
                         {/* non veg food list */}
-                        {nvegFoodList.map((item, index) => {
+                        {nvegFoodList?.map((item, index) => {
                             return <View key={index} className='border border-[#D6D6D6] rounded-[10px] flex-row items-center justify-between mb-[10]'>
                                 <View className='flex-row'>
                                     <TouchableOpacity onPress={() => removeFoodItem(index, 'nveg')} style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' }} className='flex-row border border-[#D6D6D6] items-center py-[7px] px-3 m-2 rounded-[10]'>

@@ -111,7 +111,11 @@ export const getPlanDetails = (meal) => async (dispatch) => {
         dispatch(setPlanDetailsData(response.data));
     } catch (error) {
         if (error.response) {
+            if(error.response.status == 502) {
+                dispatch(setPlanDetailsError('Server error'));
+            }else{
             dispatch(setPlanDetailsError(error.response.data.error));
+            }
         } else {
             dispatch(setPlanDetailsError(error.message));
         }
@@ -214,7 +218,7 @@ export const submitMenu = (menu, navigation) => async (dispatch) => {
 
         const response = await axios.put(`${REACT_NATIVE_FOOD_API}/kitchen/submit_menu`, menu, { headers });
         dispatch(setSubmitMenuData(response.data));
-        navigation.navigate('Plan')
+        navigation.replace('Plan')
     } catch (error) {
         if (error.response) {
             dispatch(setSubmitMenuError(error.response.data.error));
