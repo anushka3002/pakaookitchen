@@ -27,7 +27,7 @@ const Map = ({ geolocation, getCurrentLocation, selectedLocation }) => {
         <View style={styles.container}>
           <MapView
             ref={mapRef}
-            provider={Platform.OS === "ios" ? undefined : PROVIDER_GOOGLE}
+            provider={PROVIDER_GOOGLE} //Platform.OS === "ios" ? undefined : PROVIDER_GOOGLE
             style={styles.map}
             region={{
               latitude: geolocation?.data?.lat || 20.5937,

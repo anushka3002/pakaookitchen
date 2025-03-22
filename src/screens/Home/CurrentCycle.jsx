@@ -43,36 +43,36 @@ const CurrentCycle = ({route}) => {
                             <View style={{ borderTopWidth: 1, borderTopColor: '#FFF' }} className='mt-[14] mb-[16]'></View>
                             <View className='flex-row justify-between items-center'>
                                 <Text className='text-[12px] poppins-medium text-white'>Total Order Value</Text>
-                                <Text className='text-[12px] poppins-bold text-white'>₹ {value?.total_amount}</Text>
+                                <Text className='text-[12px] poppins-bold text-white'>₹ {value?.total_amount ?? 0}</Text>
                             </View>
                             <View className='flex-row justify-between items-center'>
                                 <Text className='text-[12px] poppins-medium text-white'>Pakaoo Commission (20%)</Text>
-                                <Text className='text-[12px] poppins-bold text-[#FF4646]'>₹ {value?.commission}</Text>
+                                <Text className='text-[12px] poppins-bold text-[#FF4646]'>₹ {value?.commission ?? 0}</Text>
                             </View>
                             <View className='flex-row justify-between items-center'>
                                 <Text className='text-[12px] poppins-medium text-white'>GST on Commission (18%)</Text>
-                                <Text className='text-[12px] poppins-bold text-[#FF4646]'>₹ {value?.commission_gst}</Text>
+                                <Text className='text-[12px] poppins-bold text-[#FF4646]'>₹ {value?.commission_gst ?? 0}</Text>
                             </View>
                             <View className='flex-row justify-between items-center'>
                                 <Text className='text-[12px] poppins-medium text-white'>Refund Hold (30%)</Text>
-                                <Text className='text-[12px] poppins-bold text-[#FF4646]'>₹ {value?.amount_hold}</Text>
+                                <Text className='text-[12px] poppins-bold text-[#FF4646]'>₹ {value?.amount_hold ?? 0}</Text>
                             </View>
                             <View className='flex-row justify-between items-center'>
                                 <Text className='text-[12px] poppins-medium text-white'>Immediate Payout to Vendor</Text>
-                                <Text className='text-[12px] poppins-bold text-[#4DE56F]'>₹ {value?.immediate_payout}</Text>
+                                <Text className='text-[12px] poppins-bold text-[#4DE56F]'>₹ {value?.immediate_payout ?? 0}</Text>
                             </View>
                             <View className='flex-row justify-between items-center'>
                                 <Text className='text-[12px] poppins-medium text-white'>Refund Deducted from Hold</Text>
-                                <Text className='text-[12px] poppins-bold text-[#FF4646]'>₹ {value?.refund}</Text>
+                                <Text className='text-[12px] poppins-bold text-[#FF4646]'>₹ {value?.refund ?? 0}</Text>
                             </View>
                             <View className='flex-row justify-between items-center'>
                                 <Text className='text-[12px] poppins-medium text-white'>Final Hold Amount Released</Text>
-                                <Text className='text-[12px] poppins-bold text-[#4DE56F]'>₹ {value?.release_hold_amount}</Text>
+                                <Text className='text-[12px] poppins-bold text-[#4DE56F]'>₹ {value?.release_hold_amount ?? 0}</Text>
                             </View>
                             <View style={{ borderTopWidth: 1, borderTopColor: '#FFF' }} className='mt-[14] mb-[10]'></View>
                             <View className='flex-row justify-between items-center'>
                                 <Text className='text-[12px] poppins-bold text-white'>Total Final Vendor Payout</Text>
-                                <Text className='text-[12px] poppins-bold text-white'>₹ {value?.payout}</Text>
+                                <Text className='text-[12px] poppins-bold text-white'>₹ {value?.payout ?? 0}</Text>
                             </View>
                             <View style={{ borderTopWidth: 1, borderTopColor: '#FFF' }} className='mt-[10]'></View>
                             </View>

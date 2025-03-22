@@ -1,10 +1,12 @@
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Navbar from '../../Components/Navbar'
 import Dots from '../../../assets/dots'
 import BlueTick from '../../../assets/blue-tick'
 import VegActive from '../../../assets/veg-active'
 import VegInactive from '../../../assets/veg-inactive'
+import NvegActive from '../../../assets/non-veg-active'
+import NvegInactive from '../../../assets/non-veg-inactive'
 import BothInactive from '../../../assets/both-inactive'
 import BothActive from '../../../assets/both-active'
 import Cross from '../../../assets/cross'
@@ -105,7 +107,7 @@ const PlanStepper = ({ navigation, route }) => {
     }, [menuDraft]);
 
     useEffect(() => {
-        setFoodType(planDetails?.data?.data?.meal_type.veg ? 'Veg' : 'Both')
+        setFoodType(planDetails?.data?.data?.meal_type?.veg ? 'Veg' : 'Both')
     }, [])
 
     useEffect(() => {
@@ -133,42 +135,55 @@ const PlanStepper = ({ navigation, route }) => {
         }).catch(() => setLoading(false))
     }
 
-    const handlePreview = async () =>{
-        navigation.navigate('PlanDetails',{planData: planData, ind: ind })
+    const handlePreview = async () => {
+        navigation.navigate('PlanDetails', { planData: planData, ind: ind, editMenu: 0 })
     }
 
     const menuDataVal = menuDraft?.data?.data?.menu;
+    const lastIndex = menuDataVal
+        ?.map((val, index) => ({ ...val, index }))
+        .reverse()
+        .find(val => val.veg === 1 || val.nveg === 1)?.index;
+
+    const nextDay =
+        lastIndex !== undefined
+            ? lastIndex === menuDataVal.length - 1
+                ? menuDataVal[lastIndex].day 
+                : menuDataVal[lastIndex + 1].day 
+            : "No Selection";
 
     return (
-        <SafeAreaView>
+        <SafeAreaView className='bg-white flex-1'>
             <Navbar screen={'Plan'} />
-            <View className='bg-white h-screen'>
             <ScrollView>
-                <View className='mx-4'>
+                <View className='mx-4 pb-4'>
                     <View className='flex-row items-center justify-center mt-5'>
                         {menuDraft?.data?.data?.menu.map((e, ind) => {
                             return (
                                 <View key={ind}>
                                     <View className='flex-row items-center justify-center'>
-                                        <TouchableOpacity onPress={() => setStepper([...stepper, ind])}>
-                                            {(e?.vegItem?.length > 0 || e?.nvegItem?.length) > 0 ? <BlueTick /> : <View style={{ width: 33, height: 33 }}
+                                        <TouchableOpacity>
+                                            {(e?.vegItem?.length > 0 || e?.nvegItem?.length > 0) ? <BlueTick /> : <View style={{ width: 33, height: 33 }}
                                                 className='border border-[#D6D6D6] items-center justify-center rounded-full'>
                                                 <Text className='text-[17px] poppins-medium txt-grey'>{e?.day?.split('')[0].toUpperCase()}</Text></View>}
                                         </TouchableOpacity>
-                                        {ind < weekdays.length - 1 && <View className='mx-1'><Dots /></View>}
+                                        {ind < menuDraft?.data?.data?.menu?.length - 1 && <View style={{ gap: 2 }} className='mx-1 flex-row'>
+                                            <Dots />{menuDraft?.data?.data?.menu?.length == 5 && <><Dots /><Dots /></>}
+                                        </View>}
                                     </View>
                                 </View>
                             )
                         })}
                     </View>
 
-                    <Text className='mt-4 text-[15px] poppins-medium'>{stepper.length == 0 ? weekdays[0] : weekdays[stepper[stepper.length - 1]]}</Text>
+                    <Text className='mt-4 text-[15px] poppins-medium'>{nextDay.split('')[0].toUpperCase() + nextDay.slice(1)}</Text>
                     <View style={{ gap: 10 }} className='flex-row mt-2'>
-                        {[planDetails?.data?.data?.meal_type.veg && 'Veg', planDetails?.data?.data?.meal_type.nveg && 'Both'].map((elm, ind) => {
+                        {[planDetails?.data?.data?.meal_type?.veg && 'Veg', planDetails?.data?.data?.meal_type?.nveg && 'Non veg', planDetails?.data?.data?.meal_type?.nveg && 'Both'].map((elm, ind) => {
                             return <TouchableOpacity key={ind} style={{ borderWidth: 1, borderColor: foodType == elm ? 'rgba(38, 80, 216, 0.50)' : '#D6D6D6' }} onPress={() => setFoodType(elm)}
-                                className={`${foodType == elm ? 'selectedFoodType' : ''} rounded-[10px] py-[7px] flex-row ${planDetails?.data?.data?.meal_type.veg && planDetails?.data?.data?.meal_type.nveg ? 'flex-1' : 'w-[50%'} items-center justify-center`}>
+                                className={`${foodType == elm ? 'selectedFoodType' : ''} rounded-[10px] py-[7px] flex-row ${planDetails?.data?.data?.meal_type?.veg && planDetails?.data?.data?.meal_type?.nveg ? 'flex-1' : 'w-[50%'} items-center justify-center`}>
                                 {elm === 'Veg' && (foodType == elm ? <VegActive /> : <VegInactive />)}
-                                {elm === 'Both' && planDetails?.data?.data.meal_type.nveg && (foodType == elm ? <BothActive /> : <BothInactive />)}
+                                {elm === 'Non veg' && (foodType == elm ? <NvegActive /> : <NvegInactive />)}
+                                {elm === 'Both' && planDetails?.data?.data?.meal_type?.nveg && (foodType == elm ? <BothActive /> : <BothInactive />)}
                                 <Text className={`text-[13px] poppins-medium ${elm == foodType ? 'text-black' : 'txt-grey'} ml-2`}>{elm}</Text>
                             </TouchableOpacity>
                         })}
@@ -210,7 +225,7 @@ const PlanStepper = ({ navigation, route }) => {
                                         </View>
                                         <TextInput
                                             className="poppins-regular text-[#7B7B7B] text-[14px] mr-[11]"
-                                            placeholder={selectedUnit == "gm" ? "Enter Gram" : "Enter quantity"}
+                                            placeholder="Enter value"
                                             keyboardType="number-pad"
                                             value={item.weight ? item.weight.toString() : item.quantity ? item.quantity.toString() : ""}
                                             onChangeText={(text) => updateFoodItem(index, selectedUnit == "gm" ? "weight" : "quantity", text, "veg")}
@@ -250,7 +265,7 @@ const PlanStepper = ({ navigation, route }) => {
                         })}
                     </View>}
 
-                    {foodType == 'Both' && <Text className='poppins-medium mt-5'>Non Veg Items</Text>}
+                    {(foodType == 'Non veg' || foodType == 'Both') && <Text className='poppins-medium mt-5'>Non Veg Items</Text>}
                     {(foodType == 'Non veg' || foodType == 'Both') && <View className="mt-[15]">
                         <View className='border border-gray-300 rounded-[10] flex-row justify-between mb-4'>
                             <TextInput
@@ -278,7 +293,7 @@ const PlanStepper = ({ navigation, route }) => {
                                     <View className='mr-[10] ml-[4]'><VerticalBar /></View>
                                     <TextInput
                                         className='poppins-regular text-[#7B7B7B] text-[14px] mr-[11]'
-                                        placeholder='Enter Gram'
+                                        placeholder='Enter value'
                                         keyboardType='numeric'
                                         value={item.weight ? item.weight.toString() : ""}
                                         onChangeText={(text) => updateFoodItem(index, "weight", text, 'nveg')}
@@ -315,50 +330,28 @@ const PlanStepper = ({ navigation, route }) => {
                             </View>
                         })}
                     </View>}
-                    {(menuDataVal[menuDataVal?.length-1]?.veg == 0 && menuDataVal[menuDataVal?.length-1].nveg == 0) && <TouchableOpacity
-                        style={{ height: 48 }}
+
+                    {(menuDataVal[menuDataVal?.length - 1]?.veg > 0 || menuDataVal[menuDataVal?.length - 1]?.nveg > 0) ? <TouchableOpacity
+                        onPress={() => handlePreview()}
+                        className='btn-color mt-[10] rounded-[10] items-center justify-center py-2'>
+                        <Text className='text-[18px] text-center text-white poppins-medium'>Preview</Text>
+                    </TouchableOpacity> : <TouchableOpacity
                         onPress={handlePlanSubmit}
                         disabled={
                             vegFoodList.length === 0 && nvegFoodList.length === 0 ||
                             vegFoodList.some(item => item.quantity === "" && item.weight === "") ||
-                            nvegFoodList.some(item => item.quantity === "" && item.weight === "")
-                        }
+                            nvegFoodList.some(item => item.quantity === "" && item.weight === "")}
                         className={`${vegFoodList.length === 0 && nvegFoodList.length === 0 ||
                             vegFoodList.some(item => item.quantity === "" && item.weight === "") ||
                             nvegFoodList.some(item => item.quantity === "" && item.weight === "")
                             ? 'btn-disabled' : 'btn-color'
-                            } mt-[10] rounded-[10] items-center justify-center`}>
-                        {loading ? <LottieView
-                            source={require("../../../assets/pan-loader.json")}
-                            autoPlay
-                            loop
-                            style={styles.animation}
-                        /> : <Text className='text-[18px] text-center text-white poppins-medium'>Next</Text>}
-                    </TouchableOpacity>}
-
-                    {(menuDataVal[menuDataVal?.length-1].veg > 0 || menuDataVal[menuDataVal?.length-1].nveg > 0) && <TouchableOpacity 
-                    onPress={()=>handlePreview()}
-                    style={{ height: 48 }} className='btn-color mt-[10] rounded-[10] items-center justify-center'>
-                        <Text className='text-[18px] text-center text-white poppins-medium'>Preview</Text>
+                            } mt-[10] rounded-[10] items-center justify-center py-2`}>
+                        {loading ? <ActivityIndicator size="large" color="#FFFFFF" /> : <Text className='text-[18px] text-center text-white poppins-medium'>Next</Text>}
                     </TouchableOpacity>}
                 </View>
             </ScrollView>
-            </View>
         </SafeAreaView>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#fff",
-    },
-    animation: {
-        width: 45,
-        height: 45,
-    },
-});
 
 export default PlanStepper

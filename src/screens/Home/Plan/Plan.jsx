@@ -28,9 +28,10 @@ const Plan = ({navigation}) => {
     <SafeAreaView>
     <View className='bg-white h-screen'>
     <Navbar screen={'Plan'}/>
-    <View style={{gap:20}} className='pt-6 pb-2 flex-row items-center justify-center'>
+    <View style={{gap:20}} className='pt-6 pb-2 flex-row flex-wrap items-center justify-center'>
       {planDetails?.data?.data?.mealNames.map((el, ind)=>{
-        return <TouchableOpacity key={ind} onPress={()=>dispatch(getPlanDetails(el))}><Text style={[el == planDetails?.data?.data?.selectedMeal ? styles.blueBtn : styles.whiteBtn, {boxShadow: '0 -1px 14px rgba(0, 0, 0, 0.13)'}]} 
+        return <TouchableOpacity key={ind} onPress={()=>dispatch(getPlanDetails(el))}><Text style={[el == planDetails?.data?.data?.selectedMeal ? 
+        styles.blueBtn : styles.whiteBtn, {boxShadow: '0 -1px 14px rgba(0, 0, 0, 0.13)'}]} 
         className='text-[15px] poppins-medium text-white rounded-[30px] px-10 py-2'>{el.split('')[0].toUpperCase()+el.slice(1)}</Text></TouchableOpacity>
       })}
     </View>
@@ -59,7 +60,7 @@ const Plan = ({navigation}) => {
         source={{uri: elm.packaging_preview}}
         />
         <View className='flex-1 px-4 py-2 realtive'>
-          <View style={{top:-12, width:100}} className={`absolute right-0 ${elm.status == 'pending' ? 'bg-[#FBAE1E]' : 'bg-[#008000]'} bg-opacity-100 rounded-2xl py-1 z-10`}>
+          <View style={{top:-14, width:100}} className={`absolute right-[20] ${elm.status == 'pending' ? 'bg-[#FBAE1E]' : 'bg-[#008000]'} bg-opacity-100 rounded-2xl py-1 z-10`}>
             <Text className='poppins-medium text-[11px] text-center text-white'>{elm.status.split('')[0].toUpperCase()+elm.status.slice(1)}</Text></View>
           <Text className='text-[17px] poppins-semibold'>{elm.name.length > 19 ? elm.name.slice(0, 19) + '...' : elm.name}</Text>
           <Text className='text-[15px] poppins-medium txt-grey'>Plan - {index+1}</Text>

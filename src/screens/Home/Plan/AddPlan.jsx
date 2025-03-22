@@ -139,7 +139,7 @@ const AddPlan = ({ navigation }) => {
           />
           {errors.nvegPrice && <Text className='text-red-500 poppins-regular text-xs mt-1'>{errors.nvegPrice.message}</Text>}
 
-          <View style={{ gap: 20 }} className='mt-7 flex-row items-center'>
+          <View style={{ gap: 20 }} className='mt-7 flex-row flex-wrap items-center'>
             {planDetails?.data?.data?.mealNames.map((el, ind)=>{
               return <TouchableOpacity key={ind} onPress={() => {setMealTime(el);setValue('mealTime', el);}}><Text style={[mealTime == el ? styles.blueBtn : styles.whiteBtn, {
                 boxShadow: '0 -1px 14px rgba(0, 0, 0, 0.13)',

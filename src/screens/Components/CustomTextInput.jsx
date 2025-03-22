@@ -5,7 +5,7 @@ import { Controller } from 'react-hook-form'
 const CustomTextInput = ({control, label, name, placeholder, errors, capitalize, keyboard}) => {
   return (
     <View className="mb-[20]">
-          <Text className="text-[15px] poppins-medium mb-[14]">{label}<Text className="text-red-500">*</Text></Text>
+          <Text className="text-[15px] poppins-medium mb-[14] leading-none">{label}<Text className="text-red-500">*</Text></Text>
           <Controller
             control={control}
             name={name}

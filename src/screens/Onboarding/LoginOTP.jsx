@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserData, login, setUserData } from '../../reducers/authSlice';
 import Otp from '../../assets/otp.svg';
@@ -138,9 +138,8 @@ const LoginOTP = ({ navigation, route }) => {
             onKeyPress={(e) => handleKeyPress(e, index)}
             keyboardType="numeric"
             maxLength={1}
-            className="w-[46px] mx-2 py-3 leading-normal rounded-[10px] border-[2px] border-[#D6D6D6] 
-            text-center text-lg poppins-semibold text-black focus:border-[#2650D8]
-            leading-none"
+            className={`w-[46px] ${Platform.OS == 'ios' ? 'py-3 leading-normal' : 'py-2'} mx-2 rounded-[10px] border-[2px] border-[#D6D6D6] 
+            text-center text-lg poppins-semibold text-black focus:border-[#2650D8]`}
           />
         ))}
       </View>
