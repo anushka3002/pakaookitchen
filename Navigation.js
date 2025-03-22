@@ -161,11 +161,7 @@ function RootStack({ initialRoute }) {
 function AppWrapper() {
   const dispatch = useDispatch();
   const kitchenStatus = useSelector(state => state.kitchenData?.kitchenStatus);
-  const { logout, loading, auth_token , otp} = useSelector(state => state.auth)
-  const { loading: kitchenLoading, kitchenApproved } = useSelector(state => state.kitchenData)
-  const { loading: orderLoading } = useSelector(state => state.order)
-  const { loading: planLoading } = useSelector(state => state.plan)
-  const { loading: profileLoading } = useSelector(state => state.profileData)
+  const { logout, loading } = useSelector(state => state.auth)
 
   const [initialRoute, setInitialRoute] = useState(null);
   const [authToken, setAuthToken] = useState(null);
@@ -174,6 +170,7 @@ function AppWrapper() {
 
   useEffect(() => {
     dispatch(getPublicKey());
+
     const fetchInitialRoute = async () => {
       try {
         const token = await EncryptedStorage.getItem('auth_token');
@@ -185,10 +182,13 @@ function AppWrapper() {
         }
       } catch (error) {
         setInitialRoute("Login");
+      } finally {
+        setInitialLoading(false); 
       }
     };
+
     fetchInitialRoute();
-  }, [dispatch, logout, authToken]);
+  }, [dispatch, logout]); 
 
   useEffect(() => {
     const fetchKitchenStatus = async () => {
@@ -202,8 +202,8 @@ function AppWrapper() {
     fetchKitchenStatus();
   }, []);
 
-  const status = kitchenStatus?.data?.data?.status
-  const kitchen_added = kitchenStatus?.data?.data?.kitchen_added
+  const status = kitchenStatus?.data?.data?.status;
+  const kitchen_added = kitchenStatus?.data?.data?.kitchen_added;
 
   useEffect(() => {
     if (authToken !== null) {
@@ -213,36 +213,37 @@ function AppWrapper() {
         setInitialRoute("Pending");
       } else if (status === 'approved') {
         if (kitchen_added) {
-          setInitialRoute('Home')
+          setInitialRoute('Home');
         } else if (!kitchen_added && storedKitchenStatus) {
           setInitialRoute("AddKitchen");
-        } else if(!kitchen_added && !storedKitchenStatus) {
-          setInitialRoute('Approved')
+        } else if (!kitchen_added && !storedKitchenStatus) {
+          setInitialRoute('Approved');
         }
       } else if (status === 'rejected') {
         setInitialRoute("Rejected");
       }
     }
-    setInitialLoading(false)
-  }, [authToken, status]);
+  }, [authToken, status, storedKitchenStatus]);
 
   useEffect(() => {
-    if (!loading && initialRoute !== null) {
+    if (!loading && initialRoute !== null && !initialLoading) {
       SplashScreen.hide();
     }
-  }, [initialLoading, initialRoute]);
+  }, [loading, initialRoute, initialLoading]);
 
-  if (loading || initialRoute == null)
-    return <View className="items-center justify-center h-screen">
-      <LottieView
-        source={require("./src/assets/pan-loader")}
-        autoPlay
-        loop
-        style={{ width: 150, height: 150 }}
-      />
-    </View>
+  if (loading || initialLoading || initialRoute == null)
+    return (
+      <View className="items-center justify-center h-screen">
+        <LottieView
+          source={require("./src/assets/pan-loader")}
+          autoPlay
+          loop
+          style={{ width: 150, height: 150 }}
+        />
+      </View>
+    );
 
-  return <>{initialRoute && <RootStack initialRoute={initialRoute} />}</>
+  return <>{initialRoute && <RootStack initialRoute={initialRoute} />}</>;
 }
 
 export default function Navigation() {
