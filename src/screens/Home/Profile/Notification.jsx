@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Dimensions, TouchableOpacity, SafeAreaView } from 'react-native'
+import { View, Text, ScrollView, Dimensions, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Navbar from '../../Components/Navbar'
 import ReadTick from '../../../assets/read-tick'
@@ -10,6 +10,7 @@ import Updated from '../../../assets/updated-icon'
 import { useDispatch, useSelector } from 'react-redux'
 import { getNotification, readNotification } from '../../../reducers/profileSlice'
 import LottieView from 'lottie-react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const Notification = () => {
 
@@ -31,7 +32,7 @@ const Notification = () => {
     }
 
     return (
-        <SafeAreaView>
+        <SafeAreaView style={{flex: 1}}>
             <View className='bg-white h-screen'>
                 <Navbar screen={'Notification'} />
                 <ScrollView>

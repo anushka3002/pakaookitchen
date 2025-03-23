@@ -10,6 +10,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import DashboardIcon from '../../assets/dashboard';
 import { getNotification, getProfileData } from '../../reducers/profileSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Dashboard = ({ navigation }) => {
 
@@ -20,12 +21,12 @@ const Dashboard = ({ navigation }) => {
   ]
 
   useEffect(() => {
-      dispatch(getProfileData())
-      dispatch(getNotification())
+    dispatch(getProfileData())
+    dispatch(getNotification())
   }, [dispatch])
 
   return (
-    <View className='h-screen'>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F2F4FC' }} edges={["top", "left", "right"]}>
       <ScrollView className='bg-white'>
         <View style={{ backgroundColor: '#274FCF', overflow: 'visible' }}>
           <LinearGradient
@@ -34,36 +35,40 @@ const Dashboard = ({ navigation }) => {
             end={{ x: 1, y: 1 }}
             className="w-full"
           >
-            <View className={`px-[16] flex-row w-[100%] items-center justify-between ${Platform.OS == 'ios' ? 'mt-20' : 'mt-[31]'} mb-[24]`}>
-              <Dummy/>
-              <View className='px-1'>
-                <View className='flex-row items-center'>
-                  <Location />
-                  <Text className='text-white ml-2 text-[13px] poppins-semibold'>{profile?.data?.data?.address_line1.length > 30 ? profile?.data?.data?.address_line1.slice(0, 30) + '...' : profile?.data?.data?.address_line1}</Text>
-                </View>
-                <View className='flex-row'>
-                  <Text className='text-white text-[13px] poppins-semibold'>{profile?.data?.data?.kitchen_name}</Text>
-                  <Text className='text-[13px] poppins-medium text-white'>(</Text><View className='mt-[3] mr-1'><Rating /></View><Text className='text-[13px] poppins-medium text-white'>{profile?.data?.data?.rating ?? 0})</Text>
+            <View className={`px-[16] flex-row w-[100%] items-center justify-between ${Platform.OS == 'ios' ? 'mt-12' : 'mt-[12]'} mb-[12]`}>
+              <View className='items-center flex-row' style={{ gap: 13 }}>
+                <Dummy />
+                <View className='px-1'>
+                  <View className='flex-row items-center'>
+                    <Location />
+                    <Text className='text-white ml-2 text-[13px] poppins-semibold'>{profile?.data?.data?.address_line1.length > 30 ? profile?.data?.data?.address_line1.slice(0, 30) + '...' : profile?.data?.data?.address_line1}</Text>
+                  </View>
+                  <View className='flex-row'>
+                    <Text className='text-white text-[13px] poppins-semibold'>{profile?.data?.data?.kitchen_name}</Text>
+                    <Text className='text-[13px] poppins-medium text-white'>(</Text><View className='mt-[3] mr-1'><Rating /></View><Text className='text-[13px] poppins-medium text-white'>{profile?.data?.data?.rating ?? 0})</Text>
+                  </View>
                 </View>
               </View>
-              <TouchableOpacity onPress={()=>navigation.navigate('Notification')} className="relative">
+              <TouchableOpacity onPress={() => navigation.navigate('Notification')} className="relative">
                 <Notification />
                 <View className="absolute w-5 h-5 bg-red-500 rounded-full justify-center items-center"
                   style={{ left: 12, bottom: 8 }}>
                   <Text className="poppins-medium text-white text-[10px]">{notificationData?.data?.data?.length}</Text>
                 </View>
               </TouchableOpacity>
+
+
             </View>
           </LinearGradient>
         </View>
         <View className='items-center my-[11]'>
-        <DashboardIcon/>
+          <DashboardIcon />
         </View>
         <View className='mx-4'>
           <Text className='text-[21px] poppins-semibold mb-3'>Manage Your Business</Text>
           {business.map((elm, ind) => {
-            return <TouchableOpacity onPress={() => elm.title == 'View Plan' && navigation.navigate('Plan')} key={ind} style={[styles.whiteBtn,{boxShadow:'0px 0px 10px 0px rgba(0, 0, 0, 0.14)'}]} 
-            className='relative flex-row mb-5 pl-[16] pr-[18] py-3 justify-between items-center'>
+            return <TouchableOpacity onPress={() => elm.title == 'View Plan' && navigation.navigate('Plan')} key={ind} style={[styles.whiteBtn, { boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' }]}
+              className='relative flex-row mb-5 pl-[16] pr-[18] py-3 justify-between items-center'>
               <View className='flex-row items-center'>
                 {elm.icon}
                 <View className='ml-2 w-[85%]'>
@@ -76,7 +81,7 @@ const Dashboard = ({ navigation }) => {
           })}
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   )
 }
 

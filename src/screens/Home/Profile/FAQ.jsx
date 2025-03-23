@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Navbar from '../../Components/Navbar'
 import Dropup from '../../../assets/faq-dropup'
@@ -6,6 +6,7 @@ import Dropdown from '../../../assets/faq-dropdown'
 import { useDispatch, useSelector } from 'react-redux'
 import { getFAQ } from '../../../reducers/profileSlice'
 import LottieView from 'lottie-react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const FAQ = () => {
 

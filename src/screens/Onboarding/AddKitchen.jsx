@@ -104,10 +104,7 @@ const AddKitchen = ({ navigation }) => {
             "cuisineCategory": selectedCuisine,
             "foodStyle": foodId,
             "servingDays": day,
-            "mealTime": selectedMealTimes,
-            "breakfastDeliveryTime": formatTime(breakfastDeliveryTime),
-            "lunchDeliveryTime": formatTime(lunchDeliveryTime),
-            "dinnerDeliveryTime": formatTime(dinnerDeliveryTime),
+            "mealTime": selectedMealTimes
         }
         if (foodFlag) {
             dispatch(addKitchenData(data, navigation))
@@ -253,7 +250,7 @@ const AddKitchen = ({ navigation }) => {
                 </View>
 
                 {/* Time Inputs */}
-                {selectedMealTimes.map((meal, index) => (
+                {/* {selectedMealTimes.map((meal, index) => (
                     <View key={index} className="mb-4">
                         <Text className="text-[18px] poppins-semibold mb-2">{meal == 'breakfast' ? 'Breakfast' : meal == 'lunch' ? 'Lunch' : 'Dinner'} Time</Text>
                         <View
@@ -279,7 +276,7 @@ const AddKitchen = ({ navigation }) => {
                             />
                         )}
                     </View>
-                ))}
+                ))} */}
 
                 {/* Submit Button */}
                 <TouchableOpacity onPress={handleSubmit} className="btn-color py-[10] rounded-xl mt-2 mb-10">

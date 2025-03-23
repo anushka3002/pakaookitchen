@@ -168,6 +168,7 @@ export const addPlanDetails = (data, navigation) => async (dispatch) => {
         };
 
         const response = await axios.post(`${REACT_NATIVE_FOOD_API}/kitchen/add_plan`, data, { headers });
+        console.log(response)
         dispatch(setAddPlanData(response.data));
         dispatch(getPlanDetails(null))
         navigation.navigate('PlanStepper', { planId: response.data.data.planId })

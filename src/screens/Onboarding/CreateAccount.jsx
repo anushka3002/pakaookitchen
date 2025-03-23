@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
-  View, Text, TextInput, Platform, TouchableOpacity, Modal, ActivityIndicator, StyleSheet, ScrollView,
-  TouchableWithoutFeedback, PermissionsAndroid, BackHandler, Alert,
-  SafeAreaView
+  View, Text, TextInput, Platform, TouchableOpacity, Modal, ActivityIndicator, StyleSheet, ScrollView, Keyboard,
+  TouchableWithoutFeedback, PermissionsAndroid, BackHandler, Alert, KeyboardAvoidingView,
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -19,6 +18,8 @@ import CustomTextInput from "../Components/CustomTextInput";
 import CustomImageController from "../Components/CustomImageController";
 import Geolocation from '@react-native-community/geolocation';
 import { getAllInfo } from "../../reducers/profileSlice";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Loader from "../../Loader";
 
 const CreateAccount = ({ navigation }) => {
   const [images, setImages] = useState({
@@ -29,7 +30,8 @@ const CreateAccount = ({ navigation }) => {
   const [convertedExpiryDate, setConvertedExpiryDate] = useState(new Date())
   const [modalVisible, setModalVisible] = useState(false);
   const [showList, setShowList] = useState(false)
-  const { searchlocation, geolocation, locationCord, loading } = useSelector(state => state.map)
+  const { searchlocation, geolocation, locationCord } = useSelector(state => state.map)
+  const { loading } = useSelector(state => state.kitchenData)
   const { allInfoData } = useSelector(state => state.profileData)
   const { createProfile } = useSelector(state => state.kitchenData)
   const [show, setShow] = useState(false);
@@ -165,6 +167,7 @@ const CreateAccount = ({ navigation }) => {
     dispatch(createUserData(data))
   };
 
+
   useEffect(() => {
     const backAction = () => {
       Alert.alert("Exit App", "Are you sure you want to exit?", [
@@ -190,237 +193,246 @@ const CreateAccount = ({ navigation }) => {
   }, [createProfile])
 
   return (
-    <SafeAreaView>
-      <View className="h-screen">
-        <ScrollView className='flex-1 bg-white px-5 py-6'>
-          <Text className='text-[29px] poppins-bold text-center mb-1'>Create New Account</Text>
-          <Text style={{ color: '#7B7B7B' }} className='text-[14px] poppins-medium text-center mb-6'>
-            Enter your information below and get started.
-          </Text>
 
-          <View className='space-y-4'>
-            <CustomTextInput control={control} label={'Owner Name '} name={'owner_name'} placeholder={'Enter Owner Name'} errors={errors} capitalize={false} />
-            <CustomTextInput control={control} label={'Email '} name={'email'} placeholder={'Enter Email'} errors={errors} capitalize={false} />
-            <CustomTextInput control={control} label={'Kitchen Name '} name={'kitchen_name'} placeholder={'Enter Kitchen Name'} errors={errors} capitalize={false} />
-            <CustomTextInput control={control} label={'Aadhar Number '} name={'aadhar_number'} placeholder={'Enter Aadhar Number'} errors={errors} capitalize={false} keyboard={'number-pad'} />
+    <SafeAreaView className="bg-white" style={{ flex: 1 }}>
+      {loading ? <Loader /> :
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"} // Adjust for iOS and Android
+          style={{ flex: 1, backgroundColor: "#fff" }}
+        >
+          <ScrollView style={{ flex: 1 }}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ flexGrow: 1 }} className='bg-white px-5 py-6' keyboardShouldPersistTaps="handled">
+            <Text className='text-[29px] poppins-bold text-center mb-1'>Create New Account</Text>
+            <Text style={{ color: '#7B7B7B' }} className='text-[14px] poppins-medium text-center mb-6'>
+              Enter your information below and get started.
+            </Text>
 
-            <View className='mb-[20]'>
-              <Text className='text-[15px] poppins-medium mb-[14]'>
-                Aadhar Image <Text className='text-red-500'>*</Text>
-              </Text>
-              <View className='flex flex-row justify-between'>
-                <CustomImageController control={control} controllerName={'aadhar_front'} imageValue={'aadharFront'} setImages={setImages} images={images} imageName={'Front'} />
-                <CustomImageController control={control} controllerName={'aadhar_back'} imageValue={'aadharBack'} setImages={setImages} images={images} imageName={'Back'} />
+            <View className='space-y-4'>
+              <CustomTextInput control={control} label={'Owner Name '} name={'owner_name'} placeholder={'Enter Owner Name'} errors={errors} capitalize={false} />
+              <CustomTextInput control={control} label={'Email '} name={'email'} placeholder={'Enter Email'} errors={errors} capitalize={false} />
+              <CustomTextInput control={control} label={'Kitchen Name '} name={'kitchen_name'} placeholder={'Enter Kitchen Name'} errors={errors} capitalize={false} />
+              <CustomTextInput control={control} label={'Aadhar Number '} name={'aadhar_number'} placeholder={'Enter Aadhar Number'} errors={errors} capitalize={false} keyboard={'number-pad'} />
+
+              <View className='mb-[20]'>
+                <Text className='text-[15px] poppins-medium mb-[14]'>
+                  Aadhar Image <Text className='text-red-500'>*</Text>
+                </Text>
+                <View className='flex flex-row justify-between'>
+                  <CustomImageController control={control} controllerName={'aadhar_front'} imageValue={'aadharFront'} setImages={setImages} images={images} imageName={'Front'} />
+                  <CustomImageController control={control} controllerName={'aadhar_back'} imageValue={'aadharBack'} setImages={setImages} images={images} imageName={'Back'} />
+                </View>
+                {errors.aadhar_front && (
+                  <Text className="text-red-500 text-sm">{errors.aadhar_front.message}</Text>
+                )}
+                {errors.aadhar_back && (
+                  <Text className="text-red-500 mt-1 text-sm">{errors.aadhar_back.message}</Text>
+                )}
               </View>
-              {errors.aadhar_front && (
-                <Text className="text-red-500 text-sm">{errors.aadhar_front.message}</Text>
-              )}
-              {errors.aadhar_back && (
-                <Text className="text-red-500 mt-1 text-sm">{errors.aadhar_back.message}</Text>
-              )}
-            </View>
 
-            <CustomTextInput control={control} label={'PAN Number '} name={'pan_number'} placeholder={'Enter PAN Number'} errors={errors} capitalize={true} />
+              <CustomTextInput control={control} label={'PAN Number '} name={'pan_number'} placeholder={'Enter PAN Number'} errors={errors} capitalize={true} />
 
-            <View className="mb-[20]">
-              <Text className="text-[15px] poppins-medium mb-[14]">
-                PAN Image <Text className="text-red-500">*</Text>
-              </Text>
-              <View className="flex flex-row justify-between">
-                <CustomImageController control={control} controllerName={'pan_front'} imageValue={'panFront'} setImages={setImages} images={images} imageName={'Front'} />
-                <CustomImageController control={control} controllerName={'pan_back'} imageValue={'panBack'} setImages={setImages} images={images} imageName={'Back'} />
+              <View className="mb-[20]">
+                <Text className="text-[15px] poppins-medium mb-[14]">
+                  PAN Image <Text className="text-red-500">*</Text>
+                </Text>
+                <View className="flex flex-row justify-between">
+                  <CustomImageController control={control} controllerName={'pan_front'} imageValue={'panFront'} setImages={setImages} images={images} imageName={'Front'} />
+                  <CustomImageController control={control} controllerName={'pan_back'} imageValue={'panBack'} setImages={setImages} images={images} imageName={'Back'} />
+                </View>
+                {errors.pan_front && (
+                  <Text className="text-red-500 text-sm">{errors.pan_front.message}</Text>
+                )}
+                {errors.pan_back && (
+                  <Text className="text-red-500 text-sm mt-1">{errors.pan_back.message}</Text>
+                )}
               </View>
-              {errors.pan_front && (
-                <Text className="text-red-500 text-sm">{errors.pan_front.message}</Text>
-              )}
-              {errors.pan_back && (
-                <Text className="text-red-500 text-sm mt-1">{errors.pan_back.message}</Text>
-              )}
-            </View>
 
-            <CustomTextInput control={control} label={'GST Number '} name={'gst_number'} placeholder={'Enter GST Number'} errors={errors} capitalize={true} />
+              <CustomTextInput control={control} label={'GST Number '} name={'gst_number'} placeholder={'Enter GST Number'} errors={errors} capitalize={true} />
 
-            <View className="mb-[20]">
-              <Text className="text-[15px] poppins-medium mb-[14]">
-                GST Image <Text className="text-red-500">*</Text>
-              </Text>
+              <View className="mb-[20]">
+                <Text className="text-[15px] poppins-medium mb-[14]">
+                  GST Image <Text className="text-red-500">*</Text>
+                </Text>
 
-              <CustomImageController control={control} controllerName={'gst_image'} imageValue={'gstImage'} setImages={setImages} images={images} imageName={'Back'} />
+                <CustomImageController control={control} controllerName={'gst_image'} imageValue={'gstImage'} setImages={setImages} images={images} imageName={'Back'} />
 
-              {errors.gst_image && (
-                <Text className="text-red-500 text-sm">{errors.gst_image.message}</Text>
-              )}
-            </View>
-
-            <CustomTextInput control={control} label={'FSSAI Number '} name={'fssia_number'} placeholder={'Enter FSSAI Number'} errors={errors} capitalize={true} />
-            <View className="mb-[20]">
-              <Text className="text-[15px] poppins-medium mb-[14]">
-                FSSAI Image <Text className="text-red-500">*</Text>
-              </Text>
-              <CustomImageController control={control} controllerName={'fssai_image'} imageValue={'fssaiImage'} setImages={setImages} images={images} imageName={'Back'} />
-              {errors.fssai_image && (
-                <Text className="text-red-500 text-sm">{errors.fssai_image.message}</Text>
-              )}
-            </View>
-
-            <View className="mb-[20]">
-              <Text className="text-[15px] poppins-medium mb-[14]">FSSAI Expiry Date <Text className="text-red-500">*</Text></Text>
-              <View className="border border-gray-300 px-3 rounded-[10px] items-center flex-row justify-between">
-                <TextInput
-                  placeholder="Enter FSSAI Expiry Date"
-                  className="poppins-regular py-3"
-                  onChangeText={(e) => {
-                    setConvertedExpiryDate(e);
-                    setValue('fssai_expiry_date', e)
-                  }}
-                  value={convertedExpiryDate}
-                />
-                <TouchableOpacity onPress={() => setShow(true)}><DateImg /></TouchableOpacity>
+                {errors.gst_image && (
+                  <Text className="text-red-500 text-sm">{errors.gst_image.message}</Text>
+                )}
               </View>
-              {show && (
-                <DateTimePicker
-                  value={expiryDate}
-                  mode="date"
-                  display="default"
-                  onChange={handleExpiryDate}
-                />
-              )}
-              {errors.fssai_expiry_date && <Text className="text-red-500 text-sm">{errors.fssai_expiry_date.message}</Text>}
-            </View>
 
-            <View className="mb-[20]">
-              <View className="flex-row items-center"><Text className="text-[15px] poppins-medium mb-[14] mr-1">Kitchen Address <Text className="text-red-500">*</Text></Text><Info /></View>
-              <Controller
-                control={control}
-                name="address_line_one"
-                render={({ field: { onChange, value } }) => (
+              <CustomTextInput control={control} label={'FSSAI Number '} name={'fssia_number'} placeholder={'Enter FSSAI Number'} errors={errors} capitalize={true} />
+              <View className="mb-[20]">
+                <Text className="text-[15px] poppins-medium mb-[14]">
+                  FSSAI Image <Text className="text-red-500">*</Text>
+                </Text>
+                <CustomImageController control={control} controllerName={'fssai_image'} imageValue={'fssaiImage'} setImages={setImages} images={images} imageName={'Back'} />
+                {errors.fssai_image && (
+                  <Text className="text-red-500 text-sm">{errors.fssai_image.message}</Text>
+                )}
+              </View>
+
+              <View className="mb-[20]">
+                <Text className="text-[15px] poppins-medium mb-[14]">FSSAI Expiry Date <Text className="text-red-500">*</Text></Text>
+                <View className="border border-gray-300 px-3 rounded-[10px] items-center flex-row justify-between">
                   <TextInput
-                    className="border poppins-regular border-gray-300 mb-[20] rounded-[10px] px-3 py-3"
-                    placeholder="Enter Address Line 1"
-                    onChangeText={onChange}
-                    value={value}
-                    textAlign="left"
-                    multiline={true}
-                    scrollEnabled={false}
+                    placeholder="Enter FSSAI Expiry Date"
+                    className="poppins-regular py-3"
+                    onChangeText={(e) => {
+                      setConvertedExpiryDate(e);
+                      setValue('fssai_expiry_date', e)
+                    }}
+                    value={convertedExpiryDate}
+                  />
+                  <TouchableOpacity onPress={() => setShow(true)}><DateImg /></TouchableOpacity>
+                </View>
+                {show && (
+                  <DateTimePicker
+                    value={expiryDate}
+                    mode="date"
+                    display="default"
+                    onChange={handleExpiryDate}
                   />
                 )}
-              />
-              <Controller
-                control={control}
-                name="address_line_two"
-                render={({ field: { onChange, value } }) => (
-                  <TextInput
-                    className="border poppins-regular border-gray-300 rounded-[10px] px-3 py-3"
-                    placeholder="Enter Address Line 2"
-                    onChangeText={onChange}
-                    value={value}
-                    textAlign="left"
-                    multiline={true}
-                    scrollEnabled={false}
-                  />
-                )}
-              />
-              {errors.address_line_one && <Text className="text-red-500 poppins-regular text-sm">{errors.address_line_one.message}</Text>}
-            </View>
-            <View className="border mb-[14] border-gray-300 rounded-[10px] px-3 flex-row justify-between items-center">
-              <TextInput
-                className="w-[90%] poppins-regular py-3"
-                placeholder="Search Address"
-                value={query}
-                onChangeText={(text) => {
-                  setQuery(text);
-                  handleSearchLocation(text)
-                  dispatch(searchMapData(text))
-                }}
-                numberOfLines={1}
-              />
-              <Search />
-            </View>
+                {errors.fssai_expiry_date && <Text className="text-red-500 text-sm">{errors.fssai_expiry_date.message}</Text>}
+              </View>
 
-            {showList && <View>
-              {searchlocation?.data?.predictions.map((item, ind) => (
-                <TouchableOpacity key={ind}
-                  style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: "#ddd" }}
-                  onPress={() => {
-                    handleLocation(item.description, 'manual')
-                  }}
-                >
-                  <Text className="poppins-regular">{item.description}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>}
-
-            {/* map component */}
-            <Map geolocation={geolocation} getCurrentLocation={getCurrentLocation} selectedLocation={selectedLocation} />
-
-            <CustomTextInput control={control} label={'Kitchen Pincode '} name={'pincode'} placeholder={'Enter Kitchen Pincode'} errors={errors} keyboard={'number-pad'} />
-            <CustomTextInput control={control} label={'Bank Account Holder Name '} name={'bank_holder_name'} placeholder={'Enter Bank Account Holder Name'} errors={errors} />
-
-            <View className="mb-[20]">
-              <Text className="text-[15px] poppins-medium mb-[14] leading-none">
-                Bank Name <Text className="text-red-500 poppins-regular">*</Text>
-              </Text>
-              <Controller
-                control={control}
-                name="bank_name"
-                render={({ field: { onChange, value } }) => (
-                  <TouchableOpacity onPress={() => setModalVisible(true)}>
+              <View className="mb-[20]">
+                <View className="flex-row items-center"><Text className="text-[15px] poppins-medium mb-[14] mr-1">Kitchen Address <Text className="text-red-500">*</Text></Text><Info /></View>
+                <Controller
+                  control={control}
+                  name="address_line_one"
+                  render={({ field: { onChange, value } }) => (
                     <TextInput
-                      className="border poppins-regular border-gray-300 rounded-[10px] px-3 py-3"
-                      placeholder="Select Bank"
+                      className="border poppins-regular border-gray-300 mb-[20] rounded-[10px] px-3 py-3"
+                      placeholder="Enter Address Line 1"
                       onChangeText={onChange}
                       value={value}
-                      readOnly={true}
                       textAlign="left"
                       multiline={true}
                       scrollEnabled={false}
                     />
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="address_line_two"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      className="border poppins-regular border-gray-300 rounded-[10px] px-3 py-3"
+                      placeholder="Enter Address Line 2"
+                      onChangeText={onChange}
+                      value={value}
+                      textAlign="left"
+                      multiline={true}
+                      scrollEnabled={false}
+                    />
+                  )}
+                />
+                {errors.address_line_one && <Text className="text-red-500 poppins-regular text-sm">{errors.address_line_one.message}</Text>}
+              </View>
+              <View className="border mb-[14] border-gray-300 rounded-[10px] px-3 flex-row justify-between items-center">
+                <TextInput
+                  className="w-[90%] poppins-regular py-3"
+                  placeholder="Search Address"
+                  value={query}
+                  onChangeText={(text) => {
+                    setQuery(text);
+                    handleSearchLocation(text)
+                    dispatch(searchMapData(text))
+                  }}
+                  numberOfLines={1}
+                />
+                <Search />
+              </View>
+
+              {showList && <View>
+                {searchlocation?.data?.predictions.map((item, ind) => (
+                  <TouchableOpacity key={ind}
+                    style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: "#ddd" }}
+                    onPress={() => {
+                      handleLocation(item.description, 'manual')
+                    }}
+                  >
+                    <Text className="poppins-regular">{item.description}</Text>
                   </TouchableOpacity>
+                ))}
+              </View>}
+
+              {/* map component */}
+              <Map geolocation={geolocation} getCurrentLocation={getCurrentLocation} selectedLocation={selectedLocation} />
+
+              <CustomTextInput control={control} label={'Kitchen Pincode '} name={'pincode'} placeholder={'Enter Kitchen Pincode'} errors={errors} keyboard={'number-pad'} />
+              <CustomTextInput control={control} label={'Bank Account Holder Name '} name={'bank_holder_name'} placeholder={'Enter Bank Account Holder Name'} errors={errors} />
+
+              <View className="mb-[20]">
+                <Text className="text-[15px] poppins-medium mb-[14] leading-none">
+                  Bank Name <Text className="text-red-500 poppins-regular">*</Text>
+                </Text>
+                <Controller
+                  control={control}
+                  name="bank_name"
+                  render={({ field: { onChange, value } }) => (
+                    <TouchableOpacity onPress={() => setModalVisible(true)}>
+                      <TextInput
+                        className="border poppins-regular border-gray-300 rounded-[10px] px-3 py-3"
+                        placeholder="Select Bank"
+                        onChangeText={onChange}
+                        value={value}
+                        readOnly={true}
+                        textAlign="left"
+                        multiline={true}
+                        scrollEnabled={false}
+                      />
+                    </TouchableOpacity>
+                  )}
+                />
+                {errors.bank_name && (
+                  <Text className="text-red-500 text-sm">{errors.bank_name.message}</Text>
                 )}
-              />
-              {errors.bank_name && (
-                <Text className="text-red-500 text-sm">{errors.bank_name.message}</Text>
-              )}
+              </View>
+
+              <Modal
+                animationType="fade"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+              >
+                <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+                  <View style={styles.modalBackdrop} />
+                </TouchableWithoutFeedback>
+                <View className="flex-1 justify-center items-center">
+                  <View style={styles.modalContent}>
+                    <Text className="text-[18px] poppins-bold mb-5 text-center">Select Bank</Text>
+                    {validBanks.map((bank, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() => handleSelectBank(bank)}
+                        className="py-3 px-4"
+                      >
+                        <Text className="text-[15px] poppins-regular">{bank.label}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              </Modal>
+              <CustomTextInput control={control} label={'IFSC Code '} name={'ifsc_code'} placeholder={'Enter IFSC Code'} errors={errors} capitalize={true} />
+              <CustomTextInput control={control} label={'Account Number '} name={'account_number'} placeholder={'Enter Account Number'} errors={errors} keyboard={'number-pad'} />
             </View>
 
-            <Modal
-              animationType="fade"
-              transparent={true}
-              visible={modalVisible}
-              onRequestClose={() => setModalVisible(false)}
+            <TouchableOpacity
+              onPress={handleSubmit(onSubmit)}
+              className={`btn-color py-3 rounded-[10px] mt-4 ${Platform.OS == 'ios' ? 'mb-28' : 'mb-10'}`}
             >
-              <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-                <View style={styles.modalBackdrop} />
-              </TouchableWithoutFeedback>
-              <View className="flex-1 justify-center items-center">
-                <View style={styles.modalContent}>
-                  <Text className="text-[18px] poppins-bold mb-5 text-center">Select Bank</Text>
-                  {validBanks.map((bank, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => handleSelectBank(bank)}
-                      className="py-3 px-4"
-                    >
-                      <Text className="text-[15px] poppins-regular">{bank.label}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-            </Modal>
-            <CustomTextInput control={control} label={'IFSC Code '} name={'ifsc_code'} placeholder={'Enter IFSC Code'} errors={errors} capitalize={true} />
-            <CustomTextInput control={control} label={'Account Number '} name={'account_number'} placeholder={'Enter Account Number'} errors={errors} keyboard={'number-pad'} />
-          </View>
+              <Text className="text-center text-[18px] text-white poppins-medium">Create Account</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={handleSubmit(onSubmit)}
-            className={`btn-color py-3 rounded-[10px] mt-4 ${Platform.OS == 'ios' ? 'mb-28' : 'mb-10'}`}
-          >
-            <Text className="text-center text-[18px] text-white poppins-medium">Create Account</Text>
-          </TouchableOpacity>
-
-        </ScrollView>
-      </View>
+          </ScrollView>
+        </KeyboardAvoidingView >
+      }
     </SafeAreaView>
+
   );
 };
 

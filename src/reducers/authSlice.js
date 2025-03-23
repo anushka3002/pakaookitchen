@@ -146,7 +146,7 @@ export const fetchUserData = (phone) => async (dispatch) => {
     };
 
     const response = await axios.post(`${REACT_NATIVE_API}/auth/generateOtp`, data, { headers });
-
+    console.log(response)
     dispatch(setUserData(response.data));
   } catch (error) {
     if (error.response) {

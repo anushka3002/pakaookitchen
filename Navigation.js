@@ -45,6 +45,7 @@ import ContactUs from "./src/screens/Home/Profile/ContactUs";
 import Rider from "./src/screens/Home/Profile/Rider";
 import AddRider from "./src/screens/Home/Profile/AddRider";
 import LottieView from "lottie-react-native";
+import Loader from "./src/Loader";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -66,9 +67,9 @@ function HomeTabs() {
         tabBarActiveTintColor: "#2650D8",
         tabBarInactiveTintColor: "black",
         tabBarStyle: {
-          height: 60,
+          height: 80,
           paddingBottom: 8,
-          paddingTop: 10,
+          paddingTop: 15,
           shadowColor: "rgba(0, 0, 0, 0.14)",
           shadowOffset: { width: 0, height: 0 },
           shadowOpacity: 1,
@@ -82,7 +83,7 @@ function HomeTabs() {
           switch (route.name) {
             case "Dashboard":
               IconComponent = focused ? ActiveHome : InactiveHome;
-              label = "Dashboard";
+              label = "Home";
               break;
             case "Order":
               IconComponent = focused ? ActiveOrder : InactiveOrder;
@@ -104,10 +105,10 @@ function HomeTabs() {
           return (
             <View className="flex-1 justify-center items-center" style={{ minWidth: 100 }}>
               {focused ? (
-                <View className="absolute flex-row items-center px-5">
+                <View className="absolute flex-row items-center px-6">
                   <IconComponent />
                   <Text
-                    className="poppins-regular text-[14px] txt-blue ml-2 whitespace-nowrap"
+                    className="poppins-regular text-[14px] txt-blue ml-2 mt-1 whitespace-nowrap"
                     numberOfLines={1}
                   >
                     {label == 'PayoutStack' ? 'Payout' : label}
@@ -183,12 +184,12 @@ function AppWrapper() {
       } catch (error) {
         setInitialRoute("Login");
       } finally {
-        setInitialLoading(false); 
+        setInitialLoading(false);
       }
     };
 
     fetchInitialRoute();
-  }, [dispatch, logout]); 
+  }, [dispatch, logout]);
 
   useEffect(() => {
     const fetchKitchenStatus = async () => {
@@ -233,14 +234,7 @@ function AppWrapper() {
 
   if (loading || initialLoading || initialRoute == null)
     return (
-      <View className="items-center justify-center h-screen">
-        <LottieView
-          source={require("./src/assets/pan-loader")}
-          autoPlay
-          loop
-          style={{ width: 150, height: 150 }}
-        />
-      </View>
+      <Loader />
     );
 
   return <>{initialRoute && <RootStack initialRoute={initialRoute} />}</>;

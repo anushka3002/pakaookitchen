@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, Modal, TouchableWithoutFeedback, StyleSheet, SafeAreaView } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, Modal, TouchableWithoutFeedback, StyleSheet } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Navbar from '../../Components/Navbar'
 import Flag from '../../../assets/flag'
@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { addRider, setAddRiderData } from '../../../reducers/profileSlice'
 import BlueBg from '../../../assets/blue-bg'
 import NotFound from '../../../assets/not-found'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const AddRider = () => {
 

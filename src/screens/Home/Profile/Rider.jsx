@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, SafeAreaView, Image, TouchableOpacity, Modal, TouchableWithoutFeedback, StyleSheet } from 'react-native'
+import { View, Text, ScrollView, Image, TouchableOpacity, Modal, TouchableWithoutFeedback, StyleSheet } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Navbar from '../../Components/Navbar'
 import Delete from '../../../assets/delete-red'
@@ -6,6 +6,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getRiderData } from '../../../reducers/orderSlice'
 import { deleteRider } from '../../../reducers/profileSlice'
 import LottieView from 'lottie-react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import Loader from '../../../Loader'
 
 const Rider = ({ navigation }) => {
 
@@ -23,48 +25,45 @@ const Rider = ({ navigation }) => {
   }
 
   return (
-    <SafeAreaView>
-      <View className='bg-white h-screen'>
+    <SafeAreaView style={{ flex: 1 }}>
+      <View className='bg-white' style={{ flex: 1 }}>
         <Navbar screen={'Rider'} />
-        <ScrollView className='px-[15] pt-[18]'>
-          {(riderLoading || loading) ? <View className="items-center justify-center mt-[160]">
-            <LottieView
-              source={require("../../../assets/pan-loader")}
-              autoPlay
-              loop
-              style={{ width: 150, height: 150 }}
-            />
-          </View> : riderData?.data?.data?.map((elm, ind) => {
-            return <View key={ind} style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)' }}
-              className='flex-row rounded-[10] justify-between py-[15] px-[14] mb-3'>
-              <View className='flex-row items-center'>
-                <Image
-                  borderRadius={100}
-                  source={{ uri: elm.profile_photo }}
-                  style={{ width: 54, height: 54 }}
-                />
-                <View className='ml-3'>
-                  <Text className='text-[15px] poppins-medium'>{elm.name}</Text>
-                  <Text className='text-[15px] poppins-regular'>{elm.phone}</Text>
+        {(riderLoading || loading) ? <Loader /> :
+          <ScrollView className='px-[15] pt-[18]' style={{ flexGrow: 1 }}>
+            {riderData?.data?.data?.map((elm, ind) => {
+              return <View key={ind} style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)' }}
+                className='flex-row rounded-[10] justify-between py-[15] px-[14] mb-3'>
+                <View className='flex-row items-center'>
+                  <Image
+                    borderRadius={100}
+                    source={{ uri: elm.profile_photo }}
+                    style={{ width: 54, height: 54 }}
+                  />
+                  <View className='ml-3'>
+                    <Text className='text-[15px] poppins-medium'>{elm.name}</Text>
+                    <Text className='text-[15px] poppins-regular'>{elm.phone}</Text>
+                  </View>
                 </View>
+
+                <TouchableOpacity onPress={() => handleDeleteRider(elm.id)} className='mt-1'>
+                  <Delete />
+                </TouchableOpacity>
               </View>
+            })}
+            {riderData.data.data.length == 0 &&
+              <Text className='text-[18px] poppins-medium text-[#666] text-center'>No rider exist! Add now</Text>
+            }
+            <TouchableOpacity onPress={() => navigation.navigate('AddRider')} className='btn-color rounded-[10] items-center py-[11]' style={{ marginTop: 15 }}>
+              <Text className='text-[18px] poppins-medium text-white'>{riderData?.data?.length == 0 ? 'No rider exist! Add now' : 'Add'}</Text>
+            </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => handleDeleteRider(elm.id)} className='mt-1'>
-                <Delete />
-              </TouchableOpacity>
-            </View>
-          })}
+            <Text style={{ lineHeight: 23 }} className='text-[14px] poppins-bold mt-[16]'>Note: <Text className='text-[14px] poppins-regular text-[#666]'>
+              Before adding rider ask rider to create account
+            </Text>
+            </Text>
 
-          <TouchableOpacity onPress={() => navigation.navigate('AddRider')} className='btn-color rounded-[10] items-center py-[11] mt-[27]'>
-            <Text className='text-[18px] poppins-medium text-white'>{riderData?.data?.length == 0 ? 'No rider exist! Add now' : 'Add'}</Text>
-          </TouchableOpacity>
-
-          <Text style={{ lineHeight: 23 }} className='text-[14px] poppins-bold mt-[16]'>Note: <Text className='text-[14px] poppins-regular text-[#666]'>
-            Ask rider to login with the same number which you have added
-          </Text>
-          </Text>
-
-        </ScrollView>
+          </ScrollView>
+        }
       </View>
     </SafeAreaView>
   )

@@ -47,7 +47,7 @@ const Profile = ({ navigation }) => {
   ]
 
   const openURL = () => {
-    Linking.openURL('https://pakaoo.co/termandcondition');
+    Linking.openURL('https://pakaoo.com/termandcondition');
   };
 
   const handleDeleteReason = () => {

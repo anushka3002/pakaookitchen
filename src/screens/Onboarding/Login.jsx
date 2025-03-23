@@ -28,9 +28,6 @@ const LoginScreen = ({ navigation }) => {
     }
   }, [user])
 
-  const openURL = () => {
-    Linking.openURL('https://pakaoo.co/termandcondition');
-  };
 
   return (
     <View className='justify-center'>
@@ -57,8 +54,10 @@ const LoginScreen = ({ navigation }) => {
             placeholder="Enter Phone Number"
             value={phoneNumber}
             onChangeText={(text) => setPhoneNumber(text)}
-            className='border border-gray-300 poppins-regular leading-normal text-[16px] rounded-[10px] py-4 mt-[12] px-4 text-black'
+            className='border border-gray-300 poppins-regular text-[16px] rounded-[10px] py-4 mt-[12] px-4 text-black'
             keyboardType="phone-pad"
+            placeholderTextColor="#7B7B7B" 
+            maxLength={10}
           />
           {authError && <Text className='mt-1 text-[14px] text-red-500 poppins-regular'>{authError}</Text>}
         </View>
@@ -67,11 +66,11 @@ const LoginScreen = ({ navigation }) => {
           <Text className="text-[14px] poppins-regular text-[#2B2E35]">
             By signing up I agree to the{" "}
           </Text>
-          <TouchableOpacity onPress={() => openURL()}>
+          <TouchableOpacity onPress={() => Linking.openURL('https://pakaoo.com/termandcondition')}>
             <Text className="text-[14px] poppins-regular txt-blue">Terms of use</Text>
           </TouchableOpacity>
           <Text className="text-[14px] poppins-regular text-[#2B2E35]"> and </Text>
-          <TouchableOpacity onPress={() => openURL()}>
+          <TouchableOpacity onPress={() => Linking.openURL('https://pakaoo.com/privacypolicy')}>
           <Text className="text-[14px] poppins-regular txt-blue">Privacy Policy.</Text>
           </TouchableOpacity>
         </View>
