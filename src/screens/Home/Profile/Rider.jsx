@@ -50,7 +50,7 @@ const Rider = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
             })}
-            {riderData.data.data.length == 0 &&
+            {riderData?.data?.data?.length == 0 &&
               <Text className='text-[18px] poppins-medium text-[#666] text-center'>No rider exist! Add now</Text>
             }
             <TouchableOpacity onPress={() => navigation.navigate('AddRider')} className='btn-color rounded-[10] items-center py-[11]' style={{ marginTop: 15 }}>

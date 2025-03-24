@@ -148,7 +148,7 @@ const Profile = ({ navigation }) => {
                 <Text className='text-[19px] poppins-semibold mt-[10] mb-[6]'>{modalValue} {modalValue == 'Delete' ? 'Account' :''}</Text>
                 <Text className='text-[14px] poppins-regular txt-grey-666 text-center'>Are you sure you want to &nbsp;
                   {modalValue.toLowerCase()}?</Text>
-                {modalValue == 'Delete' && <TouchableOpacity onPress={() => setDeleteVisible(true)} style={{ borderWidth: 1, borderColor: '#D8D8D8', borderRadius: 5 }} className='flex-row w-full items-center mt-[11] py-[11] px-[16] justify-between mt-[14] mb-[6]'>
+                {modalValue == 'Delete' && <TouchableOpacity onPress={() => setDeleteVisible(true)} style={{ borderWidth: 1, borderColor: '#D8D8D8', borderRadius: 5 }} className='flex-row w-full items-center py-[11] px-[16] justify-between mt-[14] mb-[6]'>
                   <Text className={`text-[14px] poppins-medium ${deleteReason ? '' : 'txt-grey'}`}>{deleteReason ? deleteReason.reason : 'Select reason'}</Text>
                   <Dropdown />
                 </TouchableOpacity>}

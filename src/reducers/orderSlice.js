@@ -268,8 +268,11 @@ export const updateOrderStatus = (data) => async (dispatch) => {
         'x-auth-key': authToken
     };
     const response = await axios.put(`${REACT_NATIVE_ORDER_API}/orders/order_status`, data, { headers });
+    console.log(response)
     dispatch(setOrderStatusData(response?.data));
   } catch (error) {
+    console.log(error)
+    console.error("Error Data:", error.response.data);
     if (error.response) {
       dispatch(setOrderStatusError(error.response.data.error));
     } else {
