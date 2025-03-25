@@ -456,8 +456,10 @@ export const getCurrentCycle = () => async (dispatch) => {
             'x-auth-key': authToken,
         };
         const response = await axios.get(`${REACT_NATIVE_PAYMENT_KEY}/kitchenWallet/currentcycle`, { headers });
+        console.log("Current cycle",response)
         dispatch(setCurrentCycleData(response.data.data));
     } catch (error) {
+        console.log("get current cycle error",error.response)
         if (error.response.data.error) {
             dispatch(setCurrentCycleError(error.response.data.error));
         } else {
@@ -466,7 +468,7 @@ export const getCurrentCycle = () => async (dispatch) => {
     }
 };
 
-export const getTransactions = () => async (dispatch) => {
+export const getTransactions = (page, start_date, end_date) => async (dispatch) => {
     try {
         dispatch(setTransactionLoading());
         const authToken = await EncryptedStorage.getItem('auth_token');
@@ -477,7 +479,7 @@ export const getTransactions = () => async (dispatch) => {
             'x-public-key': public_key,
             'x-auth-key': authToken,
         };
-        const response = await axios.get(`${REACT_NATIVE_PAYMENT_KEY}/kitchenWallet/payoutList`, { headers });
+        const response = await axios.get(`${REACT_NATIVE_PAYMENT_KEY}/kitchenWallet/payoutList?start_date=${start_date}&end_date=${end_date}&page=${page}&limit=5`, { headers });
         dispatch(setTransactionData(response.data));
     } catch (error) {
         if (error.response.data.error) {

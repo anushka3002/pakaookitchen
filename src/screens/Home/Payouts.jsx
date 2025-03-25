@@ -1,62 +1,129 @@
-import { View, Text, ScrollView, TouchableOpacity, Button } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Button, StyleSheet, FlatList, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react';
 import { LinearGradient } from 'react-native-linear-gradient';
 import Arrow from '../../assets/payout-blue-arrow';
 import Dropdown from '../../assets/payout-dropdown';
-import Calendar from '../../assets/black-calender';
+import CalendarImage from '../../assets/black-calender';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentCycle, getTransactions } from '../../reducers/profileSlice';
 import { formatPayoutDate } from '../../constant';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import LottieView from 'lottie-react-native';
+import { Calendar } from "react-native-calendars";
+import Modal from "react-native-modal";
 import { SafeAreaView } from 'react-native-safe-area-context';
+import moment from "moment";
 import Loader from '../../Loader';
-
 const Payouts = ({ navigation }) => {
 
   const { currentCycleData, transactionsData, loading } = useSelector(state => state.profileData)
   const dispatch = useDispatch()
-  const [show, setShow] = useState('');
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
-  const [showStartPicker, setShowStartPicker] = useState(false);
-  const [showEndPicker, setShowEndPicker] = useState(false);
+
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [selectedDates, setSelectedDates] = useState({});
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1)
+
+  const [range, setRange] = useState({ start: moment().startOf("month").format("YYYY-MM-DD"), end: moment().endOf("month").format("YYYY-MM-DD") });
+
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible)
+  };
+
+  const onDayPress = (day) => {
+    if (!range.start || (range.start && range.end)) {
+      // Set start date and reset end date
+      setRange({ start: day.dateString, end: null });
+      setSelectedDates({
+        [day.dateString]: { selected: true, startingDay: true, color: "#2650D8" },
+      });
+    } else {
+      // Set end date
+      const newRange = { ...range, end: day.dateString };
+      setRange(newRange);
+
+      // Generate range selection
+      const newMarkedDates = {};
+      let currentDate = new Date(newRange.start);
+      let endDate = new Date(newRange.end);
+
+      while (currentDate <= endDate) {
+        const dateString = currentDate.toISOString().split("T")[0];
+        newMarkedDates[dateString] = { selected: true, color: "rgba(38, 80, 216, 0.49)" };
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      newMarkedDates[newRange.start] = { selected: true, startingDay: true, color: "rgba(38, 80, 216, 0.49)" };
+      newMarkedDates[newRange.end] = { selected: true, endingDay: true, color: "#2650D8" };
+
+      setSelectedDates(newMarkedDates);
+    }
+  };
 
   useEffect(() => {
     dispatch(getCurrentCycle())
-    dispatch(getTransactions())
   }, [])
+
+  useEffect(() => {
+    setPage(1); // Reset page on date range change
+    dispatch(getTransactions(1, range.start, range.end));
+  }, [range]);
+
+  // Load more transactions when reaching bottom
+  const loadMoreTransactions = () => {
+    if (!loadingMore && data?.payouts?.length > 0) {
+      setLoadingMore(true);
+      const nextPage = page + 1;
+      dispatch(getTransactions(nextPage, range.start, range.end));
+      setPage(nextPage);
+      setLoadingMore(false);
+    }
+  };
 
   const handleTransaction = (id) => {
     navigation.navigate('CurrentCycle', { id: id })
   }
 
-  const onChange = (event, selectedTime) => {
-    setShow(Platform.OS === "ios");
-    if (event.nativeEvent.timestamp) {
-      setTime(selectedTime)
-      formatTimestampToTime(event.nativeEvent.timestamp, meal)
-    }
+  const formatDateRange = (start, end) => {
+    const startDate = moment(start).format("DD MMM");
+    const endDate = moment(end).format("DD MMM, YY");
+    return `${startDate} - ${endDate}`;
   };
 
-  const formatDate = (date) => {
-    const options = { day: "2-digit", month: "short" };
-    return date.toLocaleDateString("en-GB", options);
-  };
-
-  const handleStartChange = (event, selectedDate) => {
-    setShowStartPicker(false);
-    if (selectedDate) setStartDate(selectedDate);
-  };
-
-  const handleEndChange = (event, selectedDate) => {
-    setShowEndPicker(false);
-    if (selectedDate) setEndDate(selectedDate);
-  };
+  // Render transaction item
+  const renderItem = ({ item, index }) => (
+    <TouchableOpacity
+      onPress={() => handleTransaction(item.payout_id)}
+      key={index}
+      style={{ boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.14)" }}
+      className="relative rounded-[10] py-[9] pl-[15] mb-[15]"
+    >
+      <Text className="text-[17px] poppins-bold">₹ {item?.total_amount}</Text>
+      <View className="flex-row justify-between">
+        <View className="flex-row items-center">
+          <CalendarImage />
+          <Text className="text-[14px] poppins-medium text-[#575757] mt-1 ml-2">
+            {formatPayoutDate(item.pay_date)}
+          </Text>
+        </View>
+        <View className="flex-row items-center mr-[23]">
+          <Text className="text-[12px] poppins-medium txt-dark-blue mr-[5]">
+            Show breakup
+          </Text>
+          <Arrow />
+        </View>
+      </View>
+      <View
+        className={`absolute top-0 rounded-b-[25] w-[120] ${index == 1 ? "bg-[#F0B801]" : "bg-[#008000]"} py-1 right-[23]`}
+      >
+        <Text className="text-[12px] poppins-medium text-white text-center">
+          {item.status}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <SafeAreaView className="bg-[#2650D8] flex-1" edges={["top", "left", "right"]}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: "#fff" }} showsVerticalScrollIndicator={false} >
+      <View style={{ flex: 1, backgroundColor: "#fff" }} showsVerticalScrollIndicator={false}>
         <LinearGradient
           colors={['#2650D8', '#2D479D']}
           start={{ x: 0, y: 0 }}
@@ -96,57 +163,65 @@ const Payouts = ({ navigation }) => {
         <View className='px-[15] mt-[27] mb-10'>
           <View className='flex-row justify-between items-center mb-5'>
             <Text className='text-[20px] poppins-semibold'>Transactions</Text>
-            <TouchableOpacity onPress={() => setShow(true)} className='flex-row justify-between'>
+            <TouchableOpacity onPress={toggleModal} className='flex-row justify-between'>
               <View style={{ borderWidth: 1, borderColor: '#2650D8', gap: 7 }} className='rounded-[4] py-[3] px-[15] flex-row items-center'>
-                <Text className='text-[12px] poppins-medium txt-blue'>31 Jan -02 Mar, 25</Text>
+                <Text className='text-[12px] poppins-medium txt-blue'>{formatDateRange(range.start, range.end)}</Text>
                 <Dropdown />
               </View>
             </TouchableOpacity>
           </View>
 
-          {/* <View>
-              <Button title="Select Start Date" onPress={() => setShowStartPicker(true)} />
-              {showStartPicker && (
-                <DateTimePicker value={startDate} mode="date" display="default" onChange={handleStartChange} />
-              )}
 
-              <Button title="Select End Date" onPress={() => setShowEndPicker(true)} />
-              {showEndPicker && (
-                <DateTimePicker value={endDate} mode="date" display="default" onChange={handleEndChange} />
-              )}
-
-              <Text style={{ marginTop: 20, fontSize: 18 }}>
-                {`${formatDate(startDate)} - ${formatDate(endDate)}, ${startDate.getFullYear().toString().slice(-2)}`}
-              </Text>
-            </View> */}
-
-          {loading ? <View className="items-center justify-center mt-[60]">
-            <Loader />
-          </View> : transactionsData?.data?.payouts?.length == 0 ? <Text className='text-[16px] text-center poppins-medium text-[#737373] mt-[60]'>No data found</Text> :
-            transactionsData?.data?.payouts?.map((elm, ind) => {
-              return <TouchableOpacity onPress={() => handleTransaction(elm.payout_id)} key={ind} style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' }}
-                className='relative rounded-[10] py-[9] pl-[15] mb-[15]'>
-                <Text className='text-[17px] poppins-bold'>₹ {elm?.total_amount}</Text>
-                <View className='flex-row justify-between'>
-                  <View className='flex-row items-center'>
-                    <Calendar />
-                    <Text className='text-[14px] poppins-medium text-[#575757] mt-1 ml-2'>{formatPayoutDate(elm.pay_date)}</Text>
-                  </View>
-
-                  <View className='flex-row items-center mr-[23]'>
-                    <Text className='text-[12px] poppins-medium txt-dark-blue mr-[5]'>Show breakup</Text>
-                    <Arrow />
-                  </View>
-                </View>
-                <View className={`absolute top-0 rounded-b-[25] w-[120] ${ind == 1 ? 'bg-[#F0B801]' : 'bg-[#008000]'} py-1 right-[23]`}>
-                  <Text className='text-[12px] poppins-medium text-white text-center'>{elm.status}</Text>
-                </View>
+          <Modal isVisible={isModalVisible} onBackdropPress={toggleModal} style={styles.modal}>
+            <View style={styles.modalContent}>
+              <Text style={styles.heading}>Select Date Range</Text>
+              <Calendar
+                markingType={"period"}
+                markedDates={selectedDates}
+                onDayPress={onDayPress}
+              />
+              <TouchableOpacity onPress={toggleModal} style={styles.closeButton}>
+                <Text style={styles.buttonText}>Done</Text>
               </TouchableOpacity>
-            })}
+            </View>
+          </Modal>
+
+    <View>
+      {loading ? (
+        <View className="items-center justify-center mt-[60]">
+          <Loader />
         </View>
-      </ScrollView>
+      ) : transactionsData?.data?.payouts?.length === 0 ? (
+        <Text className="text-[16px] text-center poppins-medium text-[#737373] mt-[60]">
+          No data found
+        </Text>
+      ) : (
+        <FlatList
+          data={transactionsData?.data?.payouts}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => index.toString()}
+          onEndReached={loadMoreTransactions}
+          onEndReachedThreshold={0.5} // Load more when 50% from bottom
+          ListFooterComponent={
+            loadingMore ? <ActivityIndicator size="small" color="#0000ff" /> : null
+          }
+        />
+      )}
+    </View>
+        </View>
+      </View>
     </SafeAreaView>
   )
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#fff" },
+  openButton: { backgroundColor: "#007BFF", padding: 10, borderRadius: 5 },
+  closeButton: { backgroundColor: "#2650D8", padding: 7, borderRadius: 50, marginTop: 10, paddingHorizontal: 30 },
+  buttonText: { color: "#fff", fontSize: 16 },
+  modal: { justifyContent: "center", alignItems: "center" },
+  modalContent: { width: "95%", backgroundColor: "#fff", padding: 20, borderRadius: 10, alignItems: "center" },
+  heading: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
+});
 
 export default Payouts

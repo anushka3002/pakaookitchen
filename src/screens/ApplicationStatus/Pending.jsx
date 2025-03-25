@@ -20,9 +20,9 @@ const PendingScreen = () => {
   }, []);
 
   return (
-    <View className='items-center w-full justify-center'>
+    <View className='items-center w-full' style={{flex: 1}}>
       <HeaderImage width={'100%'} />
-      <View ><Pending /></View>
+      <View className='mt-4'><Pending /></View>
       <Text
         style={{ color: '#FFC107' }}
         className='text-[27px] text-center poppins-bold mt-6'>Pending</Text>

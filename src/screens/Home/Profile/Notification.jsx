@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getNotification, readNotification } from '../../../reducers/profileSlice'
 import LottieView from 'lottie-react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import Loader from '../../../Loader'
 
 const Notification = () => {
 
@@ -32,24 +33,17 @@ const Notification = () => {
     }
 
     return (
-        <SafeAreaView style={{flex: 1}}>
+        <SafeAreaView style={{ flex: 1 }}>
             <View className='bg-white h-screen'>
                 <Navbar screen={'Notification'} />
-                <ScrollView>
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1, backgroundColor: "#fff" }} >
                     {notificationData?.data?.data?.length > 0 && !loading && <TouchableOpacity onPress={() => handleAllNotification(1, null, 0)} className='flex-row justify-end items-center mt-[15] mb-[5] px-[15]'>
                         <Text className='txt-blue text-[15px] poppins-medium mr-[5]'>Mark all as read</Text>
                         <ReadTick />
                     </TouchableOpacity>}
-                    {loading ? <View className="items-center justify-center mt-[160]">
-                            <LottieView
-                              source={require("../../../assets/pan-loader")}
-                              autoPlay
-                              loop
-                              style={{ width: 150, height: 150 }}
-                            />
-                          </View> : notificationData?.data?.data?.length > 0 ? notificationData?.data?.data.map((elm, ind) => {
+                    {loading ? <Loader /> : notificationData?.data?.data?.length > 0 ? notificationData?.data?.data.map((elm, ind) => {
                         return <ScrollView key={ind} horizontal={true} showsHorizontalScrollIndicator={false}
-                            contentContainerClassName='items-center px-[15]' contentContainerStyle={{ width: screenWidth + 45 }}>
+                            contentContainerClassName='items-center px-[15]'>
                             <View className='rounded-[10] px-[14] py-[13] flex-row items-center my-[10] mr-[13] w-screen'
                                 style={{ width: screenWidth - 30, boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)' }}>
                                 <View className='btn-color rounded-[8] p-[8] mr-[10]'>
@@ -64,7 +58,7 @@ const Notification = () => {
                                 <Delete />
                             </TouchableOpacity>
                         </ScrollView>
-                    }) : <View className='items-center justify-center flex-1 mt-[134]'>
+                    }) : <View className='items-center justify-center flex-1'>
                         <NoNoti />
                         <Text className='text-[21px] poppins-semibold mt-[27]'>No Notification Yet</Text>
                     </View>}

@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getFAQ } from '../../../reducers/profileSlice'
 import LottieView from 'lottie-react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import Loader from '../../../Loader'
 
 const FAQ = () => {
 
@@ -19,18 +20,11 @@ const FAQ = () => {
   }, [])
 
   return (
-    <SafeAreaView className='bg-white flex-1'>
+    <SafeAreaView className='bg-white flex-1' style={{flex: 1}}>
       <Navbar screen={'FAQ'} />
-      <ScrollView className='px-[16]'>
-        <View className='pb-10'>
-          {loading ? <View className="items-center justify-center mt-[237]">
-            <LottieView
-              source={require("../../../assets/pan-loader")}
-              autoPlay
-              loop
-              style={{ width: 150, height: 150 }}
-            />
-          </View> : faqData?.data?.length == 0 ?
+      <ScrollView className='px-[16]' showsHorizontalScrollIndicator={false}  contentContainerStyle={{ flexGrow: 1, backgroundColor: "#fff" }}  style={{flex: 1}}>
+        <View className='pb-10' style={{flex: 1}}>
+          {loading ? <Loader /> : faqData?.data?.length == 0 ?
             <Text className='poppins-medium txt-grey text-[18px] text-center mt-[237]'>No data found</Text> :
             faqData?.data?.data?.map((elm, ind) => {
               return <TouchableOpacity onPress={() => setSelectedFaq(selectedFaq === ind ? undefined : ind)} key={ind} className='rounded-[10] py-[13] px-[15] mt-5'

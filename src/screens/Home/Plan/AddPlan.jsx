@@ -1,16 +1,19 @@
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, ImageBackground } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, ImageBackground, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form';
 import * as Yup from "yup";
 import { yupResolver } from '@hookform/resolvers/yup';
-import Info from '../../../assets/info.svg';
-import Upload from '../../../assets/upload.svg';
 import { handleImageUpload } from '../../../constant';
 import { useDispatch, useSelector } from 'react-redux';
 import { addPlanDetails } from '../../../reducers/planSlice';
 import Navbar from '../../Components/Navbar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Loader from '../../../Loader';
+
+// Images
+import Info from '../../../assets/info.svg';
+import Upload from '../../../assets/upload.svg';
+import PackPreview from '../../../assets/pack-preview.svg'
 
 const AddPlan = ({ navigation }) => {
 
@@ -21,7 +24,7 @@ const AddPlan = ({ navigation }) => {
 
   const { data } = planDetails
 
-  
+
   const validationSchema = Yup.object().shape({
     planName: Yup.string().required("Plan name is required"),
     packagingPreview: Yup.string().required('Packaging preview is required'),
@@ -45,15 +48,13 @@ const AddPlan = ({ navigation }) => {
   });
 
   const onSubmit = async (data) => {
-    console.log(data)
     const updatedData = {
       ...data,
       mealTime: data.mealTime || mealTime,
     };
-    console.log(updatedData)
     dispatch(addPlanDetails(updatedData, navigation))
   }
-
+  console.log(imagePreview)
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       {loading ? <Loader /> :
@@ -79,14 +80,20 @@ const AddPlan = ({ navigation }) => {
               <Text className='text-[15px] poppins-medium mb-2 pt-7'>Upload Packaging Preview <Info /></Text>
 
               <View className='w-full flex-row justify-between border border-gray-300 rounded-[10px] py-[18px] px-[25px] items-center'>
-                <View style={[{ width: 76, height: 72 }, !imagePreview && styles.dashedBorder]}>
-                  <ImageBackground
-                    source={{ uri: imagePreview }}
-                    style={{ width: '100%', height: 72, borderRadius: 10 }}
-                    resizeMode="contain"
-                    className='items-center justify-center'
-                  />
-                </View>
+                {imagePreview === null ?
+                  <View style={[{ width: 76, height: 72 }, !imagePreview && styles.bgForImage]} className="d-flex justify-center items-center">
+                    <PackPreview />
+                  </View>
+                  :
+                  <View style={[{ width: 76, height: 72 }, !imagePreview && styles.dashedBorder]}>
+                    <ImageBackground
+                      source={{ uri: imagePreview }}
+                      style={{ width: '100%', height: 72, borderRadius: 10 }}
+                      resizeMode="contain"
+                      className='items-center justify-center'
+                    />
+                  </View>
+                }
                 <Controller
                   control={control}
                   name="packagingPreview"
@@ -189,6 +196,10 @@ const styles = StyleSheet.create({
     borderStyle: "dashed",
     borderRadius: Platform.OS === 'ios' ? 8 : 0,
   },
+  bgForImage: {
+    backgroundColor: '#7997F9',
+    borderRadius: Platform.OS === 'ios' ? 8 : 8,
+  }
 })
 
 export default AddPlan
