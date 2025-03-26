@@ -3,6 +3,7 @@ import {
   View, Text, TextInput, Platform, TouchableOpacity, Modal, ActivityIndicator, StyleSheet, ScrollView, Keyboard,
   TouchableWithoutFeedback, PermissionsAndroid, BackHandler, Alert, KeyboardAvoidingView,
 } from "react-native";
+import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -34,6 +35,7 @@ const CreateAccount = ({ navigation }) => {
   const { loading } = useSelector(state => state.kitchenData)
   const { allInfoData } = useSelector(state => state.profileData)
   const { createProfile } = useSelector(state => state.kitchenData)
+  console.log("kiading", createProfile)
   const [show, setShow] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState('')
@@ -72,19 +74,20 @@ const CreateAccount = ({ navigation }) => {
   }
 
   const requestLocationPermission = async () => {
-    if (Platform.OS === "android") {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-      );
+    const permission =
+      Platform.OS === 'ios'
+        ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
+        : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
 
-      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-        console.log("Location permission denied");
-        return;
-      }
+    const result = await request(permission);
+
+    if (result === RESULTS.GRANTED) {
+      console.log('Permission granted');
+      getCurrentLocation();
+    } else {
+      console.warn('Permission denied');
     }
-    getCurrentLocation();
   };
-
   const getCurrentLocation = () => {
     Geolocation.getCurrentPosition(
       (position) => {
@@ -192,10 +195,12 @@ const CreateAccount = ({ navigation }) => {
     }
   }, [createProfile])
 
+  console.log(searchlocation)
+
   return (
 
     <SafeAreaView className="bg-white" style={{ flex: 1 }}>
-      {loading ? <Loader /> :
+      {loading || createProfile.loading ? <Loader /> :
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"} // Adjust for iOS and Android
           style={{ flex: 1, backgroundColor: "#fff" }}
@@ -209,10 +214,18 @@ const CreateAccount = ({ navigation }) => {
             </Text>
 
             <View className='space-y-4'>
-              <CustomTextInput control={control} label={'Owner Name '} name={'owner_name'} placeholder={'Enter Owner Name'} errors={errors} capitalize={false} />
-              <CustomTextInput control={control} label={'Email '} name={'email'} placeholder={'Enter Email'} errors={errors} capitalize={false} />
-              <CustomTextInput control={control} label={'Kitchen Name '} name={'kitchen_name'} placeholder={'Enter Kitchen Name'} errors={errors} capitalize={false} />
-              <CustomTextInput control={control} label={'Aadhar Number '} name={'aadhar_number'} placeholder={'Enter Aadhar Number'} errors={errors} capitalize={false} keyboard={'number-pad'} />
+              <CustomTextInput control={control} label={'Owner Name '} name={'owner_name'}
+                placeholderTextColor="#7B7B7B"
+                placeholder={'Enter Owner Name'} errors={errors} capitalize={false} />
+              <CustomTextInput control={control} label={'Email '} name={'email'}
+                placeholderTextColor="#7B7B7B"
+                placeholder={'Enter Email'} errors={errors} capitalize={false} />
+              <CustomTextInput control={control} label={'Kitchen Name '} name={'kitchen_name'}
+                placeholderTextColor="#7B7B7B"
+                placeholder={'Enter Kitchen Name'} errors={errors} capitalize={false} />
+              <CustomTextInput control={control} label={'Aadhar Number '} name={'aadhar_number'}
+                placeholderTextColor="#7B7B7B"
+                placeholder={'Enter Aadhar Number'} errors={errors} capitalize={false} keyboard={'number-pad'} />
 
               <View className='mb-[20]'>
                 <Text className='text-[15px] poppins-medium mb-[14]'>
@@ -230,7 +243,9 @@ const CreateAccount = ({ navigation }) => {
                 )}
               </View>
 
-              <CustomTextInput control={control} label={'PAN Number '} name={'pan_number'} placeholder={'Enter PAN Number'} errors={errors} capitalize={true} />
+              <CustomTextInput control={control} label={'PAN Number '} name={'pan_number'}
+                placeholderTextColor="#7B7B7B"
+                placeholder={'Enter PAN Number'} errors={errors} capitalize={true} />
 
               <View className="mb-[20]">
                 <Text className="text-[15px] poppins-medium mb-[14]">
@@ -248,7 +263,9 @@ const CreateAccount = ({ navigation }) => {
                 )}
               </View>
 
-              <CustomTextInput control={control} label={'GST Number '} name={'gst_number'} placeholder={'Enter GST Number'} errors={errors} capitalize={true} />
+              <CustomTextInput control={control} label={'GST Number '} name={'gst_number'}
+                placeholderTextColor="#7B7B7B"
+                placeholder={'Enter GST Number'} errors={errors} capitalize={true} />
 
               <View className="mb-[20]">
                 <Text className="text-[15px] poppins-medium mb-[14]">
@@ -262,7 +279,9 @@ const CreateAccount = ({ navigation }) => {
                 )}
               </View>
 
-              <CustomTextInput control={control} label={'FSSAI Number '} name={'fssia_number'} placeholder={'Enter FSSAI Number'} errors={errors} capitalize={true} />
+              <CustomTextInput control={control} label={'FSSAI Number '} name={'fssia_number'}
+                placeholderTextColor="#7B7B7B"
+                placeholder={'Enter FSSAI Number'} errors={errors} capitalize={true} />
               <View className="mb-[20]">
                 <Text className="text-[15px] poppins-medium mb-[14]">
                   FSSAI Image <Text className="text-red-500">*</Text>
@@ -277,6 +296,8 @@ const CreateAccount = ({ navigation }) => {
                 <Text className="text-[15px] poppins-medium mb-[14]">FSSAI Expiry Date <Text className="text-red-500">*</Text></Text>
                 <View className="border border-gray-300 px-3 rounded-[10px] items-center flex-row justify-between">
                   <TextInput
+
+                    placeholderTextColor="#7B7B7B"
                     placeholder="Enter FSSAI Expiry Date"
                     className="poppins-regular py-3"
                     onChangeText={(e) => {
@@ -306,6 +327,8 @@ const CreateAccount = ({ navigation }) => {
                   render={({ field: { onChange, value } }) => (
                     <TextInput
                       className="border poppins-regular border-gray-300 mb-[20] rounded-[10px] px-3 py-3"
+
+                      placeholderTextColor="#7B7B7B"
                       placeholder="Enter Address Line 1"
                       onChangeText={onChange}
                       value={value}
@@ -321,6 +344,8 @@ const CreateAccount = ({ navigation }) => {
                   render={({ field: { onChange, value } }) => (
                     <TextInput
                       className="border poppins-regular border-gray-300 rounded-[10px] px-3 py-3"
+
+                      placeholderTextColor="#7B7B7B"
                       placeholder="Enter Address Line 2"
                       onChangeText={onChange}
                       value={value}
@@ -335,6 +360,8 @@ const CreateAccount = ({ navigation }) => {
               <View className="border mb-[14] border-gray-300 rounded-[10px] px-3 flex-row justify-between items-center">
                 <TextInput
                   className="w-[90%] poppins-regular py-3"
+
+                  placeholderTextColor="#7B7B7B"
                   placeholder="Search Address"
                   value={query}
                   onChangeText={(text) => {
@@ -363,8 +390,12 @@ const CreateAccount = ({ navigation }) => {
               {/* map component */}
               <Map geolocation={geolocation} getCurrentLocation={getCurrentLocation} selectedLocation={selectedLocation} />
 
-              <CustomTextInput control={control} label={'Kitchen Pincode '} name={'pincode'} placeholder={'Enter Kitchen Pincode'} errors={errors} keyboard={'number-pad'} />
-              <CustomTextInput control={control} label={'Bank Account Holder Name '} name={'bank_holder_name'} placeholder={'Enter Bank Account Holder Name'} errors={errors} />
+              <CustomTextInput control={control} label={'Kitchen Pincode '} name={'pincode'}
+                placeholderTextColor="#7B7B7B"
+                placeholder={'Enter Kitchen Pincode'} errors={errors} keyboard={'number-pad'} />
+              <CustomTextInput control={control} label={'Bank Account Holder Name '} name={'bank_holder_name'}
+                placeholderTextColor="#7B7B7B"
+                placeholder={'Enter Bank Account Holder Name'} errors={errors} />
 
               <View className="mb-[20]">
                 <Text className="text-[15px] poppins-medium mb-[14] leading-none">
@@ -377,6 +408,8 @@ const CreateAccount = ({ navigation }) => {
                     <TouchableOpacity onPress={() => setModalVisible(true)}>
                       <TextInput
                         className="border poppins-regular border-gray-300 rounded-[10px] px-3 py-3"
+
+                        placeholderTextColor="#7B7B7B"
                         placeholder="Select Bank"
                         onChangeText={onChange}
                         value={value}
@@ -417,8 +450,12 @@ const CreateAccount = ({ navigation }) => {
                   </View>
                 </View>
               </Modal>
-              <CustomTextInput control={control} label={'IFSC Code '} name={'ifsc_code'} placeholder={'Enter IFSC Code'} errors={errors} capitalize={true} />
-              <CustomTextInput control={control} label={'Account Number '} name={'account_number'} placeholder={'Enter Account Number'} errors={errors} keyboard={'number-pad'} />
+              <CustomTextInput control={control} label={'IFSC Code '} name={'ifsc_code'}
+                placeholderTextColor="#7B7B7B"
+                placeholder={'Enter IFSC Code'} errors={errors} capitalize={true} />
+              <CustomTextInput control={control} label={'Account Number '} name={'account_number'}
+                placeholderTextColor="#7B7B7B"
+                placeholder={'Enter Account Number'} errors={errors} keyboard={'number-pad'} />
             </View>
 
             <TouchableOpacity

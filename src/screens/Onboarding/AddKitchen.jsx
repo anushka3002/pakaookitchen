@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
     View, Text, TextInput, TouchableOpacity,
-    ScrollView, StyleSheet, ActivityIndicator,
-    SafeAreaView
+    ScrollView, StyleSheet, ActivityIndicator
 } from 'react-native';
 import Navbar from '../Components/Navbar';
 import Veg from '../../assets/veg.svg';
@@ -13,6 +12,8 @@ import Clock from '../../assets/clock.svg';
 import { useDispatch, useSelector } from 'react-redux';
 import { addKitchenData, getCategory, getFoodStyle } from '../../reducers/kitchenSlice';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Loader from '../../Loader';
 
 const AddKitchen = ({ navigation }) => {
 
@@ -114,143 +115,144 @@ const AddKitchen = ({ navigation }) => {
     }
 
     return (
-        <SafeAreaView>
+        <SafeAreaView style={{ flex: 1 }}>
             <Navbar screen={'Add Kitchen'} />
+            {addKitchen.loading ? <Loader /> : 
             <ScrollView className="p-4 bg-white">
                 <View className='mb-20'>
-                {/* Meal Category */}
-                <Text className="text-[18px] poppins-semibold mb-2">Meal Category <Text className='text-red-500'>*</Text></Text>
-                <View style={{ gap: 19 }} className="flex-row justify-between mb-4">
-                    {categoryData?.data?.data?.map((e, ind) => {
-                        return (
-                            <TouchableOpacity key={ind} onPress={() => setSelectedMealCategory(e.id)}
-                                style={{ boxShadow: selectedMealCategory == e.id ? '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' : '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' }}
-                                className={`py-3 flex-1 w-[50%] text-[16px] poppins-medium rounded-xl ${selectedMealCategory === e.id ? 'btn-color' : ''
-                                    }`}
-                            >
-                                <Text
-                                    className={`text-center poppins-medium ${selectedMealCategory === e.id ? 'text-white' : 'text-black'
+                    {/* Meal Category */}
+                    <Text className="text-[18px] poppins-semibold mb-2">Meal Category <Text className='text-red-500'>*</Text></Text>
+                    <View style={{ gap: 19 }} className="flex-row justify-between mb-4">
+                        {categoryData?.data?.data?.map((e, ind) => {
+                            return (
+                                <TouchableOpacity key={ind} onPress={() => setSelectedMealCategory(e.id)}
+                                    style={{ boxShadow: selectedMealCategory == e.id ? '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' : '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' }}
+                                    className={`py-3 flex-1 w-[50%] text-[16px] poppins-medium rounded-xl ${selectedMealCategory === e.id ? 'btn-color' : ''
                                         }`}
                                 >
-                                    {e.name}
-                                </Text>
-                            </TouchableOpacity>
-                        )
-                    })}
-                </View>
+                                    <Text
+                                        className={`text-center poppins-medium ${selectedMealCategory === e.id ? 'text-white' : 'text-black'
+                                            }`}
+                                    >
+                                        {e.name}
+                                    </Text>
+                                </TouchableOpacity>
+                            )
+                        })}
+                    </View>
 
-                {/* Cuisine Category */}
-                <Text className="text-[18px] poppins-semibold mb-2">Cuisine Category <Text className='text-red-500'>*</Text></Text>
-                <View className="flex-row space-x-4 mb-4">
-                    {['veg', 'nveg', 'both'].map((item, index) => (
-                        <View key={index} className="flex-1 items-center">
-                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    {/* Cuisine Category */}
+                    <Text className="text-[18px] poppins-semibold mb-2">Cuisine Category <Text className='text-red-500'>*</Text></Text>
+                    <View className="flex-row space-x-4 mb-4">
+                        {['veg', 'nveg', 'both'].map((item, index) => (
+                            <View key={index} className="flex-1 items-center">
+                                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                    <TouchableOpacity
+                                        style={[selectedCuisine == item ? styles.blueBorder : "", {
+                                            boxShadow: selectedCuisine === item ? '0px 0px 10px 0px rgba(5, 194, 104, 0.20)' : '0px 0px 10px 0px rgba(0, 0, 0, 0.14)',
+                                            height: 84, width: 100, justifyContent: 'center',
+                                            alignItems: 'center',
+                                        }]}
+                                        className={`items-center rounded-xl ${selectedCuisine === item ? 'bg-white' : ''}`}
+                                        onPress={() => setSelectedCuisine(item)}
+                                    >
+                                        {item === 'veg' && <Veg />}
+                                        {item === 'nveg' && <NonVeg />}
+                                        {item === 'both' && <Both />}
+                                    </TouchableOpacity>
+                                </View>
+
+                                <Text style={{ color: '#7B7B7B', fontSize: 12, marginTop: 5 }} className="text-[16px] poppins-medium text-center">
+                                    {item === 'veg' ? 'Veg' : item === 'nveg' ? 'Non Veg' : 'Both'}
+                                </Text>
+                            </View>
+                        ))}
+                    </View>
+
+                    {/* Food Style */}
+                    <Text className="text-[18px] poppins-semibold mb-2">Food Style <Text className='text-red-500'>*</Text></Text>
+                    <View className="relative">
+                        <View style={{
+                            borderWidth: 1,
+                            borderColor: '#D6D6D6',
+                            borderRadius: 8,
+                            gap: 6
+                        }} className="flex-row items-center rounded-xl px-4 py-2 bg-white">
+                            <TextInput
+                                onChangeText={handleFoodStyle}
+                                placeholder="Punjabi"
+                                className="flex-1 txt-grey poppins-regular"
+                                value={foodStyleText}
+                            />
+                            <Search />
+                        </View>
+                        {foodError && <Text className='poppins-regular text-[12px] text-red-500 mt-1'>Select food style from the list.</Text>}
+
+                        {foodStyleText?.length > 1 && showDropdown && <View
+                            className="absolute left-0 right-0 mt-2 w-full border bg-white rounded-[10px] shadow-lg"
+                            style={{
+                                boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)',
+                                top: '100%', backgroundColor: 'white', zIndex: 10, borderWidth: 1,
+                                borderColor: '#D6D6D6',
+                            }}
+                        >
+                            {foodStyle?.data?.data.length > 0 && foodStyle?.data?.data?.map((e, ind) => (
+                                <TouchableOpacity key={ind} style={{
+                                    borderBottomWidth: ind != foodStyle?.data?.data?.length - 1 ? 1 : 0,
+                                    borderBottomColor: ind != foodStyle?.data?.data?.length - 1 ? '#D6D6D6' : '',
+                                }} onPress={() => handleFoodStyleSelect(e)}>
+                                    <Text className="px-4 py-3 txt-grey poppins-regular">{e.cuisine_name}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>}
+                    </View>
+
+                    {/* Serving Days */}
+                    <Text className="text-[18px] mt-3 poppins-semibold mb-2">Serving Days <Text className='text-red-500'>*</Text></Text>
+                    <View style={{ gap: 19 }} className="flex-row space-x-4 mb-4 justify-between">
+                        {serving.map((el, ind) => {
+                            return <View key={ind} className='flex-1'>
+                                <Text className='text-[16px] poppins-medium mb-2'>{el.name == 'Mon To Sun' ? 'All Day' : 'Weekday'}</Text>
                                 <TouchableOpacity
-                                    style={[selectedCuisine == item ? styles.blueBorder : "", {
-                                        boxShadow: selectedCuisine === item ? '0px 0px 10px 0px rgba(5, 194, 104, 0.20)' : '0px 0px 10px 0px rgba(0, 0, 0, 0.14)',
-                                        height: 84, width: 100, justifyContent: 'center',
-                                        alignItems: 'center',
-                                    }]}
-                                    className={`items-center rounded-xl ${selectedCuisine === item ? 'bg-white' : ''}`}
-                                    onPress={() => setSelectedCuisine(item)}
+                                    style={{ boxShadow: day == el.id ? '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' : '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' }}
+                                    className={`py-3 text-[16px] poppins-medium rounded-xl ${day == el.id ? 'btn-color' : ''
+                                        }`}
+                                    onPress={() => setDay(el.id)}
                                 >
-                                    {item === 'veg' && <Veg />}
-                                    {item === 'nveg' && <NonVeg />}
-                                    {item === 'both' && <Both />}
+                                    <Text
+                                        className={`text-center text-[16px] poppins-medium ${day == el.id ? 'text-white' : 'text-black'
+                                            }`}
+                                    >
+                                        {el.name}
+                                    </Text>
                                 </TouchableOpacity>
                             </View>
-
-                            <Text style={{ color: '#7B7B7B', fontSize: 12, marginTop: 5 }} className="text-[16px] poppins-medium text-center">
-                                {item === 'veg' ? 'Veg' : item === 'nveg' ? 'Non Veg' : 'Both'}
-                            </Text>
-                        </View>
-                    ))}
-                </View>
-
-                {/* Food Style */}
-                <Text className="text-[18px] poppins-semibold mb-2">Food Style <Text className='text-red-500'>*</Text></Text>
-                <View className="relative">
-                    <View style={{
-                        borderWidth: 1,
-                        borderColor: '#D6D6D6',
-                        borderRadius: 8,
-                        gap: 6
-                    }} className="flex-row items-center rounded-xl px-4 py-2 bg-white">
-                        <TextInput
-                            onChangeText={handleFoodStyle}
-                            placeholder="Punjabi"
-                            className="flex-1 txt-grey poppins-regular"
-                            value={foodStyleText}
-                        />
-                        <Search />
+                        })}
                     </View>
-                    {foodError && <Text className='poppins-regular text-[12px] text-red-500 mt-1'>Select food style from the list.</Text>}
 
-                    {foodStyleText?.length > 1 && showDropdown && <View
-                        className="absolute left-0 right-0 mt-2 w-full border bg-white rounded-[10px] shadow-lg"
-                        style={{
-                            boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)',
-                            top: '100%', backgroundColor: 'white', zIndex: 10, borderWidth: 1,
-                            borderColor: '#D6D6D6',
-                        }}
-                    >
-                        {foodStyle?.data?.data.length > 0 && foodStyle?.data?.data?.map((e, ind) => (
-                            <TouchableOpacity key={ind} style={{
-                                borderBottomWidth: ind!= foodStyle?.data?.data?.length-1 ? 1 : 0,
-                                borderBottomColor: ind!= foodStyle?.data?.data?.length-1 ? '#D6D6D6' : '',
-                            }} onPress={() => handleFoodStyleSelect(e)}>
-                                <Text className="px-4 py-3 txt-grey poppins-regular">{e.cuisine_name}</Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>}
-                </View>
-
-                {/* Serving Days */}
-                <Text className="text-[18px] mt-3 poppins-semibold mb-2">Serving Days <Text className='text-red-500'>*</Text></Text>
-                <View style={{ gap: 19 }} className="flex-row space-x-4 mb-4 justify-between">
-                    {serving.map((el, ind) => {
-                        return <View key={ind} className='flex-1'>
-                            <Text className='text-[16px] poppins-medium mb-2'>{el.name == 'Mon To Sun' ? 'All Day' : 'Weekday'}</Text>
+                    {/* Meal Times */}
+                    <Text className="text-[18px] poppins-semibold mb-2">Meal Times <Text className='text-red-500'>*</Text></Text>
+                    <View style={{ gap: 17 }} className="flex-row mb-4">
+                        {['breakfast', 'lunch', 'dinner'].map((item, index) => (
                             <TouchableOpacity
-                                style={{ boxShadow: day == el.id ? '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' : '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' }}
-                                className={`py-3 text-[16px] poppins-medium rounded-xl ${day == el.id ? 'btn-color' : ''
+                                key={index}
+                                style={{ boxShadow: selectedMealTimes.includes(item) ? '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' : '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' }}
+                                className={`p-3 flex-1 rounded-xl ${selectedMealTimes.includes(item) ? 'btn-color' : ''
                                     }`}
-                                onPress={() => setDay(el.id)}
+                                onPress={() => toggleMealTime(item)}
                             >
                                 <Text
-                                    className={`text-center text-[16px] poppins-medium ${day == el.id ? 'text-white' : 'text-black'
+                                    className={`text-center text-[16px] poppins-medium ${selectedMealTimes.includes(item) ? 'text-white' : 'text-black'
                                         }`}
                                 >
-                                    {el.name}
+                                    {item == 'breakfast' ? 'Breakfast' : item == 'dinner' ? 'Dinner' : 'Lunch'}
                                 </Text>
                             </TouchableOpacity>
-                        </View>
-                    })}
-                </View>
+                        ))}
+                    </View>
 
-                {/* Meal Times */}
-                <Text className="text-[18px] poppins-semibold mb-2">Meal Times <Text className='text-red-500'>*</Text></Text>
-                <View style={{ gap: 17 }} className="flex-row mb-4">
-                    {['breakfast', 'lunch', 'dinner'].map((item, index) => (
-                        <TouchableOpacity
-                            key={index}
-                            style={{ boxShadow: selectedMealTimes.includes(item) ? '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' : '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' }}
-                            className={`p-3 flex-1 rounded-xl ${selectedMealTimes.includes(item) ? 'btn-color' : ''
-                                }`}
-                            onPress={() => toggleMealTime(item)}
-                        >
-                            <Text
-                                className={`text-center text-[16px] poppins-medium ${selectedMealTimes.includes(item) ? 'text-white' : 'text-black'
-                                    }`}
-                            >
-                                {item == 'breakfast' ? 'Breakfast' : item == 'dinner' ? 'Dinner' : 'Lunch'}
-                            </Text>
-                        </TouchableOpacity>
-                    ))}
-                </View>
-
-                {/* Time Inputs */}
-                {/* {selectedMealTimes.map((meal, index) => (
+                    {/* Time Inputs */}
+                    {/* {selectedMealTimes.map((meal, index) => (
                     <View key={index} className="mb-4">
                         <Text className="text-[18px] poppins-semibold mb-2">{meal == 'breakfast' ? 'Breakfast' : meal == 'lunch' ? 'Lunch' : 'Dinner'} Time</Text>
                         <View
@@ -278,12 +280,13 @@ const AddKitchen = ({ navigation }) => {
                     </View>
                 ))} */}
 
-                {/* Submit Button */}
-                <TouchableOpacity onPress={handleSubmit} className="btn-color py-[10] rounded-xl mt-2 mb-10">
-                <Text className="text-center text-[18px] poppins-medium text-white">Submit</Text>
-                </TouchableOpacity>
+                    {/* Submit Button */}
+                    <TouchableOpacity onPress={handleSubmit} className="btn-color py-[10] rounded-xl mt-2 mb-10">
+                        <Text className="text-center text-[18px] poppins-medium text-white">Submit</Text>
+                    </TouchableOpacity>
                 </View>
             </ScrollView>
+            }
         </SafeAreaView>
     );
 };

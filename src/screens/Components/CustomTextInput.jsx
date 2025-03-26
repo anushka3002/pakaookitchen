@@ -12,6 +12,7 @@ const CustomTextInput = ({control, label, name, placeholder, errors, capitalize,
             render={({ field: { onChange, value } }) => (
               <TextInput
                 className="border poppins-regular text-[15px] border-gray-300 rounded-[10px] px-3 py-3"
+                style={{paddingBottom: 8}}
                 placeholder={placeholder}
                 onChangeText={onChange}
                 keyboardType={keyboard ?? 'default'}

@@ -103,6 +103,7 @@ export const getAddressFromCoordinates = (latitude, longitude) => async (dispatc
     try {
       dispatch(setLocationCordLoading());
       const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`);
+      console.log(response)
       dispatch(setLocationCordSuccess(response?.data?.results[0].formatted_address));
     } catch (error) {
       if (error.response) {

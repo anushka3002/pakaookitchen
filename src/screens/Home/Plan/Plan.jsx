@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Navbar from '../../Components/Navbar'
 import Trial from '../../../assets/trial'
 import RightArrow from '../../../assets/right-arrow-blue'
@@ -8,13 +8,13 @@ import NvegSymbol from '../../../assets/nveg-symbol'
 import NoPlanAdded from '../../../assets/no-plan-added'
 import { useDispatch, useSelector } from 'react-redux'
 import { getMenuDraft, getPlanDetails } from '../../../reducers/planSlice'
-import LottieView from 'lottie-react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import Loader from '../../../Loader'
 
 const Plan = ({ navigation }) => {
-
-  const dispatch = useDispatch()
   const { planDetails, loading } = useSelector(state => state.plan)
+  const [meal, setMeal] = useState(planDetails?.data?.data?.selectedMeal);
+  const dispatch = useDispatch()
   useEffect(() => {
     dispatch(getPlanDetails(null))
   }, [])
@@ -29,28 +29,21 @@ const Plan = ({ navigation }) => {
         <Navbar screen={'Plan'} />
         <View style={{ gap: 20 }} className='pt-6 pb-2 flex-row flex-wrap items-center justify-center'>
           {planDetails?.data?.data?.mealNames.map((el, ind) => {
-            return <TouchableOpacity key={ind} onPress={() => dispatch(getPlanDetails(el))}><Text style={[el == planDetails?.data?.data?.selectedMeal ?
+            return <TouchableOpacity key={ind} onPress={() => {setMeal(el); dispatch(getPlanDetails(el))}}><Text style={[el == meal ?
               styles.blueBtn : styles.whiteBtn, { boxShadow: '0 -1px 14px rgba(0, 0, 0, 0.13)' }]}
-              className='text-[15px] poppins-medium text-white rounded-[30px] px-10 py-2'>{el.split('')[0].toUpperCase() + el.slice(1)}</Text></TouchableOpacity>
+              className='text-[13px] poppins-medium text-white rounded-[30px] px-5 py-2'>{el.split('')[0].toUpperCase() + el.slice(1)}</Text></TouchableOpacity>
           })}
         </View>
-        <ScrollView>
-          {planDetails?.data?.data?.message == 'No plan exits' ? <View className='flex-1 items-center justify-center mt-[136]'><NoPlanAdded />
+        <View style={{flex: 0.75}}>
+          {planDetails?.data?.data?.message == 'No plan exits' ? <View className='flex-1 items-center justify-center'><NoPlanAdded />
             <Text className='text-[23px] poppins-semibold mt-[20]'>No Plan Added</Text>
             <Text className='text-[15px] poppins-medium txt-grey'>Please add plan to start!!</Text>
           </View> : <>
-            <View className='mx-4 pt-4'>
-              {loading ? <View className="items-center justify-center mt-[160]">
-                <LottieView
-                  source={require("../../../assets/pan-loader")}
-                  autoPlay
-                  loop
-                  style={{ width: 150, height: 150 }}
-                />
-              </View> : planDetails?.data?.data?.plan_info?.map((elm, index) => {
+            <View className='mx-4 pt-4 flex-1'>
+              {loading ? <Loader /> : planDetails?.data?.data?.plan_info?.map((elm, index) => {
                 return <TouchableOpacity onPress={() => handlePlanDetail(elm, index)} key={index} style={{
                   boxShadow: '0 -1px 14px rgba(0, 0, 0, 0.13)',
-                }} className='flex-row mb-6 rounded-[20]'>
+                }} className='flex-row mb-6 rounded-[20] mt-2'>
                   <Image
                     width={109}
                     height={'100%'}
@@ -89,7 +82,7 @@ const Plan = ({ navigation }) => {
               })}
             </View>
           </>}
-        </ScrollView>
+        </View>
         <TouchableOpacity style={{ borderTopLeftRadius: 50, borderBottomLeftRadius: 50, bottom: 120, boxShadow: ' 0px 0px 10px 0px rgba(47, 95, 248, 0.40)' }}
           className='absolute right-0 btn-color px-6 py-2' onPress={() => navigation.navigate('AddPlan')}><View>
             <Text className='text-white text-[14px] poppins-medium'>Add Plan</Text>

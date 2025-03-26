@@ -241,3 +241,16 @@ const compressAndConvertToBase64 = async (uri) => {
       return null;
   }
 };
+
+export function compareVersions (v1, v2) {
+  const v1Parts = v1.split('.').map(Number);
+  const v2Parts = v2.split('.').map(Number);
+
+  for (let i = 0; i < Math.max(v1Parts.length, v2Parts.length); i++) {
+      const num1 = v1Parts[i] || 0;
+      const num2 = v2Parts[i] || 0;
+      if (num1 < num2) return -1;
+      if (num1 > num2) return 1;
+  }
+  return 0;
+};

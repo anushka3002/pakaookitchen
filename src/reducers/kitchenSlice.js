@@ -112,7 +112,7 @@ export const createUserData = (userData) => async (dispatch) => {
     dispatch(setProfileLoading());
     const authToken = await EncryptedStorage.getItem('auth_token');
     const public_key = await EncryptedStorage.getItem('public_key');
-
+    console.log(userData)
     const headers = {
       'x-api-key': REACT_NATIVE_X_API_KEY,
       'x-public-key': public_key,

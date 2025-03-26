@@ -52,7 +52,7 @@ const LoginOTP = ({ navigation, route }) => {
   };
 
   const handleResend = () => {
-    setTimer(60);
+    setTimer(5);
     setOtpValue(new Array(6).fill(""));
     inputRefs.current[0].focus();
     dispatch(fetchUserData(phone))

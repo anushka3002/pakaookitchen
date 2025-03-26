@@ -149,6 +149,8 @@ const PlanStepper = ({ navigation, route }) => {
                 : menuDataVal[lastIndex + 1].day
             : "No Selection";
 
+
+    console.log(menuDraft?.data?.data?.menu)
     return (
         <SafeAreaView className='bg-white flex-1'>
             <Navbar screen={'Plan'} />
@@ -187,11 +189,12 @@ const PlanStepper = ({ navigation, route }) => {
                             })}
                         </View>
 
-                        {foodType == 'Both' && <Text className='poppins-medium mt-[23]'>Veg Items</Text>}
+                        {foodType == 'Both' && <Text className='poppins-medium' style={{ marginTop: 14 }}>Veg Items</Text>}
                         {(foodType == 'Veg' || foodType == 'Both') && <View className="mt-[15]">
                             <View className='border border-gray-300 rounded-[10] flex-row justify-between mb-4'>
                                 <TextInput
                                     className="txt-grey flex-1 poppins-regular rounded-lg p-3 items-center justify-center"
+                                    placeholderTextColor="#7B7B7B"
                                     placeholder="Enter Food Item"
                                     value={vegFoodItem}
                                     onChangeText={(e) => setVegFoodItem(e)}
@@ -205,7 +208,7 @@ const PlanStepper = ({ navigation, route }) => {
                                 return (
                                     <View
                                         key={index}
-                                        className="border border-[#D6D6D6] rounded-[10px] flex-row items-center justify-between mb-[10]"
+                                        className="border border-[#D6D6D6] rounded-[10px] flex-row items-center justify-between"
                                     >
                                         <View className="flex-row">
                                             <TouchableOpacity
@@ -223,6 +226,7 @@ const PlanStepper = ({ navigation, route }) => {
                                             </View>
                                             <TextInput
                                                 className="poppins-regular text-[#7B7B7B] text-[14px] mr-[11]"
+                                                placeholderTextColor="#7B7B7B"
                                                 placeholder="Enter value"
                                                 keyboardType="number-pad"
                                                 value={item.weight ? item.weight.toString() : item.quantity ? item.quantity.toString() : ""}
@@ -263,11 +267,12 @@ const PlanStepper = ({ navigation, route }) => {
                             })}
                         </View>}
 
-                        {(foodType == 'Non veg' || foodType == 'Both') && <Text className='poppins-medium mt-5'>Non Veg Items</Text>}
-                        {(foodType == 'Non veg' || foodType == 'Both') && <View className="mt-[15]">
+                        {(foodType == 'Non veg' || foodType == 'Both') && <Text className='poppins-medium'>Non Veg Items</Text>}
+                        {(foodType == 'Non veg' || foodType == 'Both') && <View style={{ marginTop: 14 }}>
                             <View className='border border-gray-300 rounded-[10] flex-row justify-between mb-4'>
                                 <TextInput
                                     className="txt-grey flex-1 poppins-regular rounded-lg p-3 items-center justify-center"
+                                    placeholderTextColor="#7B7B7B"
                                     placeholder="Enter Food Item"
                                     value={nvegFoodItem}
                                     onChangeText={setNvegFoodItem}
@@ -291,9 +296,10 @@ const PlanStepper = ({ navigation, route }) => {
                                         <View className='mr-[10] ml-[4]'><VerticalBar /></View>
                                         <TextInput
                                             className='poppins-regular text-[#7B7B7B] text-[14px] mr-[11]'
+                                            placeholderTextColor="#7B7B7B"
                                             placeholder='Enter value'
                                             keyboardType='numeric'
-                                            value={item.weight ? item.weight.toString() : ""}
+                                            value={item?.weight ? item?.weight.toString() : ""}
                                             onChangeText={(text) => updateFoodItem(index, "weight", text, 'nveg')}
                                         />
                                     </View>

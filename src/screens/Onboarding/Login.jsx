@@ -78,7 +78,7 @@ const LoginScreen = ({ navigation }) => {
         <TouchableOpacity
           disabled={phoneNumber.length !== 10}
           onPress={handleLogin}
-          className={`${phoneNumber.length !== 10 ? 'btn-disabled' : 'btn-color'} py-3 justify-center rounded-xl`}
+          className={`${phoneNumber.length !== 10 ? 'btn-disabled' : 'btn-color'} py-2 justify-center rounded-xl`}
           style={{ height: 56 }}
         >
           <View style={{ justifyContent: 'center', alignItems: 'center' }}>

@@ -2,7 +2,15 @@ import React, { useEffect, useState } from "react";
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import messaging from '@react-native-firebase/messaging';
 import "./global.css";
+import ForceUpdate from './src/screens/ForceUpdate';
+import DeviceInfo from 'react-native-device-info';
+import { compareVersions } from './src/constant';
+
+const appVersion = DeviceInfo.getVersion();
+
+// Screens
 import PendingScreen from './src/screens/ApplicationStatus/Pending';
 import ApprovedScreen from './src/screens/ApplicationStatus/Approved';
 import RejectedScreen from './src/screens/ApplicationStatus/Rejected';
@@ -19,7 +27,7 @@ import SplashScreen from 'react-native-splash-screen';
 import AddPlan from "./src/screens/Home/Plan/AddPlan";
 import Plan from "./src/screens/Home/Plan/Plan";
 import PlanStepper from "./src/screens/Home/Plan/PlanStepper";
-import { getPublicKey } from "./src/reducers/authSlice";
+import { getPublicKey, versionCheck } from "./src/reducers/authSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import PlanDetails from "./src/screens/Home/Plan/PlanDetails";
 import Order from "./src/screens/Home/Order/Order";
@@ -44,8 +52,8 @@ import CurrentCycle from "./src/screens/Home/CurrentCycle";
 import ContactUs from "./src/screens/Home/Profile/ContactUs";
 import Rider from "./src/screens/Home/Profile/Rider";
 import AddRider from "./src/screens/Home/Profile/AddRider";
-import LottieView from "lottie-react-native";
 import Loader from "./src/Loader";
+import EditProfile from "./src/screens/Home/Profile/EditProfile";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -150,6 +158,7 @@ function RootStack({ initialRoute }) {
       <Stack.Screen name="OrderDetails" component={OrderDetails} />
       <Stack.Screen name="CurrentCycle" component={CurrentCycle} />
       <Stack.Screen name="FAQ" component={FAQ} />
+      <Stack.Screen name="EditProfile" component={EditProfile} />
       <Stack.Screen name="TermsConditions" component={TermsConditions} />
       <Stack.Screen name="Notification" component={Notification} />
       <Stack.Screen name="ContactUs" component={ContactUs} />
@@ -162,12 +171,21 @@ function RootStack({ initialRoute }) {
 function AppWrapper() {
   const dispatch = useDispatch();
   const kitchenStatus = useSelector(state => state.kitchenData?.kitchenStatus);
-  const { logout, loading } = useSelector(state => state.auth)
+  const { logout, loading, version } = useSelector(state => state.auth)
 
   const [initialRoute, setInitialRoute] = useState(null);
   const [authToken, setAuthToken] = useState(null);
   const [storedKitchenStatus, setStoredKitchenStatus] = useState(null);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [update, setUpdate] = useState(false)
+  // 🔹 Foreground Notification Handler
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      console.log('📩 Foreground Message:', remoteMessage);
+    });
+
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     dispatch(getPublicKey());
@@ -175,6 +193,10 @@ function AppWrapper() {
     const fetchInitialRoute = async () => {
       try {
         const token = await EncryptedStorage.getItem('auth_token');
+        console.log(token)
+        let public_key = await EncryptedStorage.getItem('public_key');
+        dispatch(versionCheck(public_key))
+
         setAuthToken(token);
         if (!token) {
           setInitialRoute("Login");
@@ -227,6 +249,25 @@ function AppWrapper() {
   }, [authToken, status, storedKitchenStatus]);
 
   useEffect(() => {
+    // if (version === undefined) {
+    //   dispatch(versionCheck(token))
+    // }
+
+
+    if (version && appVersion) {
+      if (compareVersions(appVersion, version?.minimum_version) < 0) {
+        // Alert.alert(
+        //   "Update Required",
+        //   "A new version of the app is available. Please update to continue.",
+        //   [{ text: "Update Now", onPress: () => Linking.openURL("https://pakaoo.co") }]
+        // );
+        setUpdate(true)
+      }
+    }
+
+  }, [version, loading])
+
+  useEffect(() => {
     if (!loading && initialRoute !== null && !initialLoading) {
       SplashScreen.hide();
     }
@@ -237,7 +278,13 @@ function AppWrapper() {
       <Loader />
     );
 
-  return <>{initialRoute && <RootStack initialRoute={initialRoute} />}</>;
+  return <>
+    {update ? <ForceUpdate /> :
+      <>
+        {initialRoute && <RootStack initialRoute={initialRoute} />}
+      </>
+    }
+  </>;
 }
 
 export default function Navigation() {

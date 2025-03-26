@@ -22,7 +22,10 @@ const initialState = {
   logout: {
     data: null
   },
-  loading: false,
+  kitchenProfileKyc : {},
+  version: null,
+  loading: null,
+  profileDataloading: false,
   login_loading: false,
   otp_loading: false
 };
@@ -97,6 +100,26 @@ export const authSlice = createSlice({
       state.loading = false;
       state.logout.data = action.payload
     },
+    setVersionLoading: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    setVersion: (state, action) => {
+      state.loading = false;
+      state.version = action.payload;
+    },
+    setVersionError: (state, action) => {
+      state.loading = false;
+      state.error.data = action.payload
+    },
+    setKitchenInfo: (state, action) => {
+      state.profileDataloading = false;
+      state.kitchenProfileKyc = action.payload
+    },
+    setLoading: (state) => {
+      state.profileDataloading = true;
+      state.error = null;
+    },
   },
 });
 
@@ -104,7 +127,8 @@ export const authSlice = createSlice({
 export const { setPublicKeyLoading, setPublicKeyData, setPublicKeyError, setUserLoading,
   setUserData, setUserError, setOtpLoading, setOtpSuccess, setOtpError,
   setProfileError, setProfileLoading, setProfileData, setDeleteProfileData,
-  setDeleteProfileError, setDeleteProfileLoading, setLogoutLoading, setLogoutData, 
+  setDeleteProfileError, setDeleteProfileLoading, setLogoutLoading, setLogoutData, setVersionLoading, setVersion, setVersionError,
+  setLoading, setKitchenInfo,
   setLogoutError, setAuthToken } = authSlice.actions;
 
 export const getPublicKey = () => async (dispatch) => {
@@ -241,6 +265,46 @@ export const deleteAccount = (id) => async (dispatch) => {
       dispatch(setDeleteProfileError(error.message));
     }
   }
+};
+
+// Async function to for forceUpdate
+export const versionCheck = (publicToken) => async (dispatch) => {
+  dispatch(setVersionLoading());
+  try {
+    const { data } = await axios.get(`${REACT_NATIVE_API}/auth/appVersion`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': REACT_NATIVE_X_API_KEY,
+        'x-public-key': publicToken
+      },
+    });
+    dispatch(setVersion(data.data));
+  } catch (error) {
+    console.log(error.response.data)
+    dispatch(setError(error.response || 'Something went wrong')); 
+  } 
+};
+
+// Async function to for forceUpdate
+export const getKitchenAllInfo = () => async (dispatch) => {
+  dispatch(setLoading());
+  try {
+    const authToken = await EncryptedStorage.getItem('auth_token');
+    const public_key = await EncryptedStorage.getItem('public_key');
+    const { data } = await axios.get(`${REACT_NATIVE_API}/profile/kitchen/all_info`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': REACT_NATIVE_X_API_KEY,
+        'x-public-key': public_key,
+        'x-auth-key': authToken,
+      },
+    });
+    // console.log(data)
+    dispatch(setKitchenInfo(data));
+  } catch (error) {
+    console.log(error.response.data)
+    dispatch(setError(error.response || 'Something went wrong')); 
+  } 
 };
 
 export default authSlice.reducer;
