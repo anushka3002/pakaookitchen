@@ -11,7 +11,7 @@ import { getMenuDraft, getPlanDetails } from '../../../reducers/planSlice'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Loader from '../../../Loader'
 import { useFocusEffect } from '@react-navigation/native'
-import { getSelectedDay } from '../../../constant'
+import { getSelectedDay, storeMenuData } from '../../../constant'
 import Back from '../../../assets/back.svg';
 
 const Plan = ({ navigation }) => {
@@ -26,14 +26,17 @@ const Plan = ({ navigation }) => {
   );
 
   const handlePlanDetail = async (elm, ind) => {
-    const pageInfo = await getSelectedDay()
-    const currentPage = pageInfo.selectedPage
-    console.log(currentPage)
+
+    const pageInfo = await getSelectedDay() || {}; // Ensure it's an object
+    const currentPage = pageInfo.selectedPage || null;
+    
     if (currentPage == 'preview') {
       navigation.navigate('PlanDetails', { planData: elm, ind: ind, editMenu: 0 })
     } else {
-      dispatch(getMenuDraft(elm.id, 0, 0, elm.status == 'approved' ? 0 : 1, navigation, elm, ind))
+      console.log(currentPage)
+    dispatch(getMenuDraft(elm.id, 0, 0, elm.status == 'approved' ? 0 : 1, navigation, elm, ind))
     }
+
   }
 
   return (

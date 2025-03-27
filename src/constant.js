@@ -259,7 +259,7 @@ export function compareVersions (v1, v2) {
 // Store selectedDay Securely
 export async function storeMenuData(menu) {
     const dataToStore = {
-        menu: menu,
+        menu: menu || null,
         selectedDay: menu[0]?.id || null, // Default to first day's ID,
         selectedPage: null
     };

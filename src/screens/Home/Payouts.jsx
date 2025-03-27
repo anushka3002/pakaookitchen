@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, TouchableOpacity, Button, StyleSheet, FlatList, ActivityIndicator } from 'react-native'
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { LinearGradient } from 'react-native-linear-gradient';
 import Arrow from '../../assets/payout-blue-arrow';
 import Dropdown from '../../assets/payout-dropdown';
@@ -12,6 +12,7 @@ import Modal from "react-native-modal";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import moment from "moment";
 import Loader from '../../Loader';
+import { useFocusEffect } from '@react-navigation/native';
 const Payouts = ({ navigation }) => {
 
   const { currentCycleData, transactionsData, loading } = useSelector(state => state.profileData)
@@ -57,15 +58,20 @@ const Payouts = ({ navigation }) => {
       setSelectedDates(newMarkedDates);
     }
   };
+console.log(currentCycleData)
 
-  useEffect(() => {
-    dispatch(getCurrentCycle())
+useFocusEffect(
+  useCallback(() => {
+    dispatch(getCurrentCycle());
   }, [])
+);
 
-  useEffect(() => {
+useFocusEffect(
+  useCallback(() => {
     setPage(1); // Reset page on date range change
     dispatch(getTransactions(1, range.start, range.end));
-  }, [range]);
+  }, [range])
+);
 
   // Load more transactions when reaching bottom
   const loadMoreTransactions = () => {

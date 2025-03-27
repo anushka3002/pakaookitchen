@@ -20,6 +20,8 @@ import { getSelectedDay, storeMenuData, updateSelectedDay } from '../../../const
 const PlanStepper = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const { planId, planData, ind, edit } = route.params
+  // Api responses
+  const { menuDraft, planDetails, addItemDetails, loading } = useSelector(state => state.plan)
   const [selectedDay, setSelectedDay] = useState(menuDraft?.data?.data?.menu[0].id);
   const [selectedMenu, setSelectedMenu] = useState()
   const [foodType, setFoodType] = useState('')
@@ -65,7 +67,6 @@ const PlanStepper = ({ navigation, route }) => {
     }
   };
 
-
   const removeFoodItem = (index, type) => {
     if (type == 'veg') {
       setVegFoodList(vegFoodList.filter((_, i) => i !== index));
@@ -106,14 +107,14 @@ const PlanStepper = ({ navigation, route }) => {
   const elm = {
     status: 'pending'
   }
-  // Api responses
-  const { menuDraft, planDetails, addItemDetails, loading } = useSelector(state => state.plan)
 
+console.log(menuDraft)
   // Functional Effect
   useEffect(() => {
     dispatch(getMenuDraft(planId, 0, 0, edit, null, elm, null)) // (planId, veg, nveg, menu_editing)
   }, [planId, addItemDetails])
   console.log(selectedDay)
+
   useEffect(() => {
     if (menuDraft.data != null) {
       caller()
@@ -123,14 +124,20 @@ const PlanStepper = ({ navigation, route }) => {
   const menuData = menuDraft?.data?.data?.menu
 
   const caller = async () => {
-    const currentSelected = await getSelectedDay()
+
+    const currentSelected = await getSelectedDay() || {}
+
+    if(!currentSelected) {
+      await storeMenuData(menuData)
+    }
     setSelectedDay(currentSelected.selectedDay)
 
     if (currentSelected?.selectedPage == 'preview') {
       navigation.navigate('PlanDetails', { planData: planData, ind: ind, editMenu: 0 })
     }
-
+    console.log(currentSelected.selectedDay)
     const selectedMenu = menuData?.filter(item => item.id === currentSelected.selectedDay);
+    console.log(selectedMenu)
     setSelectedMenu(selectedMenu[0])
     setVegFoodList(selectedMenu[0]?.vegItem)
     setNvegFoodList(selectedMenu[0]?.nvegItem)
@@ -231,7 +238,7 @@ const PlanStepper = ({ navigation, route }) => {
     }
   };
 
-
+console.log(selectedMenu)
   return (
     <SafeAreaView className='bg-white' style={{ flex: 1 }}>
       <Navbar screen={'Plan'} />

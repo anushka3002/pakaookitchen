@@ -129,7 +129,7 @@ export const getMenuDraft = (id, veg, nveg, edit, navigation, elm, ind) => async
         console.log("I am here")
         const authToken = await EncryptedStorage.getItem('auth_token')
         const public_key = await EncryptedStorage.getItem('public_key')
-console.log(elm)
+
         const headers = {
             'x-api-key': REACT_NATIVE_X_API_KEY,
             'x-public-key': public_key,
@@ -178,7 +178,7 @@ export const addPlanDetails = (data, navigation) => async (dispatch) => {
         };
 
         const response = await axios.post(`${REACT_NATIVE_FOOD_API}/kitchen/add_plan`, data, { headers });
-        console.log(response)
+        console.log(response.data.data.planId)
         dispatch(setAddPlanData(response.data));
         dispatch(getPlanDetails(null))
         navigation.navigate('PlanStepper', { planId: response.data.data.planId })
@@ -205,8 +205,9 @@ export const addFoodDetails = (data) => async (dispatch) => {
             'x-auth-key': authToken
         };
 
-
+console.log(data)
         const response = await axios.post(`${REACT_NATIVE_FOOD_API}/kitchen/add_item`, data, { headers });
+        console.log(response)
         dispatch(setAddItemDetailsLoading(response.data));
     } catch (error) {
         console.log(error.response)

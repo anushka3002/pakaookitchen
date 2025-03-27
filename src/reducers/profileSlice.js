@@ -456,7 +456,7 @@ export const getCurrentCycle = () => async (dispatch) => {
             'x-auth-key': authToken,
         };
         const response = await axios.get(`${REACT_NATIVE_PAYMENT_KEY}/kitchenWallet/currentcycle`, { headers });
-        console.log("Current cycle",response)
+
         dispatch(setCurrentCycleData(response.data.data));
     } catch (error) {
         console.log("get current cycle error",error.response)
