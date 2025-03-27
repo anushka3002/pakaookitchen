@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import { REACT_NATIVE_FOOD_API, REACT_NATIVE_X_API_KEY } from '@env';
+import { storeMenuData } from '../constant';
 
 const initialState = {
     planDetails: {
@@ -125,27 +126,36 @@ export const getPlanDetails = (meal) => async (dispatch) => {
 export const getMenuDraft = (id, veg, nveg, edit, navigation, elm, ind) => async (dispatch) => {
     try {
         dispatch(setMenuDraftLoading());
-
+        console.log("I am here")
         const authToken = await EncryptedStorage.getItem('auth_token')
         const public_key = await EncryptedStorage.getItem('public_key')
-
+console.log(elm)
         const headers = {
             'x-api-key': REACT_NATIVE_X_API_KEY,
             'x-public-key': public_key,
             'x-auth-key': authToken
         };
-        const response = await axios.get(`${REACT_NATIVE_FOOD_API}/kitchen/plan_draft?planId=${id}&veg=${veg}&nveg=${nveg}&menu_editing=${edit}`, { headers });
-        dispatch(setMenuDraftData(response?.data))
         if (elm.status == 'approved') {
-            navigation.navigate('PlanDetails', { planData: elm, ind: ind, editMenu: 1 })
-        } else{
-            if (elm.stepper) {
-                navigation.navigate('PlanStepper', { planId: id, planData: elm, ind: ind, edit: 1  })
-            } else {
-                navigation.navigate('PlanDetails', { planData: elm, ind: ind})
-            }
-        } 
+            veg = 1
+        }
+        const response = await axios.get(`${REACT_NATIVE_FOOD_API}/kitchen/plan_draft?planId=${id}&veg=${veg}&nveg=${nveg}&menu_editing=${edit}`, { headers });
+        console.log(response)
+        dispatch(setMenuDraftData(response?.data))
+
+        if(navigation !== null) {
+            if (elm.status == 'approved') {
+                navigation.navigate('PlanDetails', { planData: elm, ind: ind, editMenu: 1 })
+            } else{
+                if (elm.stepper) {
+                    navigation.navigate('PlanStepper', { planId: id, planData: elm, ind: ind, edit: 1  })
+                } else {
+                    navigation.navigate('PlanDetails', { planData: elm, ind: ind})
+                }
+            } 
+        }
+
     } catch (error) {
+        console.log(error)
         if (error.response) {
             dispatch(setMenuDraftError(error.response.data.error));
         } else {
@@ -173,6 +183,7 @@ export const addPlanDetails = (data, navigation) => async (dispatch) => {
         dispatch(getPlanDetails(null))
         navigation.navigate('PlanStepper', { planId: response.data.data.planId })
     } catch (error) {
+        console.log(error)
         if (error.response) {
             dispatch(setAddPlanError(error.response.data.error));
         } else {
@@ -193,9 +204,12 @@ export const addFoodDetails = (data) => async (dispatch) => {
             'x-public-key': public_key,
             'x-auth-key': authToken
         };
+
+
         const response = await axios.post(`${REACT_NATIVE_FOOD_API}/kitchen/add_item`, data, { headers });
         dispatch(setAddItemDetailsLoading(response.data));
     } catch (error) {
+        console.log(error.response)
         if (error.response) {
             dispatch(setAddItemDetailsError(error.response.data.error));
         } else {

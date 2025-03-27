@@ -6,12 +6,13 @@ import { useDispatch, useSelector } from 'react-redux'
 import { currentCycleDetails, getTransactionDetail } from '../../reducers/profileSlice'
 import { formatPayoutDate } from '../../constant'
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Loader from '../../Loader'
 
 const CurrentCycle = ({ route }) => {
 
     const { id } = route.params;
     const dispatch = useDispatch()
-    const { currentDetails, transactionDetail } = useSelector(state => state.profileData)
+    const { currentDetails, transactionDetail, loading } = useSelector(state => state.profileData)
 
     useEffect(() => {
         if (id != -1) {
@@ -24,9 +25,10 @@ const CurrentCycle = ({ route }) => {
     const value = id == -1 ? currentDetails?.data?.data : transactionDetail?.data?.return_payout;
 
     return (
-        <SafeAreaView className={`nav-bg`}>
-            <View className='bg-white h-screen'>
+        <SafeAreaView className={`nav-bg`} style={{flex: 1, backgroundColor: "#fff"}}>
+            <View className='bg-white' style={{flex: 1}}>
                 <Navbar screen={'Current cycle'} />
+                {loading ? <Loader /> :
                 <View className='px-[15]'>
                     {value?.length == 0 ? <Text className='text-[16px] poppins-medium text-[#737373] text-center mt-[236]'>Pay out is not available</Text> :
                         <LinearGradient
@@ -79,6 +81,7 @@ const CurrentCycle = ({ route }) => {
                             </View>
                         </LinearGradient>}
                 </View>
+                }
             </View>
         </SafeAreaView>
     )

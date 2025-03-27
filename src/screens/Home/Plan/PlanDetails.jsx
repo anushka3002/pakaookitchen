@@ -1,17 +1,21 @@
 import { View, Text, ScrollView, TouchableOpacity, Image, Platform } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Navbar from '../../Components/Navbar'
 import { useDispatch, useSelector } from 'react-redux'
 import { getMenuDraft, submitMenu } from '../../../reducers/planSlice'
 import EditIcon from '../../../assets/edit'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Loader from '../../../Loader'
+import Back from '../../../assets/back.svg';
+import { getSelectedDay, updateSelectedDay } from '../../../constant'
+import { useFocusEffect } from '@react-navigation/native'
+
 
 const PlanDetails = ({ navigation, route }) => {
 
     const { planData, ind, editMenu } = route.params;
     const { menuDraft, loading, planDetails } = useSelector(state => state.plan)
-    
+
     const [mealType, setMealType] = useState('Veg')
     const dispatch = useDispatch()
 
@@ -20,29 +24,41 @@ const PlanDetails = ({ navigation, route }) => {
             planId: Number(menuDraft.data.data.planId),
             status: 'submitted'
         }
-        if (editMenu == 1) {
-            dispatch(getMenuDraft(planData.id, 0, 0, 1, null, null, null))
-            navigation.navigate('PlanStepper', { planId: planData.id, planData: planData, ind: ind, edit: 1 })
-        } else {
-            dispatch(submitMenu(data, navigation))
-        }
+        dispatch(submitMenu(data, navigation))
+    }
+    const { stepper, status } = planData
+
+    const editHandler = async () => {
+        const selectedData = await getSelectedDay()
+        await updateSelectedDay(selectedData.selectedDay, null)
+        navigation.navigate('PlanStepper', { planId: menuDraft.data.data.planId, planData: planData, ind: ind, edit: 1 })
     }
 
-    useEffect(() => {
-        dispatch(getMenuDraft(planData.id, 0, 0, 1, null, null, null))
-    }, [planData])
+    useFocusEffect(
+        useCallback(() => {
+          const elm = {
+            status: status
+          };
+          dispatch(getMenuDraft(planData.id, 0, 0, 1, null, elm, null));
+        }, [planData, status, dispatch])
+      );
 
     const mealArray = [];
     if (planDetails.data.data.meal_type.veg) mealArray.push("Veg");
     if (planDetails.data.data.meal_type.nveg) mealArray.push("Non veg");
 
-    console.log(mealArray); 
-
     return (
         <SafeAreaView className='flex-1'>
-            <Navbar screen={'Plan Details'} />
+            <View className={`nav-bg flex-row items-center px-4 `} style={{ paddingVertical: 19 }}>
+                <TouchableOpacity onPress={() => navigation.navigate('Plan')}>
+                    <Back />
+                </TouchableOpacity>
+                <Text className={`flex-1 text-center right-4 text-[21px] poppins-bold text-black`}>
+                    Plan Details
+                </Text>
+            </View>
             {loading ? <Loader /> : <>
-                <ScrollView className='bg-white'>
+                <ScrollView className='bg-white' showsVerticalScrollIndicator={false} style={{ flexGrow: 1 }}>
                     <View className={`px-[15] ${Platform.OS == 'ios' ? 'pb-14' : 'pb-24'} `}>
                         <Image
                             style={{
@@ -97,13 +113,41 @@ const PlanDetails = ({ navigation, route }) => {
                     </View>
                 </ScrollView>
 
-                {(editMenu == 0 || editMenu == 1) && <View className={`absolute bottom-0 left-0 w-full bg-white pt-[17] ${Platform.OS == 'ios' ? 'pb-[23]' : 'pb-[12]'} items-center px-5 shadow-lg border-t border-gray-200`}
-                    style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)' }}>
-                    <TouchableOpacity onPress={handleSubmit} style={{ gap: 8 }} className='w-[125px] border border-[#2650D8] rounded-[10] py-2 flex-row items-center justify-center'>
-                        <EditIcon />
-                        <Text className="txt-blue text-center text-[17px] poppins-semibold">{editMenu == 0 ? 'Submit' : 'Edit'}</Text>
-                    </TouchableOpacity>
-                </View>}
+                {stepper === true && status == 'pending' &&
+                    <View className={`absolute bottom-0 left-0 w-full bg-white pt-[13] ${Platform.OS == 'ios' ? 'pb-[228]' : 'pb-[12]'} items-center px-5 shadow-lg border-t border-gray-200 d-flex`}
+                        style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)', gap: 10, flexDirection: 'row', justifyContent: 'center', marginBottom: 10 }}>
+                        <TouchableOpacity onPress={handleSubmit} style={{ gap: 8 }} className='w-[125px] border border-[#2650D8] rounded-[10] py-2 flex-row items-center justify-center'>
+                            <Text className="txt-blue text-center text-[17px] poppins-semibold">Submit</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={editHandler} style={{ gap: 8 }} className='w-[125px] border border-[#2650D8] rounded-[10] py-2 flex-row items-center justify-center'>
+                            <EditIcon />
+                            <Text className="txt-blue text-center text-[17px] poppins-semibold">Edit</Text>
+                        </TouchableOpacity>
+                    </View>
+                }
+
+                {status == 'approved' &&
+                    <View className={`absolute bottom-0 left-0 w-full bg-white pt-[13] ${Platform.OS == 'ios' ? 'pb-[228]' : 'pb-[12]'} items-center px-5 shadow-lg border-t border-gray-200 d-flex`}
+                        style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)', gap: 10, flexDirection: 'row', justifyContent: 'center', marginBottom: 10 }}>
+                        <TouchableOpacity onPress={editHandler} style={{ gap: 8 }} className='w-[125px] border border-[#2650D8] rounded-[10] py-2 flex-row items-center justify-center'>
+                            <EditIcon />
+                            <Text className="txt-blue text-center text-[17px] poppins-semibold">Edit</Text>
+                        </TouchableOpacity>
+                    </View>
+                }
+
+
+                {stepper === false && status == 'pending' &&
+                    <View className={`absolute bottom-0 left-0 w-full bg-white pt-[13] ${Platform.OS == 'ios' ? 'pb-[228]' : 'pb-[12]'} items-center px-5 shadow-lg d-flex`}
+                        style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)', gap: 10, flexDirection: 'row', justifyContent: 'center', marginBottom: 10 }}>
+                        <TouchableOpacity onPress={editHandler} style={{ gap: 8 }} className='px-3 py-2 flex-row items-center justify-center'>
+    
+                            <Text className="txt-blue text-center text-[17px] poppins-semibold">Approval Pending</Text>
+                        </TouchableOpacity>
+                    </View>
+                }
+
             </>
             }
         </SafeAreaView>

@@ -4,6 +4,7 @@ import { request, RESULTS, PERMISSIONS } from 'react-native-permissions';
 import { Alert, Platform } from "react-native";
 import ImageResizer from 'react-native-image-resizer';
 import RNFS from 'react-native-fs';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 export const validBanks = [
   { label: "State Bank of India", value: "SBI" },
@@ -254,3 +255,52 @@ export function compareVersions (v1, v2) {
   }
   return 0;
 };
+
+// Store selectedDay Securely
+export async function storeMenuData(menu) {
+    const dataToStore = {
+        menu: menu,
+        selectedDay: menu[0]?.id || null, // Default to first day's ID,
+        selectedPage: null
+    };
+
+    try {
+        await EncryptedStorage.setItem('menuData', JSON.stringify(dataToStore));
+    } catch (error) {
+        console.error("Error storing menu data", error);
+    }
+}
+
+
+// Retrieve selectedDay
+
+export async function getSelectedDay() {
+  try {
+      const storedData = await EncryptedStorage.getItem('menuData');
+      if (storedData) {
+          const parsedData = JSON.parse(storedData);
+          return parsedData;
+      }
+  } catch (error) {
+      console.error("Error retrieving selected day", error);
+  }
+  return null; // Fallback if no data
+}
+
+
+// Update selectedDay for Next and Previous
+
+export async function updateSelectedDay(newDayId , preview) {
+  try {
+      const storedData = await EncryptedStorage.getItem('menuData');
+      if (storedData) {
+          let parsedData = JSON.parse(storedData);
+          parsedData.selectedDay = newDayId; // Update selectedDay
+          parsedData.selectedPage = preview
+
+          await EncryptedStorage.setItem('menuData', JSON.stringify(parsedData));
+      }
+  } catch (error) {
+      console.error("Error updating selected day", error);
+  }
+}
