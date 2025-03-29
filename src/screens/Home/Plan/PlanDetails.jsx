@@ -7,13 +7,13 @@ import EditIcon from '../../../assets/edit'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Loader from '../../../Loader'
 import Back from '../../../assets/back.svg';
-import { getSelectedDay, updateSelectedDay } from '../../../constant'
+import { getSelectedDay, storeMenuData, updateSelectedDay } from '../../../constant'
 import { useFocusEffect } from '@react-navigation/native'
 
 
 const PlanDetails = ({ navigation, route }) => {
 
-    const { planData, ind, editMenu } = route.params;
+    let { planData, ind, editMenu } = route.params;
     const { menuDraft, loading, planDetails } = useSelector(state => state.plan)
 
     const [mealType, setMealType] = useState('Veg')
@@ -29,19 +29,31 @@ const PlanDetails = ({ navigation, route }) => {
     const { stepper, status } = planData
 
     const editHandler = async () => {
-        const selectedData = await getSelectedDay()
-        await updateSelectedDay(selectedData.selectedDay, null)
-        navigation.navigate('PlanStepper', { planId: menuDraft.data.data.planId, planData: planData, ind: ind, edit: 1 })
+        if (status == 'approved') {
+            await storeMenuData(menuDraft.data.data.menuRequestData, null)
+            navigation.navigate('PlanStepper', { planId: menuDraft.data.data.planId, planData: planData, ind: ind, edit: 0 })
+        } else {
+            const selectedData = await getSelectedDay() || {};
+            const currentPage = selectedData.selectedPage || null;
+            if (currentPage) {
+                await updateSelectedDay(currentPage, null)
+            } else {
+                await updateSelectedDay(menuDraft.data.data.menu[0], null)
+            }
+            navigation.navigate('PlanStepper', { planId: menuDraft.data.data.planId, planData: planData, ind: ind, edit: 1 })
+        }
     }
+    console.log(editMenu)
+    // useFocusEffect(
+    //     useCallback(() => {
+    //         const elm = {
+    //             status: status
+    //         };
+    //         let edit = status == 'approved' ? 0 : 1;
 
-    useFocusEffect(
-        useCallback(() => {
-          const elm = {
-            status: status
-          };
-          dispatch(getMenuDraft(planData.id, 0, 0, 1, null, elm, null));
-        }, [planData, status, dispatch])
-      );
+    //         dispatch(getMenuDraft(planData.id, 0, 0, edit, null, elm, null));
+    //     }, [planData, status, dispatch])
+    // );
 
     const mealArray = [];
     if (planDetails.data.data.meal_type.veg) mealArray.push("Veg");
@@ -71,10 +83,18 @@ const PlanDetails = ({ navigation, route }) => {
                             source={{ uri: planData.packaging_preview }}
                         />
                         <Text className='text-[19px] poppins-semibold mt-[11]'>{planData.name}</Text>
+
+
                         <View className='flex-row justify-between items-center'>
                             <Text className='text-[15px] poppins-medium txt-grey'>Plan {ind + 1}</Text>
-                            <View className={`${planData.status == 'pending' ? 'bg-[#FBAE1E]' : 'bg-[#008000]'} bg-opacity-100 rounded-[50] px-[19] py-1 z-10`}>
+                            {editMenu == 0 && <View className={`${planData.status == 'pending' ? 'bg-[#FBAE1E]' : 'bg-[#008000]'} bg-opacity-100 rounded-[50] px-[19] py-1 z-10`}>
                                 <Text className='poppins-medium text-[11px] text-center text-white'>{planData.status.split('')[0].toUpperCase() + planData.status.slice(1)}</Text></View>
+                            }
+                            
+                            {editMenu == 1 &&
+                                <View className={`${planData.status == 'pending' ? 'bg-[#FBAE1E]' : 'bg-[#FBAE1E]'} bg-opacity-100 rounded-[50] px-[19] py-1 z-10`}>
+                                    <Text className='poppins-medium text-[11px] text-center text-white'>New menu</Text></View>
+                            }
                         </View>
 
                         <View style={{ gap: 20 }} className='flex-row justify-center my-5'>
@@ -113,7 +133,7 @@ const PlanDetails = ({ navigation, route }) => {
                     </View>
                 </ScrollView>
 
-                {stepper === true && status == 'pending' &&
+                {stepper === true && status == 'pending' || editMenu == 1 &&
                     <View className={`absolute bottom-0 left-0 w-full bg-white pt-[13] ${Platform.OS == 'ios' ? 'pb-[228]' : 'pb-[12]'} items-center px-5 shadow-lg border-t border-gray-200 d-flex`}
                         style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)', gap: 10, flexDirection: 'row', justifyContent: 'center', marginBottom: 10 }}>
                         <TouchableOpacity onPress={handleSubmit} style={{ gap: 8 }} className='w-[125px] border border-[#2650D8] rounded-[10] py-2 flex-row items-center justify-center'>
@@ -127,7 +147,7 @@ const PlanDetails = ({ navigation, route }) => {
                     </View>
                 }
 
-                {status == 'approved' &&
+                {status == 'approved' && editMenu === 0 &&
                     <View className={`absolute bottom-0 left-0 w-full bg-white pt-[13] ${Platform.OS == 'ios' ? 'pb-[228]' : 'pb-[12]'} items-center px-5 shadow-lg border-t border-gray-200 d-flex`}
                         style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)', gap: 10, flexDirection: 'row', justifyContent: 'center', marginBottom: 10 }}>
                         <TouchableOpacity onPress={editHandler} style={{ gap: 8 }} className='w-[125px] border border-[#2650D8] rounded-[10] py-2 flex-row items-center justify-center'>
@@ -141,9 +161,23 @@ const PlanDetails = ({ navigation, route }) => {
                 {stepper === false && status == 'pending' &&
                     <View className={`absolute bottom-0 left-0 w-full bg-white pt-[13] ${Platform.OS == 'ios' ? 'pb-[228]' : 'pb-[12]'} items-center px-5 shadow-lg d-flex`}
                         style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)', gap: 10, flexDirection: 'row', justifyContent: 'center', marginBottom: 10 }}>
-                        <TouchableOpacity onPress={editHandler} style={{ gap: 8 }} className='px-3 py-2 flex-row items-center justify-center'>
-    
+                        <View style={{ gap: 8 }} className='px-3 py-2 flex-row items-center justify-center'>
+
                             <Text className="txt-blue text-center text-[17px] poppins-semibold">Approval Pending</Text>
+                        </View>
+                    </View>
+                }
+
+                {editMenu === 1 &&
+                    <View className={`absolute bottom-0 left-0 w-full bg-white pt-[13] ${Platform.OS == 'ios' ? 'pb-[228]' : 'pb-[12]'} items-center px-5 shadow-lg border-t border-gray-200 d-flex`}
+                        style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)', gap: 10, flexDirection: 'row', justifyContent: 'center', marginBottom: 10 }}>
+                        <TouchableOpacity onPress={handleSubmit} style={{ gap: 8 }} className='w-[125px] border border-[#2650D8] rounded-[10] py-2 flex-row items-center justify-center'>
+                            <Text className="txt-blue text-center text-[17px] poppins-semibold">Submit</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={editHandler} style={{ gap: 8 }} className='w-[125px] border border-[#2650D8] rounded-[10] py-2 flex-row items-center justify-center'>
+                            <EditIcon />
+                            <Text className="txt-blue text-center text-[17px] poppins-semibold">Edit</Text>
                         </TouchableOpacity>
                     </View>
                 }

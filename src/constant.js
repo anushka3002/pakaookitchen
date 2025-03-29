@@ -258,6 +258,7 @@ export function compareVersions (v1, v2) {
 
 // Store selectedDay Securely
 export async function storeMenuData(menu) {
+  console.log("manu", menu)
     const dataToStore = {
         menu: menu || null,
         selectedDay: menu[0]?.id || null, // Default to first day's ID,

@@ -5,12 +5,37 @@ import { fetchUserData, setOtpSuccess, setUserData } from '../../reducers/authSl
 import PakaooLogo from '../../assets/pakaoo-logo.svg';
 import LeftImg from '../../assets/left-img.svg';
 import RightImg from '../../assets/right-img.svg';
+import messaging from '@react-native-firebase/messaging';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 const LoginScreen = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const { user, login_loading } = useSelector(state => state.auth)
   const [authError, setAuthError] = useState('')
   const dispatch = useDispatch()
+
+  async function getFCMToken() {
+    try {
+      const token = await messaging().getToken();
+
+      EncryptedStorage.setItem('fcm', JSON.stringify(token));
+    } catch (error) {
+      console.error('Error getting FCM token:', error);
+    }
+  }
+
+
+  useEffect(() => {
+    console.log("Hello")
+    getFCMToken()
+    const unsubscribe = messaging().onTokenRefresh(token => {
+      EncryptedStorage.setItem('fcm', JSON.stringify(token));
+    });
+
+    // Cleanup the listener on component unmount
+    return unsubscribe;
+  }, []);
+
 
   const handleLogin = () => {
     dispatch(setUserData({ data: null }))
@@ -56,7 +81,7 @@ const LoginScreen = ({ navigation }) => {
             onChangeText={(text) => setPhoneNumber(text)}
             className='border border-gray-300 poppins-regular text-[16px] rounded-[10px] py-4 mt-[12] px-4 text-black'
             keyboardType="phone-pad"
-            placeholderTextColor="#7B7B7B" 
+            placeholderTextColor="#7B7B7B"
             maxLength={10}
           />
           {authError && <Text className='mt-1 text-[14px] text-red-500 poppins-regular'>{authError}</Text>}
@@ -71,7 +96,7 @@ const LoginScreen = ({ navigation }) => {
           </TouchableOpacity>
           <Text className="text-[14px] poppins-regular text-[#2B2E35]"> and </Text>
           <TouchableOpacity onPress={() => Linking.openURL('https://pakaoo.com/privacypolicy')}>
-          <Text className="text-[14px] poppins-regular txt-blue">Privacy Policy.</Text>
+            <Text className="text-[14px] poppins-regular txt-blue">Privacy Policy.</Text>
           </TouchableOpacity>
         </View>
 

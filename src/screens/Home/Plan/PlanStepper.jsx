@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { addFoodDetails, getMenuDraft, getPlanDetails } from '../../../reducers/planSlice'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { getSelectedDay, storeMenuData, updateSelectedDay } from '../../../constant'
+import Loader from '../../../Loader'
 
 const PlanStepper = ({ navigation, route }) => {
   const dispatch = useDispatch();
@@ -33,6 +34,7 @@ const PlanStepper = ({ navigation, route }) => {
   const [dropdown, setDropdown] = useState(-1)
   const [nvegDropdown, setNvegDropdown] = useState(-1)
   const [selectedUnit, setSelectedUnit] = useState('gm')
+  const [loader, setLoader] = useState(false)
   const addFoodItem = (type) => {
     if (type == 'veg') {
       if (vegFoodItem.trim() !== "") {
@@ -108,36 +110,46 @@ const PlanStepper = ({ navigation, route }) => {
     status: 'pending'
   }
 
-console.log(menuDraft)
+
   // Functional Effect
   useEffect(() => {
-    dispatch(getMenuDraft(planId, 0, 0, edit, null, elm, null)) // (planId, veg, nveg, menu_editing)
-  }, [planId, addItemDetails])
+    if(nextButtonText !== 'preview') {
+      dispatch(getMenuDraft(planId, 0, 0, 1, null, elm, null)) // (planId, veg, nveg, menu_editing)
+    }
+  }, [planId, addItemDetails, selectedDay])
   console.log(selectedDay)
 
   useEffect(() => {
-    if (menuDraft.data != null) {
-      caller()
-    }
-  }, [menuDraft])
-
+    const executeCaller = async () => {
+      await caller(); // Ensure caller() completes before proceeding
+    };
+    executeCaller();
+  }, [menuDraft]);
   const menuData = menuDraft?.data?.data?.menu
 
   const caller = async () => {
 
-    const currentSelected = await getSelectedDay() || {}
-
-    if(!currentSelected) {
+    const currentSelectedCheck = await getSelectedDay() || {}
+    console.log("Debugging", currentSelectedCheck, menuData)
+    if (Object.keys(currentSelectedCheck).length === 0) {
       await storeMenuData(menuData)
     }
+    
+    const currentSelected = await getSelectedDay()
+    console.log(currentSelected)
+    console.log("cross 2")
+
+    console.log(currentSelected.selectedDay)
     setSelectedDay(currentSelected.selectedDay)
 
-    if (currentSelected?.selectedPage == 'preview') {
-      navigation.navigate('PlanDetails', { planData: planData, ind: ind, editMenu: 0 })
-    }
+    // if (currentSelected?.selectedPage == 'preview') {
+    //   navigation.navigate('PlanDetails', { planData: planData, ind: ind, editMenu: 0 })
+    // }
     console.log(currentSelected.selectedDay)
     const selectedMenu = menuData?.filter(item => item.id === currentSelected.selectedDay);
-    console.log(selectedMenu)
+    
+    console.log(selectedMenu[0])
+    // setLoader(false)
     setSelectedMenu(selectedMenu[0])
     setVegFoodList(selectedMenu[0]?.vegItem)
     setNvegFoodList(selectedMenu[0]?.nvegItem)
@@ -145,7 +157,9 @@ console.log(menuDraft)
       setFoodType(selectedMenu[0]?.veg === 1 && selectedMenu[0]?.nveg === 1 ? 'both' : selectedMenu[0].nveg === 1 ? 'nveg' : 'veg')
     }
   }
-
+  useEffect(() => {
+    setLoader(false)
+  }, [selectedMenu])
   // handle Next and Previous Value
 
   // Button Text Logic
@@ -153,7 +167,6 @@ console.log(menuDraft)
 
   const nextButtonText = selectedDay === menuIds[menuIds?.length - 1] ? "Preview" : "Next";
   const isPrevDisabled = selectedDay === menuIds[0];
-
 
   const handleNext = async () => {
     if (nextButtonText === 'Preview') {
@@ -186,6 +199,12 @@ console.log(menuDraft)
         setNvegFoodItem('');
         setNvegFoodList(selectedMenu[0]?.nvegItem);
         setVegFoodList(selectedMenu[0]?.vegItem);
+        const { status } = planData
+        if (status == 'approved') {
+          navigation.navigate('PlanDetails', { planData: planData, ind: ind, editMenu: 1 })
+        } else {
+          navigation.navigate('PlanDetails', { planData: planData, ind: ind, editMenu: 0 })
+        }
       })
     } else {
       setStepperLoader(true)
@@ -238,135 +257,210 @@ console.log(menuDraft)
     }
   };
 
-console.log(selectedMenu)
+  console.log(selectedMenu)
   return (
     <SafeAreaView className='bg-white' style={{ flex: 1 }}>
       <Navbar screen={'Plan'} />
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} // Adjust for iOS and Android
         style={{ flex: 1, backgroundColor: "#fff" }}>
-        <ScrollView style={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-          <View className='mx-4 pb-4'>
-            <View className='flex-row items-center justify-center mt-5'>
+        {loader ? <Loader /> :
+          <ScrollView style={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+            <View className='mx-4 pb-4'>
+              <View className='flex-row items-center justify-center mt-5'>
 
-              {menuData?.map((val, ind) => {
-                return (
-                  <View className='flex-row items-center justify-center' key={ind}>
-                    {val?.vegItem?.length > 0 || val?.nvegItem?.length > 0 ?
-                      <BlueTick />
-                      :
-                      <View style={{ width: 33, height: 33 }}
-                        className='border border-[#D6D6D6] items-center justify-center rounded-full'>
-                        <Text className='text-[17px] poppins-medium txt-grey'>{val?.day?.split('')[0].toUpperCase()}</Text>
-                      </View>
-                    }
+                {menuData?.map((val, ind) => {
+                  return (
+                    <View className='flex-row items-center justify-center' key={ind}>
+                      {val?.vegItem?.length > 0 || val?.nvegItem?.length > 0 ?
+                        <BlueTick />
+                        :
+                        <View style={{ width: 33, height: 33 }}
+                          className='border border-[#D6D6D6] items-center justify-center rounded-full'>
+                          <Text className='text-[17px] poppins-medium txt-grey'>{val?.day?.split('')[0].toUpperCase()}</Text>
+                        </View>
+                      }
 
-                    {ind < menuData?.length - 1 &&
-                      <View style={{ gap: 2 }} className='mx-1 flex-row'>
-                        <Dots />{menuData?.length == 5 && <><Dots /><Dots /></>}
-                      </View>}
+                      {ind < menuData?.length - 1 &&
+                        <View style={{ gap: 2 }} className='mx-1 flex-row'>
+                          <Dots />{menuData?.length == 5 && <><Dots /><Dots /></>}
+                        </View>}
+                    </View>
+                  )
+                })}
+              </View>
+
+
+              {/* Day like monay */}
+              <Text className='mt-4 text-[15px] poppins-medium'>
+                {selectedMenu?.day?.split('')[0].toUpperCase() + selectedMenu?.day?.slice(1)}
+              </Text>
+
+              <View style={{ gap: 10 }} className='flex-row mt-2'>
+                {planDetails?.data?.data?.meal_type?.veg &&
+                  <TouchableOpacity style={[foodType == 'veg' && styles.active, styles.buttonFixture]} onPress={() => setFoodType('veg')}>
+                    {(foodType == 'veg' ? <VegActive /> : <VegInactive />)}
+                    <Text className={`text-[13px] poppins-medium ${foodType == 'veg' ? 'text-black' : 'txt-grey'} ml-2`}>Veg</Text>
+                  </TouchableOpacity>
+                }
+
+                {planDetails?.data?.data?.meal_type?.nveg &&
+                  <TouchableOpacity style={[foodType == 'nveg' && styles.active, styles.buttonFixture]} onPress={() => setFoodType('nveg')}>
+                    {(foodType == 'nveg' ? <NvegActive /> : <NvegInactive />)}
+                    <Text className={`text-[13px] poppins-medium ${foodType == 'nveg' ? 'text-black' : 'txt-grey'} ml-2`}>Non Veg</Text>
+                  </TouchableOpacity>
+                }
+
+                {planDetails?.data?.data?.meal_type?.nveg && planDetails?.data?.data?.meal_type?.veg &&
+                  <TouchableOpacity style={[foodType == 'both' && styles.active, styles.buttonFixture]} onPress={() => setFoodType('both')}>
+                    {(foodType == 'both' ? <BothActive /> : <BothInactive />)}
+                    <Text className={`text-[13px] poppins-medium ${foodType == 'both' ? 'text-black' : 'txt-grey'} ml-2`}>Both</Text>
+                  </TouchableOpacity>
+                }
+
+              </View>
+
+
+              {foodType === 'veg' || foodType === 'both' ?
+                <>
+                  <Text className='poppins-medium' style={{ marginTop: 14 }}>Veg Items</Text>
+                  <View className="mt-[15]">
+                    <View className='border border-gray-300 rounded-[10] flex-row justify-between'>
+                      <TextInput
+                        className="txt-grey flex-1 poppins-regular rounded-lg p-3 items-center justify-center"
+                        placeholderTextColor="#7B7B7B"
+                        placeholder="Enter Food Item"
+                        value={vegFoodItem}
+                        onChangeText={(e) => setVegFoodItem(e)}
+                        onSubmitEditing={() => addFoodItem('veg')}
+                      />
+                      <TouchableOpacity onPress={() => addFoodItem('veg')} disabled={vegFoodItem?.length < 3} className={` ${vegFoodItem.length < 3 ? 'btn-disabled' : 'btn-color'} m-2 px-4 rounded-lg items-center justify-center`}>
+                        <Text className='text-white poppins-medium text-[12px]'>Add</Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    {vegFoodList?.map((item, index) => {
+                      return (
+                        <View
+                          key={index}
+                          className="border border-[#D6D6D6] rounded-[10px] flex-row items-center justify-between mt-4"
+                        >
+                          <View className="flex-row">
+                            <TouchableOpacity
+                              onPress={() => removeFoodItem(index, "veg")}
+                              style={{ boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.14)" }}
+                              className="flex-row border border-[#D6D6D6] items-center py-[7px] px-3 m-2 rounded-[10]"
+                            >
+                              <Text className="text-[13px] poppins-medium txt-grey mr-2">
+                                {item?.item_name?.length > 10 ? item?.item_name.slice(0, 6) + "..." : item?.item_name}
+                              </Text>
+                              <Cross />
+                            </TouchableOpacity>
+                            <View className="mr-[10] ml-[4] my-auto">
+                              <VerticalBar />
+                            </View>
+                            <TextInput
+                              className="poppins-regular text-[#7B7B7B] text-[14px] mr-[11]"
+                              placeholderTextColor="#7B7B7B"
+                              placeholder="Enter value"
+                              keyboardType="number-pad"
+                              value={item?.weight ? item?.weight?.toString() : item?.quantity ? item?.quantity.toString() : ""}
+                              onChangeText={(text) => updateFoodItem(index, selectedUnit == "gm" ? "weight" : "quantity", text, "veg")}
+                            />
+                          </View>
+
+                          <View className="relative m-2">
+                            <TouchableOpacity
+                              style={{ boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.14)" }}
+                              className="flex-row border border-[#D6D6D6] items-center py-[7px] px-4 w-[77px] rounded-[10] bg-white"
+                              onPress={() => dropdown == -1 ? setDropdown(index) : setDropdown(-1)}
+                            >
+                              <Text className="text-[14px] poppins-regular text-[#4E4E4E] mr-[6]">
+                                {/* {vegFoodList.length > 0 && item.quantity == 0 ? 'gm' : 'gty'} */}
+                                {item.selectedUnit ? item.selectedUnit : item.quantity == 0 ? 'gm' : 'qty'}
+                              </Text>
+                              <Drop />
+                            </TouchableOpacity>
+
+                            {dropdown == index && (
+                              <View className="absolute top-full left-0 mt-1 w-[77px] bg-white border border-[#D6D6D6] rounded-md shadow-md z-10">
+                                {["gm", "qty"].map((unit, unitIndex) => (
+                                  <TouchableOpacity
+                                    key={unitIndex}
+                                    onPress={() => { updateSelectedUnit(index, unit, "veg"); setSelectedUnit(unit); setDropdown(-1); }}
+                                    className="px-4 py-2 border-b last:border-b-0 border-gray-200"
+                                  >
+                                    <Text className="text-[14px] poppins-regular text-[#4E4E4E]">
+                                      {unit}
+                                    </Text>
+                                  </TouchableOpacity>
+                                ))}
+                              </View>
+                            )}
+                          </View>
+                        </View>
+                      );
+                    })}
+
                   </View>
-                )
-              })}
-            </View>
+                </>
+                : <Text></Text>}
 
+              {(foodType == 'nveg' || foodType == 'both') ?
+                <>
+                  <Text className='poppins-medium mt-3'>Non Veg Items</Text>
+                  <View style={{ marginTop: 14 }}>
+                    <View className='border border-gray-300 rounded-[10] flex-row justify-between mb-4'>
+                      <TextInput
+                        className="txt-grey flex-1 poppins-regular rounded-lg p-3 items-center justify-center"
+                        placeholderTextColor="#7B7B7B"
+                        placeholder="Enter Food Item"
+                        value={nvegFoodItem}
+                        onChangeText={setNvegFoodItem}
+                        onSubmitEditing={() => addFoodItem('nveg')}
+                      />
+                      <TouchableOpacity onPress={() => addFoodItem('nveg')} disabled={nvegFoodItem.length < 3} className={` ${nvegFoodItem.length < 3 ? 'btn-disabled' : 'btn-color'} m-2 px-4 rounded-lg items-center justify-center`}>
+                        <Text className='text-white poppins-medium text-[12px]'>Add</Text>
+                      </TouchableOpacity>
+                    </View>
 
-
-            <Text className='mt-4 text-[15px] poppins-medium'>
-              {selectedMenu?.day?.split('')[0].toUpperCase() + selectedMenu?.day?.slice(1)}
-            </Text>
-
-            <View style={{ gap: 10 }} className='flex-row mt-2'>
-              {planDetails?.data?.data?.meal_type?.veg &&
-                <TouchableOpacity style={[foodType == 'veg' && styles.active, styles.buttonFixture]} onPress={() => setFoodType('veg')}>
-                  {(foodType == 'veg' ? <VegActive /> : <VegInactive />)}
-                  <Text className={`text-[13px] poppins-medium ${foodType == 'veg' ? 'text-black' : 'txt-grey'} ml-2`}>Veg</Text>
-                </TouchableOpacity>
-              }
-
-              {planDetails?.data?.data?.meal_type?.nveg &&
-                <TouchableOpacity style={[foodType == 'nveg' && styles.active, styles.buttonFixture]} onPress={() => setFoodType('nveg')}>
-                  {(foodType == 'nveg' ? <NvegActive /> : <NvegInactive />)}
-                  <Text className={`text-[13px] poppins-medium ${foodType == 'nveg' ? 'text-black' : 'txt-grey'} ml-2`}>Non Veg</Text>
-                </TouchableOpacity>
-              }
-
-              {planDetails?.data?.data?.meal_type?.nveg && planDetails?.data?.data?.meal_type?.veg &&
-                <TouchableOpacity style={[foodType == 'both' && styles.active, styles.buttonFixture]} onPress={() => setFoodType('both')}>
-                  {(foodType == 'both' ? <BothActive /> : <BothInactive />)}
-                  <Text className={`text-[13px] poppins-medium ${foodType == 'both' ? 'text-black' : 'txt-grey'} ml-2`}>Both</Text>
-                </TouchableOpacity>
-              }
-
-            </View>
-
-
-            {foodType === 'veg' || foodType === 'both' ?
-              <>
-                <Text className='poppins-medium' style={{ marginTop: 14 }}>Veg Items</Text>
-                <View className="mt-[15]">
-                  <View className='border border-gray-300 rounded-[10] flex-row justify-between'>
-                    <TextInput
-                      className="txt-grey flex-1 poppins-regular rounded-lg p-3 items-center justify-center"
-                      placeholderTextColor="#7B7B7B"
-                      placeholder="Enter Food Item"
-                      value={vegFoodItem}
-                      onChangeText={(e) => setVegFoodItem(e)}
-                      onSubmitEditing={() => addFoodItem('veg')}
-                    />
-                    <TouchableOpacity onPress={() => addFoodItem('veg')} disabled={vegFoodItem?.length < 3} className={` ${vegFoodItem.length < 3 ? 'btn-disabled' : 'btn-color'} m-2 px-4 rounded-lg items-center justify-center`}>
-                      <Text className='text-white poppins-medium text-[12px]'>Add</Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  {vegFoodList?.map((item, index) => {
-                    return (
-                      <View
-                        key={index}
-                        className="border border-[#D6D6D6] rounded-[10px] flex-row items-center justify-between mt-4"
-                      >
-                        <View className="flex-row">
-                          <TouchableOpacity
-                            onPress={() => removeFoodItem(index, "veg")}
-                            style={{ boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.14)" }}
-                            className="flex-row border border-[#D6D6D6] items-center py-[7px] px-3 m-2 rounded-[10]"
-                          >
-                            <Text className="text-[13px] poppins-medium txt-grey mr-2">
-                              {item?.item_name?.length > 10 ? item?.item_name.slice(0, 6) + "..." : item?.item_name}
+                    {/* non veg food list */}
+                    {nvegFoodList?.map((item, index) => {
+                      return <View key={index} className='border border-[#D6D6D6] rounded-[10px] flex-row items-center justify-between mb-[10]'>
+                        <View className='flex-row'>
+                          <TouchableOpacity onPress={() => removeFoodItem(index, 'nveg')} style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' }} className='flex-row border border-[#D6D6D6] items-center py-[7px] px-3 m-2 rounded-[10]'>
+                            <Text className='text-[13px] poppins-medium txt-grey mr-2'>
+                              {item?.item_name?.length > 10 ? item?.item_name.slice(0, 6) + '...' : item?.item_name}
                             </Text>
                             <Cross />
                           </TouchableOpacity>
-                          <View className="mr-[10] ml-[4] my-auto">
-                            <VerticalBar />
-                          </View>
+                          <View className='mr-[10] ml-[4]'><VerticalBar /></View>
                           <TextInput
-                            className="poppins-regular text-[#7B7B7B] text-[14px] mr-[11]"
+                            className='poppins-regular text-[#7B7B7B] text-[14px] mr-[11]'
                             placeholderTextColor="#7B7B7B"
-                            placeholder="Enter value"
-                            keyboardType="number-pad"
-                            value={item?.weight ? item?.weight?.toString() : item?.quantity ? item?.quantity.toString() : ""}
-                            onChangeText={(text) => updateFoodItem(index, selectedUnit == "gm" ? "weight" : "quantity", text, "veg")}
+                            placeholder='Enter value'
+                            keyboardType='numeric'
+                            value={item?.weight ? item?.weight.toString() : ""}
+                            onChangeText={(text) => updateFoodItem(index, "weight", text, 'nveg')}
                           />
                         </View>
-
                         <View className="relative m-2">
                           <TouchableOpacity
                             style={{ boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.14)" }}
                             className="flex-row border border-[#D6D6D6] items-center py-[7px] px-4 w-[77px] rounded-[10] bg-white"
-                            onPress={() => dropdown == -1 ? setDropdown(index) : setDropdown(-1)}
+                            onPress={() => dropdown == -1 ? setNvegDropdown(index) : setNvegDropdown(-1)}
                           >
                             <Text className="text-[14px] poppins-regular text-[#4E4E4E] mr-[6]">
-                              {/* {vegFoodList.length > 0 && item.quantity == 0 ? 'gm' : 'gty'} */}
                               {item.selectedUnit ? item.selectedUnit : item.quantity == 0 ? 'gm' : 'qty'}
                             </Text>
                             <Drop />
                           </TouchableOpacity>
 
-                          {dropdown == index && (
+                          {nvegDropdown == index && (
                             <View className="absolute top-full left-0 mt-1 w-[77px] bg-white border border-[#D6D6D6] rounded-md shadow-md z-10">
-                              {["gm", "qty"].map((unit, unitIndex) => (
+                              {["gm", "qt"].map((unit, unitIndex) => (
                                 <TouchableOpacity
                                   key={unitIndex}
-                                  onPress={() => { updateSelectedUnit(index, unit, "veg"); setSelectedUnit(unit); setDropdown(-1); }}
+                                  onPress={() => { updateSelectedUnit(index, unit, "nveg"); setNvegDropdown(-1); }}
                                   className="px-4 py-2 border-b last:border-b-0 border-gray-200"
                                 >
                                   <Text className="text-[14px] poppins-regular text-[#4E4E4E]">
@@ -378,114 +472,41 @@ console.log(selectedMenu)
                           )}
                         </View>
                       </View>
-                    );
-                  })}
-
-                </View>
-              </>
-              : <Text></Text>}
-
-            {(foodType == 'nveg' || foodType == 'both') ?
-              <>
-                <Text className='poppins-medium mt-3'>Non Veg Items</Text>
-                <View style={{ marginTop: 14 }}>
-                  <View className='border border-gray-300 rounded-[10] flex-row justify-between mb-4'>
-                    <TextInput
-                      className="txt-grey flex-1 poppins-regular rounded-lg p-3 items-center justify-center"
-                      placeholderTextColor="#7B7B7B"
-                      placeholder="Enter Food Item"
-                      value={nvegFoodItem}
-                      onChangeText={setNvegFoodItem}
-                      onSubmitEditing={() => addFoodItem('nveg')}
-                    />
-                    <TouchableOpacity onPress={() => addFoodItem('nveg')} disabled={nvegFoodItem.length < 3} className={` ${nvegFoodItem.length < 3 ? 'btn-disabled' : 'btn-color'} m-2 px-4 rounded-lg items-center justify-center`}>
-                      <Text className='text-white poppins-medium text-[12px]'>Add</Text>
-                    </TouchableOpacity>
+                    })}
                   </View>
+                </>
+                : <Text></Text>}
 
-                  {/* non veg food list */}
-                  {nvegFoodList?.map((item, index) => {
-                    return <View key={index} className='border border-[#D6D6D6] rounded-[10px] flex-row items-center justify-between mb-[10]'>
-                      <View className='flex-row'>
-                        <TouchableOpacity onPress={() => removeFoodItem(index, 'nveg')} style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' }} className='flex-row border border-[#D6D6D6] items-center py-[7px] px-3 m-2 rounded-[10]'>
-                          <Text className='text-[13px] poppins-medium txt-grey mr-2'>
-                            {item?.item_name?.length > 10 ? item?.item_name.slice(0, 6) + '...' : item?.item_name}
-                          </Text>
-                          <Cross />
-                        </TouchableOpacity>
-                        <View className='mr-[10] ml-[4]'><VerticalBar /></View>
-                        <TextInput
-                          className='poppins-regular text-[#7B7B7B] text-[14px] mr-[11]'
-                          placeholderTextColor="#7B7B7B"
-                          placeholder='Enter value'
-                          keyboardType='numeric'
-                          value={item?.weight ? item?.weight.toString() : ""}
-                          onChangeText={(text) => updateFoodItem(index, "weight", text, 'nveg')}
-                        />
-                      </View>
-                      <View className="relative m-2">
-                        <TouchableOpacity
-                          style={{ boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.14)" }}
-                          className="flex-row border border-[#D6D6D6] items-center py-[7px] px-4 w-[77px] rounded-[10] bg-white"
-                          onPress={() => dropdown == -1 ? setNvegDropdown(index) : setNvegDropdown(-1)}
-                        >
-                          <Text className="text-[14px] poppins-regular text-[#4E4E4E] mr-[6]">
-                            {item.selectedUnit ? item.selectedUnit : item.quantity == 0 ? 'gm' : 'qty'}
-                          </Text>
-                          <Drop />
-                        </TouchableOpacity>
+              <View className='flex-row justify-between'>
+                {/* Previous Button */}
+                <TouchableOpacity
+                  onPress={handlePrev}
+                  disabled={isPrevDisabled}
+                  className={`${isPrevDisabled ? 'btn-disabled' : 'btn-color'} flex-1 mr-2 rounded-[10] items-center justify-center py-2`}
+                >
+                  <Text className='text-[18px] text-center text-white poppins-medium'>Previous</Text>
+                </TouchableOpacity>
 
-                        {nvegDropdown == index && (
-                          <View className="absolute top-full left-0 mt-1 w-[77px] bg-white border border-[#D6D6D6] rounded-md shadow-md z-10">
-                            {["gm", "qt"].map((unit, unitIndex) => (
-                              <TouchableOpacity
-                                key={unitIndex}
-                                onPress={() => { updateSelectedUnit(index, unit, "nveg"); setNvegDropdown(-1); }}
-                                className="px-4 py-2 border-b last:border-b-0 border-gray-200"
-                              >
-                                <Text className="text-[14px] poppins-regular text-[#4E4E4E]">
-                                  {unit}
-                                </Text>
-                              </TouchableOpacity>
-                            ))}
-                          </View>
-                        )}
-                      </View>
-                    </View>
-                  })}
-                </View>
-              </>
-              : <Text></Text>}
-
-            <View className='flex-row justify-between'>
-              {/* Previous Button */}
-              <TouchableOpacity
-                onPress={handlePrev}
-                disabled={isPrevDisabled}
-                className={`${isPrevDisabled ? 'btn-disabled' : 'btn-color'} flex-1 mr-2 rounded-[10] items-center justify-center py-2`}
-              >
-                <Text className='text-[18px] text-center text-white poppins-medium'>Previous</Text>
-              </TouchableOpacity>
-
-              {/* Next Button */}
-              <TouchableOpacity
-                onPress={handleNext}
-                disabled={
-                  vegFoodList?.length === 0 && nvegFoodList?.length === 0 ||
-                  vegFoodList?.some(item => item?.quantity === "" && item?.weight === "") ||
-                  nvegFoodList?.some(item => item?.quantity === "" && item?.weight === "")
-                }
-                className={`${vegFoodList?.length === 0 && nvegFoodList?.length === 0 ||
-                  vegFoodList?.some(item => item?.quantity === "" && item?.weight === "") ||
-                  nvegFoodList?.some(item => item?.quantity === "" && item?.weight === "")
-                  ? 'btn-disabled' : 'btn-color'} flex-1 ml-2 rounded-[10] items-center justify-center py-2`}
-              >
-                {stepperLoader ? <ActivityIndicator size="large" color="#FFFFFF" /> :
-                  <Text className='text-[18px] text-center text-white poppins-medium'>{nextButtonText}</Text>}
-              </TouchableOpacity>
-            </View>
-          </View >
-        </ScrollView>
+                {/* Next Button */}
+                <TouchableOpacity
+                  onPress={handleNext}
+                  disabled={
+                    vegFoodList?.length === 0 && nvegFoodList?.length === 0 ||
+                    vegFoodList?.some(item => item?.quantity === "" && item?.weight === "") ||
+                    nvegFoodList?.some(item => item?.quantity === "" && item?.weight === "")
+                  }
+                  className={`${vegFoodList?.length === 0 && nvegFoodList?.length === 0 ||
+                    vegFoodList?.some(item => item?.quantity === "" && item?.weight === "") ||
+                    nvegFoodList?.some(item => item?.quantity === "" && item?.weight === "")
+                    ? 'btn-disabled' : 'btn-color'} flex-1 ml-2 rounded-[10] items-center justify-center py-2`}
+                >
+                  {stepperLoader ? <ActivityIndicator size="large" color="#FFFFFF" /> :
+                    <Text className='text-[18px] text-center text-white poppins-medium'>{nextButtonText}</Text>}
+                </TouchableOpacity>
+              </View>
+            </View >
+          </ScrollView>
+        }
       </KeyboardAvoidingView>
     </SafeAreaView>
   )

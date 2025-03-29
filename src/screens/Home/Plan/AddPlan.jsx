@@ -54,7 +54,7 @@ const AddPlan = ({ navigation }) => {
     };
     dispatch(addPlanDetails(updatedData, navigation))
   }
-  console.log(imagePreview)
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
 

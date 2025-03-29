@@ -18,6 +18,7 @@ const CustomTextInput = ({control, label, name, placeholder, errors, capitalize,
                 keyboardType={keyboard ?? 'default'}
                 autoCapitalize={capitalize ? 'characters'  : 'none'}
                 value={value}
+                 placeholderTextColor="#7B7B7B"
               />
             )}
           />

@@ -26,7 +26,7 @@ export const mapSlice = createSlice({
     setSearchLoading: (state) => {
       state.loading = true;
     },
-    setSearchSuccess: (state,action) => {
+    setSearchSuccess: (state, action) => {
       state.searchlocation.data = action.payload;
       state = false;
     },
@@ -67,11 +67,13 @@ export const mapSlice = createSlice({
 });
 
 // Actions
-export const { setSearchLoading, setSearchSuccess, setSearchLocationError, 
+export const { setSearchLoading, setSearchSuccess, setSearchLocationError,
   setGeoLocationLoading, setGeoLocationSuccess, setGeoLocationError,
   setLocationCordError, setLocationCordLoading, setLocationCordSuccess } = mapSlice.actions;
 
 export const searchMapData = (inputText) => async (dispatch) => {
+  console.log("I am here searchMapData")
+
   try {
     dispatch(setSearchLoading());
     const response = await axios.get(`https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${inputText}&key=${GOOGLE_API_KEY}&components=country:in`)
@@ -86,6 +88,7 @@ export const searchMapData = (inputText) => async (dispatch) => {
 };
 
 export const getGeoLocation = (address) => async (dispatch) => {
+  console.log("I am here getGeoLocation")
   try {
     dispatch(setGeoLocationLoading());
     const response = await axios.post(`https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${GOOGLE_API_KEY}`);
@@ -100,18 +103,20 @@ export const getGeoLocation = (address) => async (dispatch) => {
 };
 
 export const getAddressFromCoordinates = (latitude, longitude) => async (dispatch) => {
-    try {
-      dispatch(setLocationCordLoading());
-      const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`);
-      console.log(response)
-      dispatch(setLocationCordSuccess(response?.data?.results[0].formatted_address));
-    } catch (error) {
-      if (error.response) {
-        dispatch(setLocationCordError(error.response.data?.error || "Something went wrong"));
-      } else {
-        dispatch(setLocationCordError(error.message));
-      }
+  try {
+  console.log("I am here getAddressFromCoordinates")
+
+    dispatch(setLocationCordLoading());
+    const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`);
+    // console.log(response)
+    dispatch(setLocationCordSuccess(response?.data?.results[0].formatted_address));
+  } catch (error) {
+    if (error.response) {
+      dispatch(setLocationCordError(error.response.data?.error || "Something went wrong"));
+    } else {
+      dispatch(setLocationCordError(error.message));
     }
-  };
+  }
+};
 
 export default mapSlice.reducer;

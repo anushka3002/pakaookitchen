@@ -7,7 +7,6 @@ import LeftImg from '../../assets/left-img.svg';
 import RightImg from '../../assets/right-img.svg';
 import { getCategory, getKitchenStatus } from '../../reducers/kitchenSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 const LoginOTP = ({ navigation, route }) => {
 
   const { user, otp, otp_loading } = useSelector(state => state.auth)
@@ -93,16 +92,16 @@ const LoginOTP = ({ navigation, route }) => {
         if (storedKitchenStatus == 'kitchenApproved') {
           if (kitchenStatus?.data?.data?.kitchen_added == true) {
             navigation.replace('Home')
-          }else{
+          } else {
             navigation.replace("AddKitchen");
           }
-        } else{
+        } else {
           navigation.replace('Home')
         }
       } else if (kitchenStatus?.data?.data?.status == 'rejected') {
         navigation.replace('Rejected')
       }
-    } 
+    }
     else if (typeof otp?.data == 'string') {
       setOtpError(otp?.data)
     }

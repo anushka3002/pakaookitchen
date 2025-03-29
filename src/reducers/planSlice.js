@@ -126,7 +126,6 @@ export const getPlanDetails = (meal) => async (dispatch) => {
 export const getMenuDraft = (id, veg, nveg, edit, navigation, elm, ind) => async (dispatch) => {
     try {
         dispatch(setMenuDraftLoading());
-        console.log("I am here")
         const authToken = await EncryptedStorage.getItem('auth_token')
         const public_key = await EncryptedStorage.getItem('public_key')
 
@@ -135,16 +134,16 @@ export const getMenuDraft = (id, veg, nveg, edit, navigation, elm, ind) => async
             'x-public-key': public_key,
             'x-auth-key': authToken
         };
-        if (elm.status == 'approved') {
-            veg = 1
-        }
+
+        console.log(`${REACT_NATIVE_FOOD_API}/kitchen/plan_draft?planId=${id}&veg=${veg}&nveg=${nveg}&menu_editing=${edit}`)
         const response = await axios.get(`${REACT_NATIVE_FOOD_API}/kitchen/plan_draft?planId=${id}&veg=${veg}&nveg=${nveg}&menu_editing=${edit}`, { headers });
         console.log(response)
         dispatch(setMenuDraftData(response?.data))
 
         if(navigation !== null) {
             if (elm.status == 'approved') {
-                navigation.navigate('PlanDetails', { planData: elm, ind: ind, editMenu: 1 })
+                console.log("dsfgaaa:::::::::::::::::::")
+                navigation.navigate('PlanDetails', { planData: elm, ind: ind, editMenu: edit })
             } else{
                 if (elm.stepper) {
                     navigation.navigate('PlanStepper', { planId: id, planData: elm, ind: ind, edit: 1  })

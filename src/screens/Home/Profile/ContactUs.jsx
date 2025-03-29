@@ -35,7 +35,7 @@ const ContactUs = ({ navigation }) => {
   }, [supportData?.data?.success])
 
   return (
-    <SafeAreaView>
+    <SafeAreaView className='bg-white flex-1' style={{flex: 1}}>
       {loading ? <Loader /> :
         <View>
           <Navbar screen={'Contact Us'} />
@@ -44,11 +44,13 @@ const ContactUs = ({ navigation }) => {
             <TextInput onChangeText={(e) => setMessage(e)} value={message}
               multiline={true} numberOfLines={4}
               textAlignVertical="top"
+              placeholderTextColor="#7B7B7B"
               placeholder='Enter Message' style={{ borderWidth: 1, borderColor: '#D6D6D6' }}
               className='rounded-[10] h-[111px] text-[15px] poppins-regular py-[17] px-5 mt-[10]' />
 
             <Text className='text-[15px] poppins-medium mt-5'>Contact number</Text>
             <TextInput keyboardType='number-pad' onChangeText={(e) => setPhone(e)} value={phone}
+              placeholderTextColor="#7B7B7B" maxLength={10}
               placeholder='Number to reach out you' style={{ borderWidth: 1, borderColor: '#D6D6D6' }}
               className='rounded-[10] text-[15px] poppins-regular py-[17] px-5 mt-[10]' />
 

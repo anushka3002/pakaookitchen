@@ -29,12 +29,12 @@ const Plan = ({ navigation }) => {
 
     const pageInfo = await getSelectedDay() || {}; // Ensure it's an object
     const currentPage = pageInfo.selectedPage || null;
-    
+    console.log(currentPage)
     if (currentPage == 'preview') {
       navigation.navigate('PlanDetails', { planData: elm, ind: ind, editMenu: 0 })
+      dispatch(getMenuDraft(elm.id, 0, 0, elm.status == 'approved' ? 0 : 1, navigation, elm, ind))
     } else {
-      console.log(currentPage)
-    dispatch(getMenuDraft(elm.id, 0, 0, elm.status == 'approved' ? 0 : 1, navigation, elm, ind))
+      dispatch(getMenuDraft(elm.id, 0, 0, elm.status == 'approved' ? 0 : 1, navigation, elm, ind))
     }
 
   }

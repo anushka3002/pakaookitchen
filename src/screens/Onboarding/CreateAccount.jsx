@@ -35,7 +35,6 @@ const CreateAccount = ({ navigation }) => {
   const { loading } = useSelector(state => state.kitchenData)
   const { allInfoData } = useSelector(state => state.profileData)
   const { createProfile } = useSelector(state => state.kitchenData)
-  console.log("kiading", createProfile)
   const [show, setShow] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState('')
@@ -91,26 +90,30 @@ const CreateAccount = ({ navigation }) => {
   const getCurrentLocation = () => {
     Geolocation.getCurrentPosition(
       (position) => {
-        setLocation({
+        const newLocation = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
-        });
+        };
+        // 🔥 Check if location has actually changed before updating state
+        if (
+          location?.latitude !== newLocation.latitude ||
+          location?.longitude !== newLocation.longitude
+        ) {
+          setLocation(newLocation);
+        }
       },
       (error) => console.log(error),
       { enableHighAccuracy: true }
     );
   };
+  
 
   useEffect(() => {
     requestLocationPermission()
     dispatch(getAllInfo())
   }, []);
-
-  useEffect(() => {
-    dispatch(getAddressFromCoordinates(location?.latitude, location?.longitude));
-  }, [location])
 
   useEffect(() => {
     if (locationCord?.data) {
@@ -123,7 +126,7 @@ const CreateAccount = ({ navigation }) => {
       setQuery(value);
     }
     setShowList(false);
-    dispatch(getGeoLocation(value));
+    // dispatch(getGeoLocation(value));
     setSelectedLocation(value);
 
     const words = value.split(' ');
@@ -138,52 +141,28 @@ const CreateAccount = ({ navigation }) => {
     setValue('long', location?.longitude)
   };
 
-  // useEffect(() => {
-  //   if (page == 'edit') {
-  //     if (allInfoData?.data?.data) {
-  //       const formData = allInfoData.data.data;
-  //       Object.entries(formData).forEach(([key, value]) => {
-  //         if (typeof value != "object") {
-  //           setValue(key, value);
-  //         } else if (typeof value === "object" && value !== null) {
-  //           Object.entries(value).forEach(([nestedKey, nestedValue]) => {
-  //             setValue(nestedKey, nestedValue);
-  //             if (key == 'signedUrls') {
-  //               setImages(prevImages => ({
-  //                 ...prevImages,
-  //                 ...Object.fromEntries(
-  //                   Object.entries(value).map(([nestedKey, nestedValue]) => [
-  //                     nestedKey.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase()), // Convert snake_case to camelCase
-  //                     nestedValue
-  //                   ])
-  //                 )
-  //               }));
-  //             }
-  //           });
-  //         }
-  //       });
-  //     }
-  //   }
-  // }, [page]); //mvp 2
-
   const onSubmit = async (data) => {
     dispatch(createUserData(data))
   };
 
-
   useEffect(() => {
-    const backAction = () => {
-      Alert.alert("Exit App", "Are you sure you want to exit?", [
-        { text: "Cancel", style: "cancel" },
-        { text: "Exit", onPress: () => BackHandler.exitApp() }
-      ]);
-      return true;
-    };
-    const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
-    return () => {
-      backHandler.remove();
-    };
-  }, []);
+    dispatch(getAddressFromCoordinates(location?.latitude, location?.longitude));
+    // setLocation({latitude: geolocation?.data?.lat, longitude: geolocation?.data?.lng })
+  }, [location])
+
+  // useEffect(() => {
+  //   const backAction = () => {
+  //     Alert.alert("Exit App", "Are you sure you want to exit?", [
+  //       { text: "Cancel", style: "cancel" },
+  //       { text: "Exit", onPress: () => BackHandler.exitApp() }
+  //     ]);
+  //     return true;
+  //   };
+  //   const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
+  //   return () => {
+  //     backHandler.remove();
+  //   };
+  // }, []);
 
   useEffect(() => {
     if (createProfile?.data?.data?.user_data?.status === 'pending') {
@@ -194,8 +173,6 @@ const CreateAccount = ({ navigation }) => {
       navigation.navigate('Approved');
     }
   }, [createProfile])
-
-  console.log(searchlocation)
 
   return (
 
@@ -388,7 +365,7 @@ const CreateAccount = ({ navigation }) => {
               </View>}
 
               {/* map component */}
-              <Map geolocation={geolocation} getCurrentLocation={getCurrentLocation} selectedLocation={selectedLocation} />
+              <Map geolocation={geolocation} getCurrentLocation={getCurrentLocation} selectedLocation={selectedLocation} setLocation={setLocation} />
 
               <CustomTextInput control={control} label={'Kitchen Pincode '} name={'pincode'}
                 placeholderTextColor="#7B7B7B"
