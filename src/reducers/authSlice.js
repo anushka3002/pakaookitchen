@@ -256,7 +256,8 @@ export const deleteAccount = (id) => async (dispatch) => {
       'x-public-key': public_key,
       'x-auth-key': authToken,
     };
-    const response = await axios.get(`${REACT_NATIVE_API}/profile/customer/delete_account?deleted_reason_id=${id}`, { headers });
+    const response = await axios.delete(`${REACT_NATIVE_API}/profile/kitchen/delete_account?deleted_reason_id=${id}`, { headers });
+
     dispatch(setDeleteProfileData(response.data));
   } catch (error) {
     if (error.response) {

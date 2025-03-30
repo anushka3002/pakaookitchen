@@ -59,8 +59,10 @@ const Profile = ({ navigation }) => {
   }
 
   const handleDelete = (value) => {
+    console.log("Hello",value, deleteReason.id)
     if (value == 'Delete') {
       dispatch(deleteAccount(deleteReason.id))
+      dispatch(logout(navigation))
     } else {
       dispatch(logout(navigation))
       setModalVisible(false)

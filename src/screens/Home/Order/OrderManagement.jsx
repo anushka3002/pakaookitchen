@@ -26,7 +26,7 @@ const OrderManagement = ({ navigation, route }) => {
   useFocusEffect(
     useCallback(() => {
       dispatch(getOrderInfo(orderId));
-    }, [orderId, orderStatus?.data])
+    }, [orderId, orderStatus?.data, assignRider])
   );
 
   const handleSelectRider = (id) => {
@@ -125,13 +125,13 @@ const OrderManagement = ({ navigation, route }) => {
                     return <View key={index} className='px-[12]'>
                       <Text className='text-[14px] poppins-semibold mt-[9]'>{item.plan_name}</Text>
                       <View className='flex-row items-center justify-between'>
-                        <Text className='text-[16px] poppins-medium txt-grey-600'>{item.veg_count > 0 && item.veg_count + ' Plate (Veg)'} {item.nveg_count > 0 && 'and ' + item.nveg_count + ' (Non-veg)'}</Text>
+                        <Text className='text-[16px] poppins-medium txt-grey-600'>{item.veg_count > 0 && item.veg_count + ' Plate (Veg)'} {item.nveg_count > 0 && '   ' + item.nveg_count + ' (Non-veg)'}</Text>
                       </View>
                     </View>
                   })}
                 </View>
 
-                {elm.status == null && <TouchableOpacity onPress={() => setModalVisible(true)} className='btn-grey-640 rounded-[10] px-5 py-[9] flex-row justify-between items-center' style={{ marginTop: 18 }}>
+                {elm.status == 'order_processed' && <TouchableOpacity onPress={() => setModalVisible(true)} className='btn-grey-640 rounded-[10] px-5 py-[9] flex-row justify-between items-center' style={{ marginTop: 18 }}>
                   <Text className='text-[18px] poppins-medium text-white'>{riderDetail.name ? riderDetail.name : 'Select Rider'}</Text>
                   <WhiteArrow />
                 </TouchableOpacity>}
@@ -185,10 +185,10 @@ const OrderManagement = ({ navigation, route }) => {
                     <View className='absolute right-1'><Rider /></View>
                     <Text className='poppins-medium text-[18px] text-white'>Rider Assigned</Text>
                   </TouchableOpacity>}
-                {elm?.riderDetails?.name !== null && 
-                  <Text className='text-[15px] poppins-medium mt-[8] text-center'>Assigned Rider : {elm?.riderDetails?.name}</Text>
+                {elm?.riderDetails?.name !== null &&
+                  <Text className='text-[15px] poppins-medium mt-[8] text-center'>Assigned Rider : {elm?.status === 'order_processed' ? riderDetail?.name || "" : elm?.riderDetails?.name}</Text>
                 }
-                {elm.status == 'order_processed' && <TouchableOpacity onPress={() => handleOrderStatus(elm?.riderDetails?.rider_order_id)} className='btn-color rounded-[10] py-[10]' style={{ marginTop: 7 }}>
+                {elm.status == 'order_processed' || elm.status == 'ready_for_pickup' && <TouchableOpacity onPress={() => handleOrderStatus(elm?.riderDetails?.rider_order_id)} className='btn-color rounded-[10] py-[10]' style={{ marginTop: 7 }}>
                   <Text className='text-[18px] text-white text-center poppins-medium'>Mark Food As Ready</Text>
                 </TouchableOpacity>}
               </View>

@@ -8,7 +8,7 @@ const Navbar = ({ screen, noBackArrow }) => {
   const navigation = useNavigation();
 
   return (
-    <View className={`nav-bg flex-row items-center px-4 `} style={{ paddingVertical: 19}}>
+    <View className={`nav-bg flex-row items-center px-4 `} style={{ paddingVertical: 19 }}>
       {!noBackArrow &&
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Back />

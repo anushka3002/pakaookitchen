@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, StyleSheet, KeyboardAvoidingView } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Navbar from '../../Components/Navbar'
 import Dots from '../../../assets/dots'
 import BlueTick from '../../../assets/blue-tick'
@@ -17,6 +17,8 @@ import { addFoodDetails, getMenuDraft, getPlanDetails } from '../../../reducers/
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { getSelectedDay, storeMenuData, updateSelectedDay } from '../../../constant'
 import Loader from '../../../Loader'
+import Back from '../../../assets/back.svg';
+import { useFocusEffect } from '@react-navigation/native'
 
 const PlanStepper = ({ navigation, route }) => {
   const dispatch = useDispatch();
@@ -34,7 +36,19 @@ const PlanStepper = ({ navigation, route }) => {
   const [dropdown, setDropdown] = useState(-1)
   const [nvegDropdown, setNvegDropdown] = useState(-1)
   const [selectedUnit, setSelectedUnit] = useState('gm')
-  const [loader, setLoader] = useState(false)
+  const [loader, setLoader] = useState(true)
+  const [menuIds, setMenuIds] = useState([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (menuDraft?.data?.data?.menu) {
+        setMenuIds(menuDraft.data.data.menu.map(item => item.id));
+        caller(); // Ensure caller runs only when data is ready
+      }
+    }, [menuDraft])
+  );
+  
+
   const addFoodItem = (type) => {
     if (type == 'veg') {
       if (vegFoodItem.trim() !== "") {
@@ -111,45 +125,59 @@ const PlanStepper = ({ navigation, route }) => {
   }
 
 
-  // Functional Effect
-  useEffect(() => {
-    if(nextButtonText !== 'preview') {
-      dispatch(getMenuDraft(planId, 0, 0, 1, null, elm, null)) // (planId, veg, nveg, menu_editing)
-    }
-  }, [planId, addItemDetails, selectedDay])
-  console.log(selectedDay)
+  useFocusEffect(
+    useCallback(() => {
+      if (nextButtonText !== 'preview') {
+        dispatch(getMenuDraft(planId, 0, 0, 1, null, elm, null)).then(() => {
+          setLoader(true)
+        });
+      }
+    }, [planId, addItemDetails])
+  );
 
-  useEffect(() => {
-    const executeCaller = async () => {
-      await caller(); // Ensure caller() completes before proceeding
-    };
-    executeCaller();
-  }, [menuDraft]);
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     caller();
+  //   }, [menuDraft])
+  // );
+
   const menuData = menuDraft?.data?.data?.menu
 
-  const caller = async () => {
+  console.log("MenuData from api", menuData)
 
+  const caller = async () => {
+    if (!menuData || menuData.length === 0) {
+      console.log("caller() - Skipped because menuData is not available yet");
+      return;
+    }
+
+    // console.log("Caller:: Called()")
     const currentSelectedCheck = await getSelectedDay() || {}
-    console.log("Debugging", currentSelectedCheck, menuData)
-    if (Object.keys(currentSelectedCheck).length === 0) {
+    // console.log("cross 1", currentSelectedCheck)
+    let storeData;
+    // console.log(Object.keys(currentSelectedCheck).length === 0)
+    // console.log("Debugging", menuData?.filter(item => item.id === currentSelectedCheck.selectedDay))
+    if (Object.keys(currentSelectedCheck).length === 0 || menuData?.filter(item => item.id === currentSelectedCheck.selectedDay).length === 0) {
+      console.log("I am here", menuData)
+      storeData = false
       await storeMenuData(menuData)
     }
-    
-    const currentSelected = await getSelectedDay()
-    console.log(currentSelected)
-    console.log("cross 2")
+    console.log(storeData)
 
-    console.log(currentSelected.selectedDay)
-    setSelectedDay(currentSelected.selectedDay)
+    let selectedMenu
 
-    // if (currentSelected?.selectedPage == 'preview') {
-    //   navigation.navigate('PlanDetails', { planData: planData, ind: ind, editMenu: 0 })
-    // }
-    console.log(currentSelected.selectedDay)
-    const selectedMenu = menuData?.filter(item => item.id === currentSelected.selectedDay);
-    
-    console.log(selectedMenu[0])
-    // setLoader(false)
+    if (storeData === false) {
+      setSelectedDay(menuData[0].id)
+      selectedMenu = menuData?.filter(item => item.id === menuData[0].id);
+    } else {
+      const currentSelected = await getSelectedDay()
+      console.log("CUrrent new selected date", currentSelected)
+      setSelectedDay(currentSelected.selectedDay)
+      selectedMenu = menuData?.filter(item => item.id === currentSelected.selectedDay);
+    }
+
+
+    setLoader(false)
     setSelectedMenu(selectedMenu[0])
     setVegFoodList(selectedMenu[0]?.vegItem)
     setNvegFoodList(selectedMenu[0]?.nvegItem)
@@ -157,13 +185,12 @@ const PlanStepper = ({ navigation, route }) => {
       setFoodType(selectedMenu[0]?.veg === 1 && selectedMenu[0]?.nveg === 1 ? 'both' : selectedMenu[0].nveg === 1 ? 'nveg' : 'veg')
     }
   }
-  useEffect(() => {
-    setLoader(false)
-  }, [selectedMenu])
+  // useEffect(() => {
+  //   setLoader(false)
+  // }, [selectedMenu])
   // handle Next and Previous Value
 
   // Button Text Logic
-  const menuIds = menuData?.map((item) => item.id);
 
   const nextButtonText = selectedDay === menuIds[menuIds?.length - 1] ? "Preview" : "Next";
   const isPrevDisabled = selectedDay === menuIds[0];
@@ -257,10 +284,18 @@ const PlanStepper = ({ navigation, route }) => {
     }
   };
 
-  console.log(selectedMenu)
+  console.log("Menu selected", selectedMenu)
+  console.log("Veg Items", vegFoodList)
   return (
     <SafeAreaView className='bg-white' style={{ flex: 1 }}>
-      <Navbar screen={'Plan'} />
+      <View className={`nav-bg flex-row items-center px-4 `} style={{ paddingVertical: 19 }}>
+        <TouchableOpacity onPress={() => navigation.navigate('Plan')}>
+          <Back />
+        </TouchableOpacity>
+        <Text className={`flex-1 text-center right-4 text-[21px] poppins-bold text-black`}>
+          Plan
+        </Text>
+      </View>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} // Adjust for iOS and Android
         style={{ flex: 1, backgroundColor: "#fff" }}>
         {loader ? <Loader /> :

@@ -44,11 +44,11 @@ const AddRider = () => {
                         <Flag />
                         <Text className='text-[14px] mt-2 ml-[6] poppins-medium text-[#909090] mr-[11]'>+91</Text>
                         <View style={{ borderLeftWidth: 1, borderLeftColor: '#D6D6D6', height: 23 }}></View>
-                        <TextInput onChangeText={(e) => setMobile(e)} value={mobile} keyboardType='number-pad' className='text-[15px] poppins-regular ml-[11] w-[80%] mt-2' placeholder='Enter Phone Number' />
+                        <TextInput onChangeText={(e) => setMobile(e)} value={mobile} keyboardType='number-pad' placeholderTextColor="#7B7B7B" className='text-[15px] poppins-regular ml-[11] w-[80%] mt-2' placeholder='Enter Phone Number' />
                     </View>
                     <Text className='text-[15px] poppins-medium mt-[24]'>How many orders your rider can do in a
                         single trip?</Text>
-                    <TextInput onChangeText={(e) => setCount(e)} value={count} keyboardType='number-pad' placeholder='Example: 15, Type Numbers Count' style={{ borderWidth: 1, borderColor: '#D6D6D6' }}
+                    <TextInput onChangeText={(e) => setCount(e)} value={count} keyboardType='number-pad' placeholderTextColor="#7B7B7B" placeholder='Example: 15, Type Numbers Count' style={{ borderWidth: 1, borderColor: '#D6D6D6' }}
                         className='flex-row items-center text-[15px] poppins-regular mt-[14] rounded-[10] px-[12] py-[12]' />
                     <TouchableOpacity disabled={mobile?.length > 10 || mobile?.length < 10 || count == 0} onPress={handleRider} className={`${mobile?.length > 10 || mobile?.length < 10 || count < 1 ? 'btn-disabled' : 'btn-color'} rounded-[10] items-center py-[11] mt-[27]`}>
                         <Text className='text-[18px] poppins-medium text-white'>Add</Text>

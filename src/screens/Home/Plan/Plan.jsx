@@ -108,11 +108,14 @@ const Plan = ({ navigation }) => {
             </>}
           </View>
         </>}
-        <TouchableOpacity style={{ borderTopLeftRadius: 50, borderBottomLeftRadius: 50, bottom: 120, boxShadow: ' 0px 0px 10px 0px rgba(47, 95, 248, 0.40)' }}
-          className='absolute right-0 btn-color px-6 py-2' onPress={() => navigation.navigate('AddPlan')}><View>
-            <Text className='text-white text-[14px] poppins-medium'>Add Plan</Text>
-          </View>
-        </TouchableOpacity>
+
+        {loading === false &&
+          <TouchableOpacity style={{ borderTopLeftRadius: 50, borderBottomLeftRadius: 50, bottom: 120, boxShadow: ' 0px 0px 10px 0px rgba(47, 95, 248, 0.40)' }}
+            className='absolute right-0 btn-color px-6 py-2' onPress={() => navigation.navigate('AddPlan')}><View>
+              <Text className='text-white text-[14px] poppins-medium'>Add Plan</Text>
+            </View>
+          </TouchableOpacity>
+        }
       </View>
     </SafeAreaView>
   )

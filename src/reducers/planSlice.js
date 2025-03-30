@@ -135,14 +135,13 @@ export const getMenuDraft = (id, veg, nveg, edit, navigation, elm, ind) => async
             'x-auth-key': authToken
         };
 
-        console.log(`${REACT_NATIVE_FOOD_API}/kitchen/plan_draft?planId=${id}&veg=${veg}&nveg=${nveg}&menu_editing=${edit}`)
+        // console.log(`${REACT_NATIVE_FOOD_API}/kitchen/plan_draft?planId=${id}&veg=${veg}&nveg=${nveg}&menu_editing=${edit}`)
         const response = await axios.get(`${REACT_NATIVE_FOOD_API}/kitchen/plan_draft?planId=${id}&veg=${veg}&nveg=${nveg}&menu_editing=${edit}`, { headers });
-        console.log(response)
+
         dispatch(setMenuDraftData(response?.data))
 
         if(navigation !== null) {
             if (elm.status == 'approved') {
-                console.log("dsfgaaa:::::::::::::::::::")
                 navigation.navigate('PlanDetails', { planData: elm, ind: ind, editMenu: edit })
             } else{
                 if (elm.stepper) {
