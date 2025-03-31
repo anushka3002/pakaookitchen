@@ -12,17 +12,22 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import NoOrder from '../../../assets/noOrder.svg'
 import Loader from "../../../Loader";
 
-const Order = ({ navigation }) => {
-  const [selectedTab, setSelectedTab] = useState("ongoing");
-  const [refreshing, setRefreshing] = useState(false);
+const Order = ({ navigation, route }) => {
+  const tab = route?.params?.tab || 'ongoing';
 
+  const [selectedTab, setSelectedTab] = useState(tab === "delivered" ? "delivered" : "ongoing");
+  const [refreshing, setRefreshing] = useState(false);
 
   const dispatch = useDispatch()
 
   const { orderData, loading } = useSelector(state => state.order)
 
   useEffect(() => {
-    dispatch(getOrderData(selectedTab ?? 'ongoing'))
+    if(tab === 'delivered') {
+    dispatch(getOrderData(selectedTab ?? 'delivered'))
+    } else {
+      dispatch(getOrderData(selectedTab ?? 'ongoing'))
+    }
   }, [selectedTab])
 
   // Function to handle pull-to-refresh

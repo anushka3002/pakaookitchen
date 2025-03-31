@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, Image, Platform, BackHandler } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Image, Platform, BackHandler, Alert } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
 import Navbar from '../../Components/Navbar'
 import { useDispatch, useSelector } from 'react-redux'

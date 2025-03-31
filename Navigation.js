@@ -142,6 +142,7 @@ function RootStack({ initialRoute }) {
   return (
     <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Home" component={HomeTabs} />
+      <Stack.Screen name="Order" component={Order} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="LoginOTP" component={LoginOTP} />
       <Stack.Screen name="CreateAccount" component={CreateAccount} />
