@@ -91,8 +91,8 @@ const Dashboard = ({ navigation }) => {
               <View style={[styles.dashorderBox, { boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.14)' }]}>
                 <OrderTing />
                 <View>
-                  <Text className="poppins-bold" style={{ fontSize: 18, color: "#7B7B7B" }}>Orders</Text>
-                  <Text className="poppins-semibold" style={{ color: "#000000", fontSize: 18 }}>{profile?.data?.data?.subscription_count} Active Orders</Text>
+                  <Text className="poppins-bold" style={{ fontSize: 18, color: "#7B7B7B" }}>Subscription</Text>
+                  <Text className="poppins-semibold" style={{ color: "#000000", fontSize: 18 }}>{profile?.data?.data?.subscription_count} Active</Text>
                 </View>
               </View>
             </View>
