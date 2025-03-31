@@ -120,14 +120,14 @@ const PlanStepper = ({ navigation, route }) => {
       );
     }
   };
+
+
   const elm = {
     status: 'pending'
   }
-
-
   useFocusEffect(
     useCallback(() => {
-      if (nextButtonText !== 'preview') {
+      if (nextButtonText !== 'Preview') {
         dispatch(getMenuDraft(planId, 0, 0, 1, null, elm, null)).then(() => {
           setLoader(true)
         });
@@ -135,35 +135,18 @@ const PlanStepper = ({ navigation, route }) => {
     }, [planId, addItemDetails])
   );
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     caller();
-  //   }, [menuDraft])
-  // );
-
   const menuData = menuDraft?.data?.data?.menu
-
-  console.log("MenuData from api", menuData)
 
   const caller = async () => {
     if (!menuData || menuData.length === 0) {
-      console.log("caller() - Skipped because menuData is not available yet");
       return;
     }
-
-    // console.log("Caller:: Called()")
     const currentSelectedCheck = await getSelectedDay() || {}
-    // console.log("cross 1", currentSelectedCheck)
     let storeData;
-    // console.log(Object.keys(currentSelectedCheck).length === 0)
-    // console.log("Debugging", menuData?.filter(item => item.id === currentSelectedCheck.selectedDay))
     if (Object.keys(currentSelectedCheck).length === 0 || menuData?.filter(item => item.id === currentSelectedCheck.selectedDay).length === 0) {
-      console.log("I am here", menuData)
       storeData = false
       await storeMenuData(menuData)
     }
-    console.log(storeData)
-
     let selectedMenu
 
     if (storeData === false) {
@@ -171,7 +154,6 @@ const PlanStepper = ({ navigation, route }) => {
       selectedMenu = menuData?.filter(item => item.id === menuData[0].id);
     } else {
       const currentSelected = await getSelectedDay()
-      console.log("CUrrent new selected date", currentSelected)
       setSelectedDay(currentSelected.selectedDay)
       selectedMenu = menuData?.filter(item => item.id === currentSelected.selectedDay);
     }
@@ -185,13 +167,8 @@ const PlanStepper = ({ navigation, route }) => {
       setFoodType(selectedMenu[0]?.veg === 1 && selectedMenu[0]?.nveg === 1 ? 'both' : selectedMenu[0].nveg === 1 ? 'nveg' : 'veg')
     }
   }
-  // useEffect(() => {
-  //   setLoader(false)
-  // }, [selectedMenu])
-  // handle Next and Previous Value
 
   // Button Text Logic
-
   const nextButtonText = selectedDay === menuIds[menuIds?.length - 1] ? "Preview" : "Next";
   const isPrevDisabled = selectedDay === menuIds[0];
 
@@ -217,7 +194,6 @@ const PlanStepper = ({ navigation, route }) => {
         navigation.navigate('PlanDetails', { planData: planData, ind: ind, editMenu: 0 })
         const currentSelected = await getSelectedDay()
         const selectedMenu = menuData.filter(item => item.id === currentSelected.selectedDay);
-        console.log(selectedMenu[0])
         setSelectedMenu(selectedMenu[0])
         setVegFoodItem('');
         if (selectedMenu.veg !== null && selectedMenu.nveg !== null) {
@@ -226,12 +202,9 @@ const PlanStepper = ({ navigation, route }) => {
         setNvegFoodItem('');
         setNvegFoodList(selectedMenu[0]?.nvegItem);
         setVegFoodList(selectedMenu[0]?.vegItem);
-        const { status } = planData
-        if (status == 'approved') {
+        const { status, stepper } = planData
           navigation.navigate('PlanDetails', { planData: planData, ind: ind, editMenu: 1 })
-        } else {
-          navigation.navigate('PlanDetails', { planData: planData, ind: ind, editMenu: 0 })
-        }
+
       })
     } else {
       setStepperLoader(true)
@@ -252,7 +225,6 @@ const PlanStepper = ({ navigation, route }) => {
         dispatch(getMenuDraft(planId, 0, 0, 1, null, elm, null));
         const currentSelected = await getSelectedDay()
         const selectedMenu = menuData.filter(item => item.id === currentSelected.selectedDay);
-        console.log(selectedMenu[0])
         setSelectedMenu(selectedMenu[0])
         setVegFoodItem('');
         if (selectedMenu.veg !== null && selectedMenu.nveg !== null) {
@@ -272,7 +244,6 @@ const PlanStepper = ({ navigation, route }) => {
       const valueIndex = menuIds[currentIndex - 1]
       const selectedMenu = menuData.filter(item => item.id === valueIndex);
       await updateSelectedDay(valueIndex)
-      console.log(selectedMenu[0])
       dispatch(getMenuDraft(planId, 0, 0, 1, null, elm, null));
       setSelectedMenu(selectedMenu[0])
       setVegFoodList(selectedMenu[0]?.vegItem)
@@ -284,8 +255,6 @@ const PlanStepper = ({ navigation, route }) => {
     }
   };
 
-  console.log("Menu selected", selectedMenu)
-  console.log("Veg Items", vegFoodList)
   return (
     <SafeAreaView className='bg-white' style={{ flex: 1 }}>
       <View className={`nav-bg flex-row items-center px-4 `} style={{ paddingVertical: 19 }}>

@@ -74,15 +74,13 @@ const OrderManagement = ({ navigation, route }) => {
     }
     return message
   }
-  console.log(viewOrderInfo?.data?.data?.block_wise_data)
+  // console.log(viewOrderInfo?.data?.data?.block_wise_data[0]?.status)
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <Navbar screen={'Order Management'} />
       {loading ? <Loader /> :
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1, backgroundColor: "#fff" }}>
           <View className='px-[16] mb-10'>
-
-
             <View style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)' }} className='rounded-[10] mt-[26]'>
               {viewOrderInfo?.data?.data?.plan_info?.map((val, ind) => {
                 return (
@@ -188,9 +186,9 @@ const OrderManagement = ({ navigation, route }) => {
                 {elm?.riderDetails?.name !== null &&
                   <Text className='text-[15px] poppins-medium mt-[8] text-center'>Assigned Rider : {elm?.status === 'order_processed' ? riderDetail?.name || "" : elm?.riderDetails?.name}</Text>
                 }
-                {elm.status == 'order_processed' || elm.status == 'ready_for_pickup' && <TouchableOpacity onPress={() => handleOrderStatus(elm?.riderDetails?.rider_order_id)} className='btn-color rounded-[10] py-[10]' style={{ marginTop: 7 }}>
+                {elm?.status == 'order_processed' ? <TouchableOpacity onPress={() => handleOrderStatus(elm?.riderDetails?.rider_order_id)} className='btn-color rounded-[10] py-[10]' style={{ marginTop: 7 }}>
                   <Text className='text-[18px] text-white text-center poppins-medium'>Mark Food As Ready</Text>
-                </TouchableOpacity>}
+                </TouchableOpacity> : <></>}
               </View>
             })}
           </View>

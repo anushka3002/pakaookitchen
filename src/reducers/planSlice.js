@@ -139,7 +139,7 @@ export const getMenuDraft = (id, veg, nveg, edit, navigation, elm, ind) => async
         const response = await axios.get(`${REACT_NATIVE_FOOD_API}/kitchen/plan_draft?planId=${id}&veg=${veg}&nveg=${nveg}&menu_editing=${edit}`, { headers });
 
         dispatch(setMenuDraftData(response?.data))
-
+console.log(elm.stepper, edit)
         if(navigation !== null) {
             if (elm.status == 'approved') {
                 navigation.navigate('PlanDetails', { planData: elm, ind: ind, editMenu: edit })

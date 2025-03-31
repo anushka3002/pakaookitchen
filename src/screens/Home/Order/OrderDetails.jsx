@@ -10,14 +10,14 @@ import { useFocusEffect } from '@react-navigation/native';
 
 const OrderDetails = ({ navigation, route }) => {
     const { orderData } = route.params;
-    const { orderDetails, loading } = useSelector(state => state.order);
+    const { orderDetails, loading, orderStatus } = useSelector(state => state.order);
     const [statusText, setStatusText] = useState();
     const dispatch = useDispatch();
 
     useFocusEffect(
         useCallback(() => {
             dispatch(getOrderDetails(orderData?.kitchen_order_id));
-        }, [orderData])
+        }, [orderData, orderStatus])
     );
 
     useEffect(() => {

@@ -36,7 +36,6 @@ const Plan = ({ navigation }) => {
     } else {
       dispatch(getMenuDraft(elm.id, 0, 0, elm.status == 'approved' ? 0 : 1, navigation, elm, ind))
     }
-
   }
 
   return (

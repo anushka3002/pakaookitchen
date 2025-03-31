@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, Image, Platform } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Image, Platform, BackHandler } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
 import Navbar from '../../Components/Navbar'
 import { useDispatch, useSelector } from 'react-redux'
@@ -55,6 +55,21 @@ const PlanDetails = ({ navigation, route }) => {
     //     }, [planData, status, dispatch])
     // );
 
+    useEffect(() => {
+        const backAction = () => {
+            Alert.alert("Exit App", "Are you sure you want to exit?", [
+                { text: "Cancel", style: "cancel" },
+                { text: "Exit", onPress: () => BackHandler.exitApp() }
+            ]);
+            return true;
+        };
+        const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
+        return () => {
+            backHandler.remove();
+        };
+    }, []);
+
+
     const mealArray = [];
     if (planDetails.data.data.meal_type.veg) mealArray.push("Veg");
     if (planDetails.data.data.meal_type.nveg) mealArray.push("Non veg");
@@ -90,7 +105,7 @@ const PlanDetails = ({ navigation, route }) => {
                             {editMenu == 0 && <View className={`${planData.status == 'pending' ? 'bg-[#FBAE1E]' : 'bg-[#008000]'} bg-opacity-100 rounded-[50] px-[19] py-1 z-10`}>
                                 <Text className='poppins-medium text-[11px] text-center text-white'>{planData.status.split('')[0].toUpperCase() + planData.status.slice(1)}</Text></View>
                             }
-                            
+
                             {editMenu == 1 &&
                                 <View className={`${planData.status == 'pending' ? 'bg-[#FBAE1E]' : 'bg-[#FBAE1E]'} bg-opacity-100 rounded-[50] px-[19] py-1 z-10`}>
                                     <Text className='poppins-medium text-[11px] text-center text-white'>New menu</Text></View>
@@ -133,7 +148,7 @@ const PlanDetails = ({ navigation, route }) => {
                     </View>
                 </ScrollView>
 
-                {stepper === true && status == 'pending' || editMenu == 1 &&
+                {stepper === true && status == 'pending' || editMenu == 1 ?
                     <View className={`absolute bottom-0 left-0 w-full bg-white pt-[13] ${Platform.OS == 'ios' ? 'pb-[228]' : 'pb-[12]'} items-center px-5 shadow-lg border-t border-gray-200 d-flex`}
                         style={{ boxShadow: '0px 0px 10px 0px rgba(0, 0, 0, 0.13)', gap: 10, flexDirection: 'row', justifyContent: 'center', marginBottom: 10 }}>
                         <TouchableOpacity onPress={handleSubmit} style={{ gap: 8 }} className='w-[125px] border border-[#2650D8] rounded-[10] py-2 flex-row items-center justify-center'>
@@ -144,7 +159,7 @@ const PlanDetails = ({ navigation, route }) => {
                             <EditIcon />
                             <Text className="txt-blue text-center text-[17px] poppins-semibold">Edit</Text>
                         </TouchableOpacity>
-                    </View>
+                    </View> : <></>
                 }
 
                 {status == 'approved' && editMenu === 0 &&
